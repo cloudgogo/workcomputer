@@ -1,1 +1,5 @@
-git commit -a -m "message" ;git push origin master
+git add .
+
+git commit -m "test"
+
+git push origin master

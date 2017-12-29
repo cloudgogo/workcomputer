@@ -68,4 +68,19 @@ Math.abs(1 / 3 - (1 - 2 / 3)) < 0.0000001; // true
 
 10. `null` 和 `undefined` 是空和未定义,区分他两并没有实际意义,大多数情况下请使用`null`,`undefined`仅在判断函数是否传递参数时使用
 
-11. 数组
+11. 数组,javascript中的数组可以是任意数据类型
+```javascript
+[1, 2, 3.14, 'Hello', null, true];
+```
+另一种方式是通过Array()函数实现:
+```javascript
+new Array(1, 2, 3); // 创建了数组[1, 2, 3]
+```
+出于可读性的考虑,建议使用`[]`
+数组的元素可以通过索引来访问.请注意,索引的起始值为`0`:
+```javascript
+var arr = [1, 2, 3.14, 'Hello', null, true];
+arr[0]; // 返回索引为0的元素，即1
+arr[5]; // 返回索引为5的元素，即true
+arr[6]; // 索引超出了范围，返回undefined
+```

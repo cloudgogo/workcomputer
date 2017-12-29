@@ -85,3 +85,15 @@ arr[5]; // 返回索引为5的元素，即true
 arr[6]; // 索引超出了范围，返回undefined
 ```
 
+12. 对象 javascript 是一组由键-值组成的无序集合,例如:
+```javascript
+var person = {
+    name: 'Bob',
+    age: 20,
+    tags: ['js', 'web', 'mobile'],
+    city: 'Beijing',
+    hasCar: true,
+    zipcode: null
+};
+```
+获取对象的属性 对象名.属性名

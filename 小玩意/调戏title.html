@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>切换page</title>
+    <script>
+    (function() {
+        var OriginTitile = document.title,
+            titleTime;
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                document.title = '死鬼去哪里了！';
+                clearTimeout(titleTime);
+            } else {
+                document.title = '(つェ⊂)咦!又好了!';
+                titleTime = setTimeout(function() {
+                    document.title = OriginTitile;
+                }, 2000);
+            }
+        });
+    })();
+    </script>
+</head>
+
+<body>
+	观察title变化情况
+</body>
+
+</html>

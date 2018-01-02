@@ -152,9 +152,71 @@ i=10; //i现在是全局变量
 
 2. 转义字符`\`
 
-3. 多行字符串用`\`...\``
+3. 多行字符串用``\`...\` ``
 ```html
 `这是一个
 多行
 字符串`;
+```
+
+4. 模板字符串
+要把多个字符串连接起来,可以用`+`号连接:
+```javascript
+var name=`小明`;
+var age=20;
+var message='你好,'+name+',你今年'+age+ '岁了!';
+console.log(message);
+```
+如果有很多变量需要连接,用`+`做连接就比较麻烦,ES6新增了一种模板字符串,表示方式和上面的多行字符串一样,但是他会自动替换字符串中的变量:
+```javascript
+var name = '小明';
+var age = 20;
+var message = `你好, ${name}, 你今年${age}岁了!`;
+alert(message);
+```
+
+5. 字符串长度
+```javascript
+var s='hello, world!';
+s.length; //13
+```
+获取指定位置的字符,使用类似Array的下标操作,索引从0开始:
+```javascript
+var s = 'Hello, world!';
+
+s[0]; // 'H'
+s[6]; // ' '
+s[7]; // 'w'
+s[12]; // '!'
+s[13]; // undefined 超出范围的索引不会报错，但一律返回undefined
+```
+
+6. 需要特别注意的!!!!:字符串不可变,对字符串的某个索引赋值,不会有任何错误,但是,也没有任何效果
+```javascript
+var s = 'Test';
+s[0] = 'X';
+alert(s); // s仍然为'Test'
+```
+javascript为字符串提供了一些常用方法,但是调用不会改变原有字符串的内容,而是返回一个新的字符串:
+`toUpperCase()`把字符串全部变为大写:
+```javascript
+var s = 'Hello';
+s.toUpperCase(); // 返回'HELLO' ,s仍为'Hello'
+```
+`toLowerCase()`把字符串全部变为大写:
+```javascript
+var s = 'Hello';
+var lower=s.toLowerCase(); // 返回'hello'并赋值给变量lower
+```
+`indexOf()`会搜索指定字符串出现的位置:
+```javascript
+var s = 'hello, world';
+s.indexOf('world'); // 返回7
+s.indexOf('World'); // 没有找到指定的子串，返回-1
+```
+`substring()` 返回指定索引区间的子串:
+```javascript
+var s = 'hello, world'
+s.substring(0, 5); // 从索引0开始到5（不包括5），返回'hello'
+s.substring(7); // 从索引7开始到结束，返回'world'
 ```

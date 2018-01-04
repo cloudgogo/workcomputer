@@ -1,0 +1,6 @@
+//取范围的在不在范围内
+var f_period_start= '2016-12';
+var f_period_end ='2017-03';
+var s_period_start='2017-05';
+var s_period_end='2017-08';
+console.log(String(f_period_start.substr(0,4)))

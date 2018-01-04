@@ -63,9 +63,9 @@ if(flag==="Y"){
     //fr_verifyinfo.info="Verify Successfully!";
     //fr_verifyinfo.success="true";
     //contentPane.writeReport();  
-    _g('${sessionID}').writeReport();
+   // _g('${sessionID}').writeReport();
     FR.Msg.toast("填报成功");              
-    location.reload(); 
+    //location.reload(); 
 }else if(flag==="N"){
     console.log("进入未成功方法体");
     //fr_verifyinfo.info=message;

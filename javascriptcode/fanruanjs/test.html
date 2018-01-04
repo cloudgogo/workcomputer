@@ -8,18 +8,18 @@
     <title>Document</title>
     <script>
         //取范围的在不在范围内
-        var f_period_start = '2016-12';
-        var f_period_end = '2017-03';
-        var s_period_start = '2017-05';
+        var loopMap.periodstart = '2016-12';
+        var loopMap.periodend = '2017-03';
+        var compareMap.periodstart = '2017-05';
         var s_period_end = '2017-08';
-        console.log(Number(String(f_period_start.substr(0, 4)) + String(f_period_start.substr(5, 2))));
-        console.log(Number(String(f_period_end.substr(0, 4)) + String(f_period_end.substr(5, 2))));
-        console.log(Number(String(s_period_start.substr(0, 4)) + String(s_period_start.substr(5, 2))));
+        console.log(Number(String(loopMap.periodstart.substr(0, 4)) + String(loopMap.periodstart.substr(5, 2))));
+        console.log(Number(String(loopMap.periodend.substr(0, 4)) + String(loopMap.periodend.substr(5, 2))));
+        console.log(Number(String(compareMap.periodstart.substr(0, 4)) + String(compareMap.periodstart.substr(5, 2))));
         console.log(Number(String(s_period_end.substr(0, 4)) + String(s_period_end.substr(5, 2))));
-        var f_f= Number(String(f_period_start.substr(0, 4)) + String(f_period_start.substr(5, 2)));
-        var f_s=Number(String(f_period_end.substr(0, 4)) + String(f_period_end.substr(5, 2)));
-        var s_f= Number(String(f_period_start.substr(0, 4)) + String(f_period_start.substr(5, 2)));
-        var s_s=Number(String(f_period_end.substr(0, 4)) + String(f_period_end.substr(5, 2)));
+        var f_f= Number(String(loopMap.periodstart.substr(0, 4)) + String(loopMap.periodstart.substr(5, 2)));
+        var f_s=Number(String(loopMap.periodend.substr(0, 4)) + String(loopMap.periodend.substr(5, 2)));
+        var s_f= Number(String(loopMap.periodstart.substr(0, 4)) + String(loopMap.periodstart.substr(5, 2)));
+        var s_s=Number(String(loopMap.periodend.substr(0, 4)) + String(loopMap.periodend.substr(5, 2)));
         if((f_f>s_f&&f_f<s_s)&&(s_f>f_f&&s_f<f_s)&&(s_f>s_f&&s_f<s_s)&&(s_s>f_f&&s_s<f_s)){
            message
         }

@@ -2,14 +2,13 @@ var i = 4;//这是初始行标,我们将从初始行标开始循环取出所有�
 var allResultArray = new Array();//这是最终存所有数据的Array
 console.log(allResultArray.length);
 var message = new Array();
-
 var flag="Y" ;//这是正确标识符,若为Y则是正确,为N是错误
-while (String(contentPane.getCellValue(2, i)).length > 0) {
+while (String(contentPane.curLGP.getCellValue(2, i)).length > 0) {
     var lineMap = new Map();//这是单行的map,包含4个键值对
-    lineMap.set("company", contentPane.getCellValue(2, i));//取公司
-    lineMap.set("deptment", contentPane.getCellValue(3, i));//取部门
-    lineMap.set("periodstart", contentPane.getCellValue(5, i));//取期间起
-    lineMap.set("periodend", contentPane.getCellValue(6, i));//取期间至
+    lineMap.set("company", contentPane.curLGP.getCellValue(2, i));//取公司
+    lineMap.set("deptment", contentPane.curLGP.getCellValue(3, i));//取部门
+    lineMap.set("periodstart", contentPane.curLGP.getCellValue(5, i));//取期间起
+    lineMap.set("periodend", contentPane.curLGP.getCellValue(6, i));//取期间至
     allResultArray.push(lineMap);
     i = i + 1;
 }
@@ -58,16 +57,23 @@ for (var y = 0; y < allResultArray.length; y++) {
 
     }
 }
-
+console.log(flag);
 if(flag==="Y"){
-    fr_verifyinfo.info="Verify Successfully!";
-    fr_verifyinfo.success="true";
-    contentPane.writeReport();  
-      //location.reload();
+    console.log("进入成功方法体")
+    //fr_verifyinfo.info="Verify Successfully!";
+    //fr_verifyinfo.success="true";
+    //contentPane.writeReport();  
+    _g('${sessionID}').writeReport();
     FR.Msg.toast("填报成功");              
-   
+    location.reload(); 
 }else if(flag==="N"){
-    fr_verifyinfo.info=message;
-    fr_verifyinfo.success="false";
-    FR.Msg.alert("警告",message[1]);
+    console.log("进入未成功方法体");
+    //fr_verifyinfo.info=message;
+    //fr_verifyinfo.success="false";
+    console.log(message[0]);
+    FR.Msg.alert("警告",message[0]);
 }
+
+
+
+FIN_REPORT /FIN_REPORT_FOR_USERS/FIN_PROJECT_INCOME_EXPENSE_REPORT.cpt

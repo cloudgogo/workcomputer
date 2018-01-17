@@ -49,6 +49,7 @@ $ cat id_rsa_x.pub
 ```
 把这两个值分别 copy 到 GitHub 账号中的 SSH keys 中保存。
 
+
 5. 清空本地的 SSH 缓存，添加新的 SSH 密钥 到 SSH agent中
 ```shell
 $ ssh-add -D

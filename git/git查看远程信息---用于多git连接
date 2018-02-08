@@ -1,0 +1,7 @@
+-- git remote -v
+```
+Administrator@PC-ThinkPadT430 MINGW64 ~/Desktop/gaoxiangyun.github.io (master)
+$ git remote -v
+origin  git@second.github.com:gaoxiangyun/gaoxiangyun.github.io.git (fetch)
+origin  git@second.github.com:gaoxiangyun/gaoxiangyun.github.io.git (push)
+```

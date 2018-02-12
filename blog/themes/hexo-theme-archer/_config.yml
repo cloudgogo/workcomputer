@@ -1,0 +1,80 @@
+# ========== Profile ========== #
+# avatar
+avatar: /avatar/allen.jpg
+# author name
+author: Allen
+# signature
+signature: (๑•̀ㅂ•́)و✧
+# SNS
+social:
+  email: cloudman@foxmail.com
+  github: https://github.com/cloudgogo
+  weibo: 
+  zhihu: 
+  douban: 
+  facebook: 
+  twitter: 
+  instagram: 
+  stack-overflow: 
+  linkedin: 
+  others: 
+  rss: 
+# friends
+friends:
+  this: //www.lightgoes.com 
+  blogPosition: https://github.com/gaoxiangyun/
+  # friendC:
+about:
+  enable: true
+  image: '/intro/index-3.jpg'
+
+# ========== Site ========== #
+# title of the site
+SEO_title: Allen's Record
+# main title
+main_title: Allen's Record.
+# subtitle
+subtitle: Nothing for nothing.
+# site haeder image
+site_header_image: '/intro/index-2.jpg'
+# post haeder image
+post_header_image: '/intro/index-4.jpg'
+# 404 image
+_404_image: '/intro/index-5.jpg'
+
+# ========== Comment ========== #
+# Fill in the field to enable the corresponding comment plugin
+# If you want to add other comment plugin, edit in "custom.ejs"
+comment:
+  # Livere  site: https://livere.com/
+  livere_uid: 
+  # Disqus  site: https://disqus.com/
+  disqus_shortname: 
+  # un  site: http://un.kuaizhan.com/
+  changyan_appid: 
+  changyan_conf: 
+  # Gitment  site: https://github.com/imsun/gitment
+  gitment_owner: 
+  gitment_repo: 
+  gitment_client_id: 
+  gitment_client_secret: 
+  # Youyan  site: http://www.uyan.cc/
+  youyan_uid: 
+
+# ========== Analytics ========== #
+# Busuanzi pv analytics
+busuanzi: true
+# Baidu analytics
+baidu_analytics: 
+# Google analytics
+google_analytics: 
+# CNZZ analytics
+CNZZ_analytics: 
+
+# ========== Others ========== #
+# favicon
+favicon: /assets/favicon.ico
+# truncate length (the default is 300. If it's set to 0, there will not be abstruct)
+truncate_length: 
+# enable toc
+toc: true

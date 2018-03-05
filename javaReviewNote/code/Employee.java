@@ -19,7 +19,7 @@ public class Employee{
    }
  
    public static void main(String args[]){
-      Employee empOne = new Employee("RUNOOB");
+      Employee empOne = new Employee("AllenCharles");
       empOne.setSalary(1000);
       empOne.printEmp();
    }

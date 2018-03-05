@@ -1,4 +1,4 @@
-
+import java.io.*;
 public class Employee{
    // 这个实例变量对子类可见
    public String name;

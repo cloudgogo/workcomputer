@@ -1,0 +1,1213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20151125" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="p_fin_element"/>
+<O>
+<![CDATA[1000]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_e"/>
+<O>
+<![CDATA[2017-12]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_department"/>
+<O>
+<![CDATA[131405\', \'131406\', \'131127\', \'131107\', \'131128]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_s"/>
+<O>
+<![CDATA[2017-11]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_company"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_project"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_datasource"/>
+<O>
+<![CDATA[MA\',\'GL\',\'XL]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS2]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select result.segment2,
+       result.segment6,
+       sum(result.income) income,
+       sum(result.payment) payment,
+       sum(result.expense) expense
+  from (select a.segment2,
+               a.segment6,
+               case
+                 when a.segment3 between '6021' and '6111ZZ' then
+                  a.amount
+               end income,
+               case
+                 when a.segment3 between '6421' and '6421ZZ' then
+                  a.amount
+               end payment,
+               case
+                 when a.segment3 between '6601' and '6901ZZ' then
+                  a.amount
+               end expense
+          from (
+                
+                select i.segment2,
+                        i.segment6,
+                        i.segment3,
+                        nvl(i.entered_dr, 0) - nvl(i.entered_cr, 0) amount
+                
+                  from CUX_GL_INTERFACE_INVESTBANK i
+                 where 1 = 1
+                   and i.period_name between '${p_period_s}' and
+                       '${p_period_e}'
+                   and ${IF(LEN(p_company) == 0,
+                            "1=1",
+                            " i.segment1 in ('" + p_company + "')")
+                 }
+                   and ${IF(LEN(p_department) == 0,
+                            "1=1",
+                            " i.segment2 in ('" + p_department + "')")
+                 }
+                   and ${IF(LEN(p_project) == 0,
+                            "1=1",
+                            " i.segment6 in ('" + p_project + "')")
+                 }
+                   and ${IF(LEN(p_datasource) == 0,
+                            "1=1",
+                            " i.data_source in ('" + p_datasource + "')") 
+                 }
+                   and ${IF(LEN(p_fin_element) == 0,
+                            "1=1",
+                            " i.fin_element in ('" + p_fin_element + "')") }
+                --  order by i.period_name, i.je_header_id, i.je_line_num
+                ) a) result
+ group by result.segment2, result.segment6
+ order by result.segment2, result.segment6
+]]></Query>
+</TableData>
+<TableData name="项目" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[       SELECT DV.DESCRIPTION,DV.DIM_VALUE
+          FROM HRS_CORE_DIMENSION D, HRS_CORE_DIMENSION_VALUE DV
+         WHERE D.DIMENSION_CODE = 'XXT_FIN_COA_PROJECT'
+           AND DV.DIMENSION_ID = D.DIMENSION_ID
+           ]]></Query>
+</TableData>
+<TableData name="部门" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[         select distinct
+                r.dept_code,
+                r.dept_code||'-'||
+                (select description
+                   from hrs_core_dimension d, hrs_core_dimension_value dv
+                  where d.dimension_id = dv.dimension_id
+                    and d.dimension_code = 'XXT_FIN_COA_COSTCENTER'
+                    and Dv.Dim_Value = r.dept_code) description
+         
+           from hrs_def_relationship_set rs, hrs_def_relationship r
+          where rs.relationship_set_name =
+                'HRS_LEDGER_COSTCENTER_RELATIONSHIP'
+                and r.ledger_id =1001
+                and  r.dept_code is not null
+            order by r.dept_code
+                ]]></Query>
+</TableData>
+<TableData name="公司" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+--账套公司的关系  (取公司)
+select  distinct
+       r.company_code,
+        r.company_code||'-'||(select description
+          from hrs_core_dimension d, hrs_core_dimension_value dv
+         where d.dimension_id = dv.dimension_id
+           and d.dimension_code = 'XXT_FIN_COA_COMPANY'
+           and Dv.Dim_Value = r.company_code) description
+
+  from hrs_def_relationship_set rs, hrs_def_relationship r
+ where rs.relationship_set_name = 'HRS_LEDGER_COMPANY_RELATIONSHIP'
+ and r.ledger_id=1001
+ and  r.company_code not like '104%'
+  and  r.company_code not like '1303A'
+ order by r.company_code
+ ]]></Query>
+</TableData>
+<TableData name="期间起" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+
+SELECT PERIOD_NAME
+  FROM HRS_CORE_FIN_PERIOD P
+ WHERE P.PERIOD_STATUS IN ('C', 'O', 'F')
+ ORDER BY P.PERIOD_YEAR DESC,
+          P.PERIOD_NUM  DESC
+]]></Query>
+</TableData>
+<TableData name="数据类型" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS2]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select distinct data_source from CUX_GL_INTERFACE_INVESTBANK]]></Query>
+</TableData>
+<TableData name="期间至" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="p_period_s"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+
+SELECT PERIOD_NAME
+  FROM HRS_CORE_FIN_PERIOD P
+ WHERE P.PERIOD_STATUS IN ('C', 'O', 'F')
+ and P.PERIOD_NAME >='${p_period_s}'
+ ORDER BY P.PERIOD_YEAR DESC,
+          P.PERIOD_NUM  DESC
+]]></Query>
+</TableData>
+<TableData name="账套" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="fr_username"/>
+<O>
+<![CDATA[CSC01287]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT HCLV.LOOKUP_VALUE, HCLV.DESCRIPTION
+  FROM HRS_CORE_LOOKUP_VALUE HCLV, HRS_CORE_LOOKUP_TYPE HCLT
+ WHERE HCLT.LOOKUP_TYPE_ID = HCLV.LOOKUP_TYPE_ID
+   AND HCLT.LOOKUP_TYPE = 'HRS_CORE_LEDGER'
+   AND NVL(TRUNC(HCLV.START_DATE), TRUNC(SYSDATE)) <= TRUNC(SYSDATE)
+   AND NVL(TRUNC(HCLV.END_DATE), TRUNC(SYSDATE)) >= TRUNC(SYSDATE)
+   AND HCLV.LOOKUP_VALUE IN
+       (SELECT DISTINCT LEDGER_ID
+          FROM hrs_core_user_security
+         WHERE USER_NAME = '${fr_username}')
+         AND ROWNUM=1
+  ORDER BY HCLV.LOOKUP_VALUE
+]]></Query>
+</TableData>
+<TableData name="公司safe" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="ledgerId"/>
+<O>
+<![CDATA[1001]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="fr_username"/>
+<O>
+<![CDATA[CSC01287]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select distinct r.company_code,
+                r.company_code || '-' ||
+                (select description
+                   from hrs_core_dimension d, hrs_core_dimension_value dv
+                  where d.dimension_id = dv.dimension_id
+                    and d.dimension_code = 'XXT_FIN_COA_COMPANY'
+                    and Dv.Dim_Value = r.company_code) description
+
+  from hrs_def_relationship_set rs, hrs_def_relationship r
+ where rs.relationship_set_name = 'HRS_LEDGER_COMPANY_RELATIONSHIP'
+   and r.ledger_id =  ${ledgerId}
+   and r.company_code not like '104%'
+   and r.company_code not like '1303A'
+   AND EXISTS (SELECT 1
+          FROM hrs_core_user_security s
+         WHERE 1 = 1
+           AND S.USER_NAME = '${fr_username}'
+           AND S.LEDGER_ID = ${ledgerId}
+           AND S.COMPANY_CODE = r.company_code)
+ order by r.company_code]]></Query>
+</TableData>
+<TableData name="部门safe" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="ledgerId"/>
+<O>
+<![CDATA[1001]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="fr_username"/>
+<O>
+<![CDATA[CSC01287]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select distinct r.dept_code,
+                r.dept_code || '-' ||
+                (select description
+                   from hrs_core_dimension d, hrs_core_dimension_value dv
+                  where d.dimension_id = dv.dimension_id
+                    and d.dimension_code = 'XXT_FIN_COA_COSTCENTER'
+                    and Dv.Dim_Value = r.dept_code) description
+
+  from hrs_def_relationship_set rs, hrs_def_relationship r
+ where rs.relationship_set_name = 'HRS_LEDGER_COSTCENTER_RELATIONSHIP'
+   and r.ledger_id = ${ledgerId}
+   and r.dept_code is not null
+   AND EXISTS (SELECT 1
+          FROM hrs_core_user_security s
+         WHERE 1 = 1
+           AND S.USER_NAME = '${fr_username}'
+           AND S.LEDGER_ID =  ${ledgerId}
+           AND S.DEPART_CODE = r.dept_code)
+ order by r.dept_code]]></Query>
+</TableData>
+<TableData name="财务要素" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[          select lv.lookup_value, lv.description
+                  from hrs_core_lookup_type lt, hrs_core_lookup_value lv
+                 where lt.lookup_type_id = lv.lookup_type_id
+                   and lt.lookup_type = 'HRS_CORE_FIN_ELEMENT']]></Query>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR F="0" T="3"/>
+<FR/>
+<HC/>
+<FC/>
+<UPFCR COLUMN="false" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,1440000,288000,1066800,1008000,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[723900,6858000,2667000,13906500,5040000,5040000,5040000,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" cs="6" s="0">
+<O>
+<![CDATA[项目收入支出费用表]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" s="1">
+<O>
+<![CDATA[部门名称]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="1">
+<O>
+<![CDATA[项目代码]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="1">
+<O>
+<![CDATA[项目名称]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="3" s="1">
+<O>
+<![CDATA[收入]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="1">
+<O>
+<![CDATA[支出]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="3" s="1">
+<O>
+<![CDATA[费用]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="4" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="SEGMENT2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="DEPT_CODE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[部门]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="2" r="4" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="SEGMENT6"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[row() % 2 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Background name="ColorBackground" color="-3677959"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="3" r="4" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="SEGMENT6"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[row() % 2 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Background name="ColorBackground" color="-3677959"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="DIM_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[项目]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="4" r="4" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="INCOME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="网络报表1">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<Parameters>
+<Parameter>
+<Attributes name="p_segment3_type"/>
+<O>
+<![CDATA[收入]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_e"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_period_e]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_company"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_company]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_datasource"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_datasource]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_s"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_period_s]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_project"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C5]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_fin_element"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_fin_element]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_department"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B5]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<TargetFrame>
+<![CDATA[_blank]]></TargetFrame>
+<Features width="600" height="400"/>
+<ReportletName>
+<![CDATA[/FIN_REPORT /FIN_EBS_PRJECT_DETAIL/FIN_EBS_PROJECT_INFO_SUBJECT.cpt&op=view]]></ReportletName>
+</JavaScript>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[row() % 2 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Background name="ColorBackground" color="-3677959"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="5" r="4" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="PAYMENT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="网络报表1">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<Parameters>
+<Parameter>
+<Attributes name="p_segment3_type"/>
+<O>
+<![CDATA[支出]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_e"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_period_e]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_company"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_company]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_datasource"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_datasource]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_s"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_period_s]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_project"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C5]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_fin_element"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_fin_element]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_department"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B5]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<TargetFrame>
+<![CDATA[_blank]]></TargetFrame>
+<Features width="600" height="400"/>
+<ReportletName>
+<![CDATA[/FIN_REPORT /FIN_EBS_PRJECT_DETAIL/FIN_EBS_PROJECT_INFO_SUBJECT.cpt&op=view]]></ReportletName>
+</JavaScript>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[row() % 2 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Background name="ColorBackground" color="-3677959"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="6" r="4" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="EXPENSE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="网络报表1">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<Parameters>
+<Parameter>
+<Attributes name="p_segment3_type"/>
+<O>
+<![CDATA[费用]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_e"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_period_e]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_company"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_company]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_datasource"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_datasource]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_s"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_period_s]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_project"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C5]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_fin_element"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_fin_element]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_department"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B5]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<TargetFrame>
+<![CDATA[_blank]]></TargetFrame>
+<Features width="600" height="400"/>
+<ReportletName>
+<![CDATA[/FIN_REPORT /FIN_EBS_PRJECT_DETAIL/FIN_EBS_PROJECT_INFO_SUBJECT.cpt&op=view]]></ReportletName>
+</JavaScript>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[row() % 2 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Background name="ColorBackground" color="-3677959"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1118482"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="p_fin_element"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="LOOKUP_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[财务要素]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[1000]]></O>
+</widgetValue>
+<RAAttr/>
+</InnerWidget>
+<BoundsAttr x="1053" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelp_fin_element"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[财务要素:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="973" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="ledgerId"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="LOOKUP_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[账套]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("HRS","SELECT * FROM (SELECT HCLV.LOOKUP_VALUE, HCLV.DESCRIPTION
+  FROM HRS_CORE_LOOKUP_VALUE HCLV, HRS_CORE_LOOKUP_TYPE HCLT
+ WHERE HCLT.LOOKUP_TYPE_ID = HCLV.LOOKUP_TYPE_ID
+   AND HCLT.LOOKUP_TYPE = 'HRS_CORE_LEDGER'
+   AND NVL(TRUNC(HCLV.START_DATE), TRUNC(SYSDATE)) <= TRUNC(SYSDATE)
+   AND NVL(TRUNC(HCLV.END_DATE), TRUNC(SYSDATE)) >= TRUNC(SYSDATE)
+   AND HCLV.LOOKUP_VALUE IN
+       (SELECT DISTINCT LEDGER_ID
+          FROM hrs_core_user_security
+         WHERE USER_NAME = '"+$fr_username+"')
+  ORDER BY HCLV.LOOKUP_VALUE )WHERE ROWNUM=1",1,1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="77" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelledgerId"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[账套:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="41" y="29" width="36" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="Search"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+</InnerWidget>
+<BoundsAttr x="1187" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="p_project"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="DIM_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[项目]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="466" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelp_project"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[项目:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="430" y="29" width="36" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="p_period_s"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="PERIOD_NAME" viName="PERIOD_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[期间起]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[2017-11]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="760" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelp_period_s"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[期间起:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="715" y="29" width="45" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="p_company"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="COMPANY_CODE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[公司]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SQL("HRS","SELECT * FROM (
+    SELECT distinct
+         R.ATTRIBUTE2
+      
+  FROM HRS_DEF_ROW_SET RS, HRS_DEF_ROW R
+
+ WHERE RS.ROW_SET_NAME = 'ORG_P200V1'
+   AND RS.ROW_SET_ID = R.ROW_SET_ID
+   AND R.DISPLAY_FLAG = 'Y'
+   AND R.ATTRIBUTE1="+$ledgerId+"
+   AND EXISTS (SELECT 1
+          FROM hrs_core_user_security s
+         WHERE 1 = 1
+           AND S.USER_NAME = '"+$fr_username+"'
+           AND S.COMPANY_CODE = R.ATTRIBUTE2)
+   order by R.ATTRIBUTE2)
+   WHERE ROWNUM=1",1)]]></Attributes>
+</O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="207" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelp_company"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[公司:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="172" y="29" width="35" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="p_period_e"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="PERIOD_NAME" viName="PERIOD_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[期间至]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[2017-12]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="896" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelp_period_e"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[期间至:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="848" y="29" width="48" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="p_datasource"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="DATA_SOURCE" viName="DATA_SOURCE"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[数据类型]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[MA\',\'GL\',\'XL]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="623" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelp_datasource"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[数据类型:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="559" y="29" width="64" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="p_department"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="DEPT_CODE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[部门safe]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[131405\', \'131406\', \'131127\', \'131107\', \'131128]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="335" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelp_department"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[部门:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="297" y="29" width="38" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="ledgerId"/>
+<Widget widgetName="p_company"/>
+<Widget widgetName="p_department"/>
+<Widget widgetName="p_project"/>
+<Widget widgetName="p_datasource"/>
+<Widget widgetName="p_period_s"/>
+<Widget widgetName="p_period_e"/>
+<Widget widgetName="p_fin_element"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="true"/>
+<Position position="0"/>
+<Design_Width design_width="1283"/>
+<NameTagModified/>
+<WidgetNameTagMap>
+<NameTag name="ledgerId" tag="账套:"/>
+<NameTag name="p_fin_element" tag="财务要素:"/>
+<NameTag name="p_department" tag="部门:"/>
+<NameTag name="p_period_e" tag="期间至:"/>
+<NameTag name="p_period_s" tag="期间起:"/>
+<NameTag name="p_company" tag="公司:"/>
+<NameTag name="p_project" tag="项目:"/>
+<NameTag name="p_datasource" tag="数据类型:"/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="1283" height="80"/>
+</ParameterUI>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="12">
+<FRFont name="微软雅黑" style="0" size="112"/>
+<Background name="ColorBackground" color="-986896"/>
+<Border>
+<Bottom style="5" color="-4144960"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-12478742"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="6">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-1"/>
+<Border>
+<Top style="1" color="-4144960"/>
+<Bottom style="1" color="-4144960"/>
+<Left style="1" color="-4144960"/>
+<Right style="1" color="-4144960"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#,##0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72" foreground="-16776961" underline="1"/>
+<Background name="ColorBackground" color="-1"/>
+<Border>
+<Top style="1" color="-4144960"/>
+<Bottom style="1" color="-4144960"/>
+<Left style="1" color="-4144960"/>
+<Right style="1" color="-4144960"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="c5dc809f-a2ac-4eca-8978-cc293537813c"/>
+</WorkBook>

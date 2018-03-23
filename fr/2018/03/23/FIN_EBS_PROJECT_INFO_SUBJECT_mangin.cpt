@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20151125" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="取值" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="p_fin_element"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_e"/>
+<O>
+<![CDATA[2017-12]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_department"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_s"/>
+<O>
+<![CDATA[2017-11]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_company"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_project"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_datasource"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS2]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+select result.segment2,
+       result.segment6,
+       result.segment3,
+       case when result.segment3 between '6021' and '6111ZZ' then '收入'
+       when result.segment3 between '6421' and '6421ZZ'   then '支出'
+       when result.segment3 between '6601' and '6901ZZ'  then '费用'
+       end type,
+       result.fin_element,
+       (case  when result.segment3 between '6021' and '6111ZZ'  then -1 else 1 end) * sum(result.amount) amount
+  from (select a.segment2,
+               a.segment6,
+               a.segment3,
+               a.fin_element,
+               a.amount
+          from (
+                
+                select i.segment2,
+                        i.segment6,
+                        i.segment3,
+                        i.fin_element,
+                        nvl(i.entered_dr, 0) - nvl(i.entered_cr, 0) amount
+                
+                  from CUX_GL_INTERFACE_INVESTBANK i
+                 where 1 = 1
+                   and i.period_name between '${p_period_s}' and
+                       '${p_period_e}'
+                   and ${IF(LEN(p_company) == 0,
+                            "1=1",
+                            " i.segment1 in ('" + p_company + "')")
+                 }
+                   and ${IF(LEN(p_department) == 0,
+                            "1=1",
+                            " i.segment2 in ('" + p_department + "')")
+                 }
+                   and ${IF(LEN(p_project) == 0,
+                            "1=1",
+                            " i.segment6 in ('" + p_project + "')")
+                 }
+                   and ${IF(LEN(p_datasource) == 0,
+                            "1=1",
+                            " i.data_source in ('" + p_datasource + "')") 
+                 }
+                   and ${IF(LEN(p_fin_element) == 0,
+                            "1=1",
+                            " i.fin_element in ('" + p_fin_element + "')") }
+                   and 
+                   (i.segment3 between '6021' and '6111ZZ' 
+                   or i.segment3 between '6421' and '6421ZZ' 
+                   or i.segment3 between '6601' and '6901ZZ' )
+                --  order by i.period_name, i.je_header_id, i.je_line_num
+                ) a) result
+ group by result.segment2, result.segment6, result.segment3,result.fin_element
+  order by result.segment2, result.segment6, result.segment3,result.fin_element
+
+
+ 
+]]></Query>
+</TableData>
+<TableData name="会计元素" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT V.DIM_VALUE, V.DESCRIPTION
+          FROM HRS_CORE_DIMENSION D, HRS_CORE_DIMENSION_VALUE V
+         WHERE D.DIMENSION_ID = V.DIMENSION_ID
+           AND D.DIM_SEGMENT = 'SEGMENT3'
+           AND D.FIN_ACCOUNT_FLAG = 'Y'
+           AND V.SUMMARY_FLAG = 'N']]></Query>
+</TableData>
+<TableData name="财务要素" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[          select lv.lookup_value, lv.description
+                  from hrs_core_lookup_type lt, hrs_core_lookup_value lv
+                 where lt.lookup_type_id = lv.lookup_type_id
+                   and lt.lookup_type = 'HRS_CORE_FIN_ELEMENT']]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<ServerPrinter/>
+<WebViewContent>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Export-Excel-Simple')}]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="true"/>
+<ConditionFuncCheck check="true"/>
+<ListFuncCheck check="true"/>
+</WebViewContent>
+</ReportWebAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR F="0" T="3"/>
+<FR/>
+<HC/>
+<FC/>
+<UPFCR COLUMN="false" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[288000,1440000,288000,1008000,1008000,1008000,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[576000,4152900,16611600,2438400,3238500,3238500,3810000,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" cs="6" s="0">
+<O>
+<![CDATA[会计科目明细余额]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" s="1">
+<O>
+<![CDATA[会计科目]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="1">
+<O>
+<![CDATA[会计科目名称]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="1">
+<O>
+<![CDATA[财务要素]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="3" s="1">
+<O>
+<![CDATA[要素说明]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="1">
+<O>
+<![CDATA[类型说明]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="3" s="1">
+<O>
+<![CDATA[数额]]></O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="A01" value="上年同期累计"/>
+<Dict key="A02" value="上年同期当月"/>
+<Dict key="A11" value="本年累计"/>
+<Dict key="A12" value="本期实际"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand/>
+</C>
+<C c="1" r="4" s="2">
+<O t="DSColumn">
+<Attributes dsName="取值" columnName="SEGMENT3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[ROW() % 2 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-2624775"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="2" r="4" s="2">
+<O t="DSColumn">
+<Attributes dsName="取值" columnName="SEGMENT3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="DIM_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[会计元素]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="3" r="4" s="2">
+<O t="DSColumn">
+<Attributes dsName="取值" columnName="FIN_ELEMENT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="4" s="2">
+<O t="DSColumn">
+<Attributes dsName="取值" columnName="FIN_ELEMENT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="LOOKUP_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[财务要素]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="4" s="3">
+<O t="DSColumn">
+<Attributes dsName="取值" columnName="TYPE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="LOOKUP_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[财务要素]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="4" s="4">
+<O t="DSColumn">
+<Attributes dsName="取值" columnName="AMOUNT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="网络报表1">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<Parameters>
+<Parameter>
+<Attributes name="p_period_e"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_period_e]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_company"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_company]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_datasource"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_datasource]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_period_s"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_period_s]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_project"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_project]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_fin_element"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D5]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_department"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$p_department]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="p_segment3"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C5]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<TargetFrame>
+<![CDATA[_blank]]></TargetFrame>
+<Features width="600" height="400"/>
+<ReportletName showPI="true">
+<![CDATA[/FIN_REPORT /FIN_EBS_PRJECT_DETAIL/FIN_EBS_PROJECT_INFO_SUBJECT_DETAIL.cpt&op=view]]></ReportletName>
+</JavaScript>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand dir="0"/>
+</C>
+<C c="1" r="5" cs="5" s="5">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="5" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(G5)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList>
+<Style style_name="A-HRS-head1"/>
+<Style style_name="A-HRS-head2"/>
+<Style style_name="A-HRS-head3-T"/>
+<Style horizontal_alignment="0" imageLayout="1" paddingLeft="6">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-1"/>
+<Border>
+<Top style="1" color="-4144960"/>
+<Bottom style="1" color="-4144960"/>
+<Left style="1" color="-4144960"/>
+<Right style="1" color="-4144960"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#,##0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72" foreground="-16776961" underline="1"/>
+<Background name="ColorBackground" color="-1"/>
+<Border>
+<Top style="1" color="-4144960"/>
+<Bottom style="1" color="-4144960"/>
+<Left style="1" color="-4144960"/>
+<Right style="1" color="-4144960"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="6">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-9389828"/>
+<Border>
+<Top style="1" color="-4144960"/>
+<Bottom style="1" color="-4144960"/>
+<Left style="1" color="-4144960"/>
+<Right style="1" color="-4144960"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingLeft="6">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#,##0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-9389828"/>
+<Border>
+<Top style="1" color="-4144960"/>
+<Bottom style="1" color="-4144960"/>
+<Left style="1" color="-4144960"/>
+<Right style="1" color="-4144960"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+<TemplateID TemplateID="be8b8d5b-2af0-4f3e-85bb-115579f51f3f"/>
+</WorkBook>

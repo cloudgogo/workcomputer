@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20151125" releaseVersion="8.0.0">
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,723900,723900,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0" s="0">
+<O>
+<![CDATA[l]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="0" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="0" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="0" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="0" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=range(10)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="1" s="0">
+<PrivilegeControl/>
+<Widget class="com.fr.form.ui.ComboBox">
+<Listener event="stopedit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var location = this.options.location;     
+var cr = FR.cellStr2ColumnRow(location);//获取控件的位置   
+var col = cr.col; //单元格列号   
+var ro = cr.row; //单元格行号 
+var zqxz=this.getValue();//获取该控件的值
+alert(zqxz);
+
+if(zqxz==='N'){
+$('td[id^=C'+(ro+1)+'-0-0]A').css({'background-color':'#f0f0f0'});
+$('td[id^=D'+(ro+1)+'-0-0]A').css({'background-color':'#f0f0f0'});
+$('td[id^=E'+(ro+1)+'-0-0]A').css({'background-color':'#f0f0f0'});
+$('td[id^=F'+(ro+1)+'-0-0]A').css({'background-color':'#f0f0f0'});
+} 
+else{
+$('td[id^=C'+(ro+1)+'-0-0]A').css({'background-color':'#FFFFFF'});
+$('td[id^=D'+(ro+1)+'-0-0]A').css({'background-color':'#FFFFFF'});
+$('td[id^=E'+(ro+1)+'-0-0]A').css({'background-color':'#FFFFFF'});
+$('td[id^=F'+(ro+1)+'-0-0]A').css({'background-color':'#FFFFFF'});
+	}]]></Content>
+</JavaScript>
+</Listener>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="Y" value="是"/>
+<Dict key="N" value="否"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+</Widget>
+<Expand/>
+</C>
+<C c="2" r="1" s="0">
+<PrivilegeControl/>
+<Widget class="com.fr.form.ui.ComboBox">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="1"/>
+<Dict key="2" value="2"/>
+<Dict key="3" value="3"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+</Widget>
+<Expand/>
+</C>
+<C c="3" r="1" s="0">
+<PrivilegeControl/>
+<Widget class="com.fr.form.ui.ComboBox">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="1"/>
+<Dict key="2" value="2"/>
+<Dict key="3" value="3"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+</Widget>
+<Expand/>
+</C>
+<C c="4" r="1" s="0">
+<PrivilegeControl/>
+<Widget class="com.fr.form.ui.ComboBox">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="1"/>
+<Dict key="2" value="2"/>
+<Dict key="3" value="3"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+</Widget>
+<Expand/>
+</C>
+<C c="5" r="1" s="0">
+<PrivilegeControl/>
+<Widget class="com.fr.form.ui.ComboBox">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="1"/>
+<Dict key="2" value="2"/>
+<Dict key="3" value="3"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+</Widget>
+<Expand/>
+</C>
+<C c="0" r="2" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="2" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="2" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="2" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="2" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="2" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="5">
+<O t="I">
+<![CDATA[2]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="1"/>
+<TemplateID TemplateID="c9fd53d4-e118-442e-8d5e-7432ca531042"/>
+</WorkBook>

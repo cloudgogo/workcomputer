@@ -75,5 +75,15 @@ function number_format(number, decimals, dec_point, thousands_sep) {
     }
     return s.join(dec);
 }
-3number_format(1234567.089, 2, ".", ",");//1,234,567.08
+number_format(1234567.089, 2, ".", ",");//1,234,567.08
 ```
+
+
+> 保留小数
+```javascript
+var num = 1.25678998;
+
+Math.round(num*100)/100;
+Math.ceil(num*100)/100
+```
+>tofixed()函数不好用

@@ -28,3 +28,28 @@ p_period
 p_attribute5
 信用风险（表内）汇总表
 contentPane.loadSheetByName('CR_信托及类信托计划汇总表'); 
+
+
+
+p_attribute5  p_period
+11 钻取到债权投资
+11.1 融资融券 2950 2960
+11.2 约定购回 2970
+11.3 股票质押 2980
+11.4 其他对个人的债权 2990
+12 不良资产投资 sql中写死8310
+10 对一般企事业债权 钻取到本表对公债权明细
+05,06,07,09 钻取到综合类 加个类别参数  --未修改sql逻辑,还需要修改
+p_attribute5
+p_convertable
+p_financial_type
+p_period
+04 债券投资
+p_convertable
+p_period
+p_level
+
+02
+p_bondsubject
+03 
+AAA','A-1','AA+','AA','AA-','A+','A','A-

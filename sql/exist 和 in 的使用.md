@@ -4,12 +4,12 @@
 ```sql
  select * from T1 where exists(select * from T2 where T1.a=T2.a) ;
 ```
-T1数据量小而T2数据量非常大时，T1<<T2 时，1) 的查询效率高。
+    T1数据量小而T2数据量非常大时，T1<<T2 时，1) 的查询效率高。    
 2. in
 ```sql
 select * from T1 where T1.a in (select T2.a from T2) ;
 ```
-T1数据量非常大而T2数据量小时，T1>>T2 时，2) 的查询效率高。
+    T1数据量非常大而T2数据量小时，T1>>T2 时，2) 的查询效率高。
 
 > exists 用法：
 > 

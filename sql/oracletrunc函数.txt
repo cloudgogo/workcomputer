@@ -1,0 +1,200 @@
+Oracle TRUNC 函数详解
+
+1.TRUNC 函数
+Oracle TRUNC函数可以截取数字和日期类型：
+
+ 
+
+2.TRUNC截取数字
+TRUNC(number)函数返回n1截取到n2位小数。如果省略n2时，则n1截取到0位置(即截取所有小数位)。如果n2为负数时，表示截取小数点左边的n2位，被截取部分记为0.
+
+ 
+
+2.1语法
+其语法格式如下：
+
+TRUNC(n1 [, n2 ])
+
+其中：n1为待截取的数值；n2为需要保留的小数位，是一个选可项。
+
+ 
+
+2.2 Examples
+2.2.1截取小数点后1位
+SQL> select trunc(17.97, 1) from dual;
+ 
+TRUNC(17.97,1)
+--------------
+          17.9
+
+ 
+
+2.2.2截取小数点后0位
+相当于省略n2
+
+SQL> select trunc(17.97, 0) from dual;
+ 
+TRUNC(17.97,0)
+--------------
+            17
+
+ 
+
+2.2.3缺省n2
+相当于截取0位
+
+SQL> select trunc(17.97) from dual;
+ 
+TRUNC(17.97)
+------------
+          17
+
+ 
+
+2.3.4截取小数点前1位
+SQL> select trunc(17.97, -1) from dual;
+ 
+TRUNC(17.97,-1)
+---------------
+             10
+
+总结：当n2位正数时，截取小数点有右边的位置。当N2小数点位负数时，则截取小数点左边的位置，被截取部分记为0.
+
+ 
+
+3.TRUNC截取日期
+TRUNC(date)返回以指定格式fmt截取一部分的日期格值，该函数对NLS_CALENDAR会话参数是不敏感的。它按照公历规则运作。返回值始终是日期类型，即使你指定不同datetime数据类型的日期。如果省略fmt,则日期返回最近一天。
+
+3.1语法
+其语法格式如下：
+
+TRUNC(date [, fmt ])
+
+其中：date:为输入的日期值，是必输项；fmt:以指定格式来截取输入的日期值，是一个可选项。
+
+TRUNC函数可以使用的格式模型如下：
+
+Format Model
+
+Rounding or Truncating Unit
+
+CC
+
+SCC
+
+One greater than the first two digits of a four-digit year
+
+SYYYY
+
+YYYY
+
+YEAR
+
+SYEAR
+
+YYY
+
+YY
+
+Y
+
+Year (rounds up on July 1)
+
+IYYY
+
+IY
+
+IY
+
+I
+
+ISO Year
+
+Q
+
+Quarter (rounds up on the sixteenth day of the second month of the quarter)
+
+MONTH
+
+MON
+
+MM
+
+RM
+
+Month (rounds up on the sixteenth day)
+
+WW
+
+Same day of the week as the first day of the year
+
+IW
+
+Same day of the week as the first day of the ISO year
+
+W
+
+Same day of the week as the first day of the month
+
+DDD
+
+DD
+
+J
+
+Day
+
+DAY
+
+DY
+
+D
+
+Starting day of the week
+
+HH
+
+HH12
+
+HH24
+
+Hour
+
+MI
+
+Minute
+
+ 
+
+默认为DD格式模型，返回四合五入的日期或截取到这天午夜的时间（即，晚上12点）。
+
+ 
+
+3.2 Examples
+3.2.1YEAR模型
+向上截取到1月1日
+
+SQL> select trunc(sysdate,'YEAR') from dual;
+ 
+TRUNC(SYSDATE,'YEAR')
+---------------------
+2014/1/1
+
+ 
+
+3.2.2省略模型
+SQL> select trunc(sysdate) from dual;
+ 
+TRUNC(SYSDATE)
+--------------
+2014/1/4
+
+ 
+
+省略模型，相当于指定模型为DD。
+
+SQL> select trunc(sysdate,'DD') from dual;
+ 
+TRUNC(SYSDATE,'DD')
+-------------------
+2014/1/4

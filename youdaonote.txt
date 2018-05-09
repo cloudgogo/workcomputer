@@ -4,3 +4,7 @@ http://note.youdao.com/noteshare?id=39ff2fa6068c74160c3101edd8693d7c
 
 开窗函数深度
 http://note.youdao.com/noteshare?id=855a8aeb3e61e3ea3db7d547653b7072
+
+
+oracle执行计划查看
+http://note.youdao.com/noteshare?id=d7f2dfef03b2e77312ec1c7318059c67

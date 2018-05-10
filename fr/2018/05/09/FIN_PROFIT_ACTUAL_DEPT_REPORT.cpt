@@ -159,6 +159,8 @@
                            and gb2.actual_flag(+) = 'A'
                            AND GJ.code_combination_id(+) =
                                GCC.code_combination_id
+                          --= and CASE WHEN '${finElement}' = ''    
+
                          GROUP BY V.PARENT_VALUE,
                                   V2.PARENT_VALUE,
                                   R.ROW_NUM,
@@ -171,8 +173,8 @@
                        result.segment2 SEG2,
                        result.ROW_NUM,
                        result.ROW_NAME,
-                       sum(amount) PERIOD_END,
-                       sum(sumamount) PERIOD_AMT
+                       sum(sumamount) PERIOD_END,
+                       sum(amount) PERIOD_AMT
                   from (select l.segment1,
                                l.segment2,
                                R.ROW_NUM,
@@ -990,6 +992,20 @@ select 'N' code,'否' dsc from dual]]></Query>
  order by T.SEG1, to_number(T.ROW_NUM), T.ROW_NAME
 ]]></Query>
 </TableData>
+<TableData name="财务要素" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select lv.lookup_value, lv.description
+                  from hrs_core_lookup_type lt, hrs_core_lookup_value lv
+                 where lt.lookup_type_id = lv.lookup_type_id
+                   and lt.lookup_type = 'HRS_CORE_FIN_ELEMENT'
+                   order by lv.lookup_value]]></Query>
+</TableData>
 </TableDataMap>
 <ReportWebAttr>
 <ServerPrinter/>
@@ -1461,6 +1477,49 @@ select 'N' code,'否' dsc from dual]]></Query>
 <Background name="ColorBackground" color="-1118482"/>
 <LCAttr vgap="0" hgap="0" compInterval="0"/>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="finElement"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="LOOKUP_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[财务要素]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[1000\',\'1010\',\'2010]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="691" y="15" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelfinElement"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[财务要素:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="632" y="15" width="59" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.ComboBox">
 <WidgetName name="rowSetName"/>
 <WidgetAttr description="">
@@ -1480,7 +1539,7 @@ select 'N' code,'否' dsc from dual]]></Query>
 <![CDATA[P100V1]]></O>
 </widgetValue>
 </InnerWidget>
-<BoundsAttr x="596" y="15" width="80" height="21"/>
+<BoundsAttr x="544" y="15" width="80" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.Label">
@@ -1496,7 +1555,7 @@ select 'N' code,'否' dsc from dual]]></Query>
 <FRFont name="微软雅黑" style="0" size="72"/>
 <border style="0" color="-723724"/>
 </InnerWidget>
-<BoundsAttr x="552" y="15" width="44" height="21"/>
+<BoundsAttr x="500" y="15" width="44" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.Label">
@@ -1567,7 +1626,7 @@ SELECT HCLV.LOOKUP_VALUE
 <Hotkeys>
 <![CDATA[enter]]></Hotkeys>
 </InnerWidget>
-<BoundsAttr x="978" y="15" width="80" height="21"/>
+<BoundsAttr x="1056" y="15" width="80" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.Label">
@@ -1621,7 +1680,7 @@ SELECT HCLV.LOOKUP_VALUE
 <FRFont name="微软雅黑" style="0" size="72"/>
 <border style="0" color="-723724"/>
 </InnerWidget>
-<BoundsAttr x="808" y="15" width="65" height="21"/>
+<BoundsAttr x="902" y="15" width="65" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.Label">
@@ -1637,7 +1696,7 @@ SELECT HCLV.LOOKUP_VALUE
 <FRFont name="微软雅黑" style="0" size="72"/>
 <border style="0" color="-723724"/>
 </InnerWidget>
-<BoundsAttr x="277" y="15" width="45" height="21"/>
+<BoundsAttr x="240" y="15" width="45" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.Label">
@@ -1669,7 +1728,7 @@ SELECT HCLV.LOOKUP_VALUE
 <FRFont name="微软雅黑" style="0" size="72"/>
 <border style="0" color="-723724"/>
 </InnerWidget>
-<BoundsAttr x="418" y="15" width="40" height="21"/>
+<BoundsAttr x="366" y="15" width="40" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.ComboBox">
@@ -1704,7 +1763,7 @@ SELECT HCLV.LOOKUP_VALUE
 </O>
 </widgetValue>
 </InnerWidget>
-<BoundsAttr x="458" y="15" width="85" height="21"/>
+<BoundsAttr x="406" y="15" width="85" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.Label">
@@ -1720,7 +1779,7 @@ SELECT HCLV.LOOKUP_VALUE
 <FRFont name="微软雅黑" style="0" size="72"/>
 <border style="0" color="-723724"/>
 </InnerWidget>
-<BoundsAttr x="683" y="15" width="65" height="21"/>
+<BoundsAttr x="777" y="15" width="65" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.ComboBox">
@@ -1748,7 +1807,7 @@ SELECT HCLV.LOOKUP_VALUE
 <![CDATA[Y]]></O>
 </widgetValue>
 </InnerWidget>
-<BoundsAttr x="748" y="15" width="50" height="21"/>
+<BoundsAttr x="842" y="15" width="50" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.ComboCheckBox">
@@ -1800,7 +1859,7 @@ SELECT DISTINCT H.DIM_VALUE COMPANY_CODE
 </widgetValue>
 <RAAttr delimiter="&apos;,&apos;" isArray="false"/>
 </InnerWidget>
-<BoundsAttr x="172" y="15" width="96" height="21"/>
+<BoundsAttr x="165" y="15" width="70" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.ComboCheckBox">
@@ -1829,7 +1888,7 @@ SELECT DISTINCT H.DIM_VALUE COMPANY_CODE
 </widgetValue>
 <RAAttr delimiter="&apos;,&apos;" isArray="false"/>
 </InnerWidget>
-<BoundsAttr x="322" y="15" width="88" height="21"/>
+<BoundsAttr x="285" y="15" width="70" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.ComboCheckBox">
@@ -1858,7 +1917,7 @@ SELECT DISTINCT H.DIM_VALUE COMPANY_CODE
 </widgetValue>
 <RAAttr delimiter="&apos;,&apos;" isArray="false"/>
 </InnerWidget>
-<BoundsAttr x="873" y="15" width="90" height="21"/>
+<BoundsAttr x="967" y="15" width="60" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.TextEditor">
@@ -1928,6 +1987,7 @@ SELECT DISTINCT H.DIM_VALUE COMPANY_CODE
 <Widget widgetName="P_SEG2"/>
 <Widget widgetName="P_PERIOD"/>
 <Widget widgetName="rowSetName"/>
+<Widget widgetName="finElement"/>
 <Widget widgetName="P_INCLUDE_UNPOSTED"/>
 <Widget widgetName="P_TYPE"/>
 <Widget widgetName="P_PERIOD_LAST_YEAR"/>
@@ -1938,23 +1998,24 @@ SELECT DISTINCT H.DIM_VALUE COMPANY_CODE
 <Display display="true"/>
 <DelayDisplayContent delay="true"/>
 <Position position="0"/>
-<Design_Width design_width="1120"/>
+<Design_Width design_width="1188"/>
 <NameTagModified/>
 <WidgetNameTagMap>
 <NameTag name="P_INCLUDE_UNPOSTED" tag="含未过账："/>
+<NameTag name="finElement" tag="财务要素:"/>
 <NameTag name="rowSetName" tag="行集:"/>
-<NameTag name="P_LEDGER" tag="账套："/>
-<NameTag name="P_PERIOD_LAST" tag="P_PERIOD_LAST:"/>
-<NameTag name="P_PERIOD" tag="期间："/>
 <NameTag name="P_PERIOD_LAST_YEAR" tag="P_PERIOD_LAST_YEAR:"/>
 <NameTag name="P_SEG2" tag="部门："/>
 <NameTag name="P_CURRENCY" tag="币种："/>
 <NameTag name="P_TYPE" tag="数据类型："/>
-<NameTag name="P_PERIOD_FIRST" tag="P_PERIOD_FIRST:"/>
 <NameTag name="P_SEG1" tag="公司："/>
+<NameTag name="P_LEDGER" tag="账套："/>
+<NameTag name="P_PERIOD_LAST" tag="P_PERIOD_LAST:"/>
+<NameTag name="P_PERIOD" tag="期间："/>
+<NameTag name="P_PERIOD_FIRST" tag="P_PERIOD_FIRST:"/>
 </WidgetNameTagMap>
 </Layout>
-<DesignAttr width="1120" height="40"/>
+<DesignAttr width="1188" height="66"/>
 </ParameterUI>
 <Parameter>
 <Attributes name="P_TYPE"/>

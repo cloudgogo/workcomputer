@@ -522,6 +522,160 @@
  order by T.SEGMENT3
 ]]></Query>
 </TableData>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="rowSetName"/>
+<O>
+<![CDATA[P100V1]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O>
+<![CDATA[1001]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_PERIOD"/>
+<O>
+<![CDATA[2018-05]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG2"/>
+<O>
+<![CDATA[T]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_CURRENCY"/>
+<O>
+<![CDATA[CNY]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG1"/>
+<O>
+<![CDATA[130101]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS2]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[        SELECT *
+          FROM (select result.segment1 SEG1,
+                       result.segment2 SEG2,
+                       result.segment3 SEG3,
+                       result.ROW_NUM,
+                       result.ROW_NAME,
+                       sum(amount) PERIOD_END,
+                       sum(sumamount) PERIOD_AMT
+                  from (select l.segment1,
+                               l.segment2,
+                               l.segment3,
+                               R.ROW_NUM,
+                               R.ROW_NAME,
+                               R.LINE_NUM,
+                               NVL(l.accounted_dr, 0) - NVL(l.accounted_cr, 0) amount,
+                               0 sumamount
+                          from CUX.CUX_HRS_DEF_ROW_SET         S,
+                               CUX.CUX_HRS_DEF_ROW             R,
+                               CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                               CUX.CUX_HRS_DEF_ITEM_CONTENT    IC,
+                               hrs_core_je_header              h,
+                               hrs_core_je_line                l,
+                               apps.CUX_HRS_CORE_DIM_CHILD_V   V,
+                               apps.CUX_HRS_CORE_DIM_CHILD_V   V2
+                         where S.ROW_SET_NAME = '${rowSetName}'
+                           AND S.ROW_SET_ID = R.ROW_SET_ID
+                           AND R.DISPLAY_FLAG = 'Y'
+                           AND R.ROW_ID = C.ROW_ID
+                           AND C.CAL_ITEM_CODE = IC.ITEM_CODE
+                           and h.header_id = l.header_id
+                           and l.segment1 between
+                               nvl(ic.segment1_low, l.segment1) and
+                               nvl(ic.segment1_high, l.segment1)
+                           and l.segment2 between
+                               nvl(ic.segment2_low, l.segment2) and
+                               nvl(ic.segment2_high, l.segment2)
+                           and l.segment3 between
+                               nvl(ic.segment3_low, l.segment3) and
+                               nvl(ic.segment3_high, l.segment3)
+                           and l.segment8 between
+                               nvl(ic.segment8_low, l.segment8) and
+                               nvl(ic.segment8_high, l.segment8)
+                           AND V.PARENT_VALUE IN ('${P_SEG1}')
+                           AND H.LEDGER_ID = ${P_LEDGER}
+                           AND V.DIM_SEGMENT = 'SEGMENT1'
+                           AND L.SEGMENT1 = V.DIM_VALUE
+                           AND V2.DIM_SEGMENT = 'SEGMENT2'
+                           AND L.SEGMENT2 = V2.DIM_VALUE
+                           AND V2.PARENT_VALUE IN ('${P_SEG2}')
+                           and l.fin_element = '2010'
+                           and h.period_name = '${P_PERIOD}'
+                           AND H.CURRENCY_CODE = '${P_CURRENCY}'
+                        union all
+                        select l.segment1,
+                               l.segment2,
+                               l.segment3,
+                               R.ROW_NUM,
+                               R.ROW_NAME,
+                               R.LINE_NUM,
+                               0 amount,
+                               sum(NVL(l.accounted_dr, 0) -
+                                   NVL(l.accounted_cr, 0)) sumamount
+                          from CUX.CUX_HRS_DEF_ROW_SET         S,
+                               CUX.CUX_HRS_DEF_ROW             R,
+                               CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                               CUX.CUX_HRS_DEF_ITEM_CONTENT    IC,
+                               hrs_core_je_header              h,
+                               hrs_core_je_line                l,
+                               apps.CUX_HRS_CORE_DIM_CHILD_V   V,
+                               apps.CUX_HRS_CORE_DIM_CHILD_V   V2
+                         where S.ROW_SET_NAME = '${rowSetName}'
+                           AND S.ROW_SET_ID = R.ROW_SET_ID
+                           AND R.DISPLAY_FLAG = 'Y'
+                           AND R.ROW_ID = C.ROW_ID
+                           AND C.CAL_ITEM_CODE = IC.ITEM_CODE
+                           and h.header_id = l.header_id
+                           and l.segment1 between
+                               nvl(ic.segment1_low, l.segment1) and
+                               nvl(ic.segment1_high, l.segment1)
+                           and l.segment2 between
+                               nvl(ic.segment2_low, l.segment2) and
+                               nvl(ic.segment2_high, l.segment2)
+                           and l.segment3 between
+                               nvl(ic.segment3_low, l.segment3) and
+                               nvl(ic.segment3_high, l.segment3)
+                           and l.segment8 between
+                               nvl(ic.segment8_low, l.segment8) and
+                               nvl(ic.segment8_high, l.segment8)
+                           AND V.PARENT_VALUE IN ('${P_SEG1}')
+                           AND H.LEDGER_ID = ${P_LEDGER}
+                           AND V.DIM_SEGMENT = 'SEGMENT1'
+                           AND L.SEGMENT1 = V.DIM_VALUE
+                           AND V2.DIM_SEGMENT = 'SEGMENT2'
+                           AND L.SEGMENT2 = V2.DIM_VALUE
+                           and l.fin_element = '2010'
+                           AND V2.PARENT_VALUE IN ('${P_SEG2}')
+                           and h.period_name between
+                               substr('${P_PERIOD}', 1, 4) || '-01' and
+                               '${P_PERIOD}'
+                           AND H.CURRENCY_CODE = '${P_CURRENCY}'
+                         group by l.segment1,
+                                  l.segment2,
+                                  l.segment3,
+                                  R.ROW_NUM,
+                                  R.ROW_NAME,
+                                  R.LINE_NUM
+                        
+                        ) result
+                 group by result.segment1,
+                          result.segment2,
+                          result.segment3,
+                          result.ROW_NUM,
+                          result.ROW_NAME,
+                          result.LINE_NUM) T]]></Query>
+</TableData>
 </TableDataMap>
 <ReportWebAttr>
 <Title>

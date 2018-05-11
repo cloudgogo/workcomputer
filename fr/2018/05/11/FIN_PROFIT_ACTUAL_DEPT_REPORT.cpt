@@ -1,0 +1,2226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20151125" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="ds_item" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="rowSetName"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT DISTINCT R.ROW_ID,R.ROW_NUM,R.ROW_NAME
+  FROM HRS_DEF_ROW_SET S, HRS_DEF_ROW R
+ WHERE S.ROW_SET_ID = R.ROW_SET_ID
+   AND S.ROW_SET_NAME = '${rowSetName}'
+   AND R.DISPLAY_FLAG = 'Y'
+ ORDER BY TO_NUMBER(NVL(R.ROW_NUM, 0)),R.ROW_NAME]]></Query>
+</TableData>
+<TableData name="ds_AMT" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="P_INCLUDE_UNPOSTED"/>
+<O>
+<![CDATA[Y]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="finElement"/>
+<O>
+<![CDATA[1000\',\'1010\',\'2010]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="rowSetName"/>
+<O>
+<![CDATA[P110V1]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O>
+<![CDATA[1001]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_PERIOD"/>
+<O>
+<![CDATA[2018-04]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG2"/>
+<O>
+<![CDATA[131136]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_CURRENCY"/>
+<O>
+<![CDATA[CNY]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG1"/>
+<O>
+<![CDATA[130101]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS2]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT RESULT.SEG1,
+       RESULT.SEG2,
+       RESULT.ROW_NUM,
+       RESULT.ROW_NAME,
+       SUM(PERIOD_END) PERIOD_END,
+       SUM(PERIOD_AMT) PERIOD_AMT
+  FROM (select *
+          from (SELECT T.SEG1,
+                       T.SEG2,
+                       T.ROW_NUM,
+                       T.ROW_NAME,
+                       T.PERIOD_END + NVL(T.PERIOD_UNPOSTED, 0) PERIOD_END, --本期末+本期未过账
+                       T.PERIOD_AMT + NVL(T.PERIOD_UNPOSTED, 0) PERIOD_AMT --本期发生+本期未过账
+                  FROM (select 
+                               V.COM1 SEG1,
+                               V.COM2 SEG2,
+                               R.ROW_NUM,
+                               R.ROW_NAME,
+                               R.LINE_NUM,
+                               SUM(DECODE(R.CHANGE_SIGN, 'Y', -1, 1) *
+                                   DECODE(C.SIGN, '+', 1, -1) *
+                                   DECODE(IC.SIGN, '+', 1, -1) *
+                                   (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                                    NVL(GB2.BEGIN_BALANCE_CR, 0) +
+                                    NVL(GB2.PERIOD_NET_DR, 0) -
+                                    NVL(GB2.PERIOD_NET_CR, 0))) PERIOD_END,
+                               SUM(DECODE(R.CHANGE_SIGN, 'Y', -1, 1) *
+                                   DECODE(C.SIGN, '+', 1, -1) *
+                                   DECODE(IC.SIGN, '+', 1, -1) *
+                                   (NVL(GB2.PERIOD_NET_DR, 0) -
+                                    NVL(GB2.PERIOD_NET_CR, 0))) PERIOD_AMT,
+                               SUM(DECODE(R.CHANGE_SIGN, 'Y', -1, 1) *
+                                   DECODE(C.SIGN, '+', 1, -1) *
+                                   DECODE(IC.SIGN, '+', 1, -1) *
+                                   NVL(GJ.ENTERED_AMT, 0)) PERIOD_UNPOSTED
+                          FROM CUX.CUX_HRS_DEF_ROW_SET S,
+                               CUX.CUX_HRS_DEF_ROW R,
+                               CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                               CUX.CUX_HRS_DEF_ITEM_CONTENT IC,
+                               apps.gl_code_combinations GCC,
+                               apps.gl_ledgers gl,
+                               (SELECT R.ROW_ID,
+                                       R.ATTRIBUTE1     LEDGER_ID,
+                                       R.ATTRIBUTE2     COM1,
+                                       IC.SEGMENT1_LOW,
+                                       IC.SEGMENT1_HIGH,
+                                       IC.SEGMENT2_LOW,
+                                       IC.SEGMENT2_HIGH,
+                                       R.ATTRIBUTE3     COM2,
+                                       R.ATTRIBUTE4     COM4,
+                                       R.ATTRIBUTE4
+                                  FROM CUX.CUX_HRS_DEF_ROW_SET         RS,
+                                       CUX.CUX_HRS_DEF_ROW             R,
+                                       CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                                       CUX.CUX_HRS_DEF_ITEM_HEADER     H,
+                                       CUX.CUX_HRS_DEF_ITEM_CONTENT    IC
+                                 WHERE RS.ROW_SET_NAME = 'ORG_P200V1'
+                                   AND RS.ROW_SET_ID = R.ROW_SET_ID
+                                   AND C.ROW_ID = R.ROW_ID
+                                   AND R.DISPLAY_FLAG = 'Y'
+                                   AND C.CAL_ITEM_CODE = H.ITEM_CODE
+                                   AND H.ITEM_HEADER_ID = IC.ITEM_HEADER_ID
+                                   AND R.ATTRIBUTE1 = ${P_LEDGER}
+                                   AND R.ATTRIBUTE2 IN ('${P_SEG1}')
+                                   AND R.ATTRIBUTE3 IN ('${P_SEG2}')) V,
+                               CUX.CUX_HRS_ITEM_CONTENT_RANGE ICR,
+                               apps.gl_balances gb2,
+                               (SELECT jl.code_combination_id,
+                                       SUM(NVL(ACCOUNTED_DR, 0) -
+                                           NVL(ACCOUNTED_CR, 0)) ENTERED_AMT --取所有币种折算成本位币的金额
+                                  FROM apps.gl_je_headers jh,
+                                       apps.gl_je_lines   jl
+                                 WHERE 1 = 1
+                                   and jh.je_header_id = jl.je_header_id
+                                   and jh.ledger_id = ${P_LEDGER}
+                                   and jh.period_name = '${P_PERIOD}'
+                                   and jh.actual_flag = 'A'
+                                   and jl.period_name = jh.period_name
+                                   AND jl.status != 'P'
+                                   and decode('${P_INCLUDE_UNPOSTED}',
+                                              'Y',
+                                              1,
+                                              0) = 1
+                                 GROUP BY jl.code_combination_id) GJ
+                        
+                         WHERE S.ROW_SET_NAME = '${rowSetName}'
+                           AND S.ROW_SET_ID = R.ROW_SET_ID
+                           AND R.DISPLAY_FLAG = 'Y'
+                           AND R.ROW_ID = C.ROW_ID
+                           AND C.CAL_ITEM_CODE = IC.ITEM_CODE
+                           and gl.ledger_id = ${P_LEDGER}
+                           AND IC.ITEM_CONTENT_ID = ICR.ITEM_CONTENT_ID
+                           AND GCC.SEGMENT1 between
+                               NVL(ICR.SEGMENT1_LOW, GCC.SEGMENT1) AND
+                               NVL(ICR.SEGMENT1_HIGH, GCC.SEGMENT1)
+                           AND GCC.SEGMENT2 between
+                               NVL(ICR.SEGMENT2_LOW, GCC.SEGMENT2) AND
+                               NVL(ICR.SEGMENT2_HIGH, GCC.SEGMENT2)
+                           AND GCC.SEGMENT3 between
+                               NVL(ICR.SEGMENT3_LOW, GCC.SEGMENT3) AND
+                               NVL(ICR.SEGMENT3_HIGH, GCC.SEGMENT3)
+                           AND GCC.SEGMENT8 between
+                               NVL(ICR.SEGMENT8_LOW, GCC.SEGMENT8) AND
+                               NVL(ICR.SEGMENT8_HIGH, GCC.SEGMENT8)
+                           AND GCC.CHART_OF_ACCOUNTS_ID =
+                               gl.CHART_OF_ACCOUNTS_ID
+                           and gcc.enabled_flag = 'Y'
+                           and gcc.summary_flag = 'N'
+                           AND GCC.SEGMENT1 BETWEEN V.SEGMENT1_LOW AND
+                               V.SEGMENT1_HIGH
+                           AND GCC.SEGMENT2 BETWEEN V.SEGMENT2_LOW AND
+                               V.SEGMENT2_HIGH
+                           and gb2.ledger_id(+) = ${P_LEDGER}
+                           and gb2.code_combination_id(+) =
+                               GCC.code_combination_id
+                           and gb2.currency_code(+) = '${P_CURRENCY}'
+                           and gb2.period_name(+) = '${P_PERIOD}'
+                           and gb2.actual_flag(+) = 'A'
+                           AND GJ.code_combination_id(+) =
+                               GCC.code_combination_id
+                           and '1000' in ('${finElement}')    
+
+                         GROUP BY 
+                                  V.COM1,
+                                  V.COM2,
+                                  R.ROW_NUM,
+                                  R.ROW_NAME,
+                                  R.LINE_NUM) T) T
+        
+        UNION ALL
+        SELECT *
+          FROM (select result.segment1 SEG1,
+                       result.segment2 SEG2,
+                       result.ROW_NUM,
+                       result.ROW_NAME,
+                       sum(sumamount) PERIOD_END,
+                       sum(amount) PERIOD_AMT
+                  from (select V.COM1 segment1,
+                               V.COM2 segment2,
+                               R.ROW_NUM,
+                               R.ROW_NAME,
+                               R.LINE_NUM,
+                               NVL(l.accounted_dr, 0) - NVL(l.accounted_cr, 0) amount,
+                               0 sumamount
+                          from CUX.CUX_HRS_DEF_ROW_SET         S,
+                               CUX.CUX_HRS_DEF_ROW             R,
+                               CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                               CUX.CUX_HRS_DEF_ITEM_CONTENT    IC,
+                               hrs_core_je_header              h,
+                               hrs_core_je_line                l,
+                               (SELECT R.ROW_ID,
+                                       R.ATTRIBUTE1     LEDGER_ID,
+                                       R.ATTRIBUTE2     COM1,
+                                       IC.SEGMENT1_LOW,
+                                       IC.SEGMENT1_HIGH,
+                                       IC.SEGMENT2_LOW,
+                                       IC.SEGMENT2_HIGH,
+                                       R.ATTRIBUTE3     COM2,
+                                       R.ATTRIBUTE4     COM4,
+                                       R.ATTRIBUTE4
+                                  FROM CUX.CUX_HRS_DEF_ROW_SET         RS,
+                                       CUX.CUX_HRS_DEF_ROW             R,
+                                       CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                                       CUX.CUX_HRS_DEF_ITEM_HEADER     H,
+                                       CUX.CUX_HRS_DEF_ITEM_CONTENT    IC
+                                 WHERE RS.ROW_SET_NAME = 'ORG_P200V1'
+                                   AND RS.ROW_SET_ID = R.ROW_SET_ID
+                                   AND C.ROW_ID = R.ROW_ID
+                                   AND R.DISPLAY_FLAG = 'Y'
+                                   AND C.CAL_ITEM_CODE = H.ITEM_CODE
+                                   AND H.ITEM_HEADER_ID = IC.ITEM_HEADER_ID
+                                   AND R.ATTRIBUTE1 = ${P_LEDGER}
+                                   AND R.ATTRIBUTE2 IN ('${P_SEG1}')
+                                   AND R.ATTRIBUTE3 IN ('${P_SEG2}')) V
+                         where S.ROW_SET_NAME = '${rowSetName}'
+                           AND S.ROW_SET_ID = R.ROW_SET_ID
+                           AND R.DISPLAY_FLAG = 'Y'
+                           AND R.ROW_ID = C.ROW_ID
+                           AND C.CAL_ITEM_CODE = IC.ITEM_CODE
+                           and h.header_id = l.header_id
+                           and l.segment1 between
+                               nvl(ic.segment1_low, l.segment1) and
+                               nvl(ic.segment1_high, l.segment1)
+                           and l.segment2 between
+                               nvl(ic.segment2_low, l.segment2) and
+                               nvl(ic.segment2_high, l.segment2)
+                           and l.segment3 between
+                               nvl(ic.segment3_low, l.segment3) and
+                               nvl(ic.segment3_high, l.segment3)
+                           and l.segment8 between
+                               nvl(ic.segment8_low, l.segment8) and
+                               nvl(ic.segment8_high, l.segment8)
+                           AND H.LEDGER_ID = ${P_LEDGER}
+                           AND l.SEGMENT1 BETWEEN V.SEGMENT1_LOW AND
+                               V.SEGMENT1_HIGH
+                           AND l.SEGMENT2 BETWEEN V.SEGMENT2_LOW AND
+                               V.SEGMENT2_HIGH
+                           and l.fin_element in ('${finElement}') 
+                           and h.period_name = '${P_PERIOD}'
+                           AND H.CURRENCY_CODE = '${P_CURRENCY}'
+                        union all
+                        select V.COM1 segment1,
+                               V.COM2 segment2,
+                               R.ROW_NUM,
+                               R.ROW_NAME,
+                               R.LINE_NUM,
+                               0 amount,
+                               sum(NVL(l.accounted_dr, 0) -
+                                   NVL(l.accounted_cr, 0)) sumamount
+                          from CUX.CUX_HRS_DEF_ROW_SET         S,
+                               CUX.CUX_HRS_DEF_ROW             R,
+                               CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                               CUX.CUX_HRS_DEF_ITEM_CONTENT    IC,
+                               hrs_core_je_header              h,
+                               hrs_core_je_line                l,
+                               (SELECT R.ROW_ID,
+                                       R.ATTRIBUTE1     LEDGER_ID,
+                                       R.ATTRIBUTE2     COM1,
+                                       IC.SEGMENT1_LOW,
+                                       IC.SEGMENT1_HIGH,
+                                       IC.SEGMENT2_LOW,
+                                       IC.SEGMENT2_HIGH,
+                                       R.ATTRIBUTE3     COM2,
+                                       R.ATTRIBUTE4     COM4,
+                                       R.ATTRIBUTE4
+                                  FROM CUX.CUX_HRS_DEF_ROW_SET         RS,
+                                       CUX.CUX_HRS_DEF_ROW             R,
+                                       CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                                       CUX.CUX_HRS_DEF_ITEM_HEADER     H,
+                                       CUX.CUX_HRS_DEF_ITEM_CONTENT    IC
+                                 WHERE RS.ROW_SET_NAME = 'ORG_P200V1'
+                                   AND RS.ROW_SET_ID = R.ROW_SET_ID
+                                   AND C.ROW_ID = R.ROW_ID
+                                   AND R.DISPLAY_FLAG = 'Y'
+                                   AND C.CAL_ITEM_CODE = H.ITEM_CODE
+                                   AND H.ITEM_HEADER_ID = IC.ITEM_HEADER_ID
+                                   AND R.ATTRIBUTE1 = ${P_LEDGER}
+                                   AND R.ATTRIBUTE2 IN ('${P_SEG1}')
+                                   AND R.ATTRIBUTE3 IN ('${P_SEG2}')) V
+                         where S.ROW_SET_NAME = '${rowSetName}'
+                           AND S.ROW_SET_ID = R.ROW_SET_ID
+                           AND R.DISPLAY_FLAG = 'Y'
+                           AND R.ROW_ID = C.ROW_ID
+                           AND C.CAL_ITEM_CODE = IC.ITEM_CODE
+                           and h.header_id = l.header_id
+                           and l.segment1 between
+                               nvl(ic.segment1_low, l.segment1) and
+                               nvl(ic.segment1_high, l.segment1)
+                           and l.segment2 between
+                               nvl(ic.segment2_low, l.segment2) and
+                               nvl(ic.segment2_high, l.segment2)
+                           and l.segment3 between
+                               nvl(ic.segment3_low, l.segment3) and
+                               nvl(ic.segment3_high, l.segment3)
+                           and l.segment8 between
+                               nvl(ic.segment8_low, l.segment8) and
+                               nvl(ic.segment8_high, l.segment8)
+                           AND H.LEDGER_ID = ${P_LEDGER}
+                           and l.fin_element in ('${finElement}') 
+                           AND L.SEGMENT1 BETWEEN V.SEGMENT1_LOW AND
+                               V.SEGMENT1_HIGH
+                           AND L.SEGMENT2 BETWEEN V.SEGMENT2_LOW AND
+                               V.SEGMENT2_HIGH
+                           and h.period_name between
+                               substr('${P_PERIOD}', 1, 4) || '-01' and
+                               '${P_PERIOD}'
+                           AND H.CURRENCY_CODE = '${P_CURRENCY}'
+                         group by V.COM1,
+                                  V.COM2,
+                                  R.ROW_NUM,
+                                  R.ROW_NAME,
+                                  R.LINE_NUM
+                        
+                        ) result
+                 group by result.segment1,
+                          result.segment2,
+                          result.ROW_NUM,
+                          result.ROW_NAME,
+                          result.LINE_NUM) T) RESULT
+ GROUP BY RESULT.SEG1, RESULT.SEG2, RESULT.ROW_NUM, RESULT.ROW_NAME
+]]></Query>
+</TableData>
+<TableData name="ds_SEG" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="P_SEG2"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select DV.DIM_VALUE, DV.description
+  from hrs_core_dimension d, hrs_core_dimension_value dv
+ where d.dimension_id = dv.dimension_id
+   and d.dimension_code = 'XXT_FIN_COA_COSTCENTER'
+   AND ${IF(LEN(P_SEG2)==0,"1=1"," DV.DIM_VALUE IN ('"+P_SEG2+"')")}
+ORDER BY DV.DIM_VALUE]]></Query>
+</TableData>
+<TableData name="ds_LEDGER" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="fr_username"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT HCLV.LOOKUP_VALUE LEDGER_ID, HCLV.DESCRIPTION LEDGER_NAME
+  FROM HRS_CORE_LOOKUP_VALUE HCLV, HRS_CORE_LOOKUP_TYPE HCLT
+ WHERE HCLT.LOOKUP_TYPE_ID = HCLV.LOOKUP_TYPE_ID
+   AND HCLT.LOOKUP_TYPE = 'HRS_CORE_LEDGER'
+   AND NVL(TRUNC(HCLV.START_DATE), TRUNC(SYSDATE)) <= TRUNC(SYSDATE)
+   AND NVL(TRUNC(HCLV.END_DATE), TRUNC(SYSDATE)) >= TRUNC(SYSDATE)
+   AND HCLV.LOOKUP_VALUE IN
+       (SELECT DISTINCT LEDGER_ID
+          FROM HRS_CORE_USER_AUTHORITY
+         WHERE USER_NAME = '${fr_username}')
+  ORDER BY HCLV.LOOKUP_VALUE]]></Query>
+</TableData>
+<TableData name="ds_SEG1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="fr_username"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[ SELECT DISTINCT H.DIM_VALUE COMPANY_CODE,H.DIM_VALUE|| ' ' || H.DESCRIPTION COMPANY_NAME
+   FROM HRS_CORE_USER_AUTHORITY  U,
+        HRS_DEF_RELATIONSHIP     R,
+        HRS_DEF_RELATIONSHIP_SET S,
+        HRS_CORE_DIMENSION       D,
+        HRS_CORE_DIMENSION_VALUE H
+  WHERE S.RELATIONSHIP_SET_ID = R.RELATIONSHIP_SET_ID
+    AND S.RELATIONSHIP_SET_NAME = 'HRS_LEDGER_COMPANY_RELATIONSHIP'
+    and U.LEDGER_ID IN (${P_LEDGER})
+    AND U.LEDGER_ID = R.LEDGER_ID
+    AND R.COMPANY_CODE >= DECODE(U.COMPANY_CODE_FROM,
+                                 'ALL',
+                                 R.COMPANY_CODE,
+                                 U.COMPANY_CODE_FROM)
+    AND R.COMPANY_CODE <= NVL(U.COMPANY_CODE_TO, R.COMPANY_CODE)
+    AND U.USER_NAME = '${fr_username}'
+    AND H.DIM_VALUE = R.COMPANY_CODE
+    AND D.DIMENSION_ID = H.DIMENSION_ID
+    AND D.DIM_SEGMENT = 'SEGMENT1'
+  ORDER BY H.DIM_VALUE]]></Query>
+</TableData>
+<TableData name="ds_SEG2" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select distinct r.dept_code,
+                r.dept_code || '  ' ||
+                (select description
+                   from hrs_core_dimension d, hrs_core_dimension_value dv
+                  where d.dimension_id = dv.dimension_id
+                    and d.dimension_code = 'XXT_FIN_COA_COSTCENTER'
+                    and Dv.Dim_Value = r.dept_code) DEPT_NAME
+  from hrs_def_relationship_set rs, hrs_def_relationship r
+ where rs.relationship_set_name = 'HRS_LEDGER_COSTCENTER_RELATIONSHIP'
+   and r.ledger_id = ${P_LEDGER}
+ order by r.dept_code]]></Query>
+</TableData>
+<TableData name="ds_TYPE" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT IV.ITEM_VALUE, IV.DESCRIPTION
+  FROM HRS_CORE_EXTERNAL_ITEM_TYPE T, HRS_CORE_EXTERNAL_ITEM_VALUE IV
+ WHERE 1 = 1
+   AND T.ITEM_TYPE_ID = IV.ITEM_TYPE_ID
+   AND T.ITEM_TYPE = 'HRS_REPORT_DATA_TYPE'
+   AND IV.ITEM_VALUE IN ('A11', 'A12')
+ ORDER BY IV.ITEM_VALUE ]]></Query>
+</TableData>
+<TableData name="ds_PERIOD" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS1]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select PERIOD_NAME
+  from APPS.GL_PERIOD_STATUSES
+ WHERE CLOSING_STATUS IN ('O', 'C')
+   AND LEDGER_ID = ${P_LEDGER}
+   AND APPLICATION_ID = 101
+ ORDER BY PERIOD_YEAR DESC, PERIOD_NUM DESC]]></Query>
+</TableData>
+<TableData name="ds_YN" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select 'Y' code,'是' dsc from dual
+union all
+select 'N' code,'否' dsc from dual]]></Query>
+</TableData>
+<TableData name="ds_currency" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS1]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT CT.CURRENCY_CODE CODE, CT.NAME DSC
+  FROM apps.fnd_currencies_tl CT, apps.fnd_currencies C
+ WHERE CT.CURRENCY_CODE = C.CURRENCY_CODE
+   AND C.ENABLED_FLAG = 'Y'
+   AND CT.LANGUAGE = 'ZHS']]></Query>
+</TableData>
+<TableData name="行集" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT ROW_SET_NAME,DESCRIPTION FROM HRS_DEF_ROW_SET where row_set_Name like 'P%']]></Query>
+</TableData>
+<TableData name="dsAMTbak" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="P_INCLUDE_UNPOSTED"/>
+<O>
+<![CDATA[Y]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="rowSetName"/>
+<O>
+<![CDATA[P100V1]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O>
+<![CDATA[1001]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_PERIOD"/>
+<O>
+<![CDATA[2018-05]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG2"/>
+<O>
+<![CDATA[T]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_CURRENCY"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG1"/>
+<O>
+<![CDATA[130101]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS1]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT T.SEG1,
+       T.ROW_NUM,
+       T.ROW_NAME,
+       T.PERIOD_END+NVL(T.PERIOD_UNPOSTED,0) PERIOD_END,--本期末+本期未过账
+       T.PERIOD_AMT+NVL(T.PERIOD_UNPOSTED,0) PERIOD_AMT --本期发生+本期未过账
+  FROM (select V.PARENT_VALUE SEG1,
+               R.ROW_NUM,
+               R.ROW_NAME,
+               R.LINE_NUM,
+               SUM(DECODE(R.CHANGE_SIGN,
+                          'Y',
+                          DECODE(C.SIGN,
+                                 '+',
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                                         NVL(GB2.BEGIN_BALANCE_CR, 0) +
+                                         NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)),
+                                         -1 * (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                                         NVL(GB2.BEGIN_BALANCE_CR, 0) +
+                                         NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)))),
+                                 -1 *
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                                         NVL(GB2.BEGIN_BALANCE_CR, 0) +
+                                         NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)),
+                                         -1 * (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                                         NVL(GB2.BEGIN_BALANCE_CR, 0) +
+                                         NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0))))) * (-1),
+                          DECODE(C.SIGN,
+                                 '+',
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                                         NVL(GB2.BEGIN_BALANCE_CR, 0) +
+                                         NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)),
+                                         -1 * (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                                         NVL(GB2.BEGIN_BALANCE_CR, 0) +
+                                         NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)))),
+                                 -1 *
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                                         NVL(GB2.BEGIN_BALANCE_CR, 0) +
+                                         NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)),
+                                         -1 * (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                                         NVL(GB2.BEGIN_BALANCE_CR, 0) +
+                                         NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0))))))) PERIOD_END,
+               SUM(DECODE(R.CHANGE_SIGN,
+                          'Y',
+                          DECODE(C.SIGN,
+                                 '+',
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         (NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)),
+                                         -1 * (NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)))),
+                                 -1 *
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         (NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)),
+                                         -1 * (NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0))))) * (-1),
+                          DECODE(C.SIGN,
+                                 '+',
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         (NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)),
+                                         -1 * (NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)))),
+                                 -1 *
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         (NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0)),
+                                         -1 * (NVL(GB2.PERIOD_NET_DR, 0) -
+                                         NVL(GB2.PERIOD_NET_CR, 0))))))) PERIOD_AMT,
+               SUM(DECODE(R.CHANGE_SIGN,
+                          'Y',
+                          DECODE(C.SIGN,
+                                 '+',
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         NVL(GJ.ENTERED_AMT, 0),
+                                         -1 * NVL(GJ.ENTERED_AMT, 0))),
+                                 -1 *
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         NVL(GJ.ENTERED_AMT, 0),
+                                         -1 * NVL(GJ.ENTERED_AMT, 0)))) * (-1),
+                          DECODE(C.SIGN,
+                                 '+',
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         NVL(GJ.ENTERED_AMT, 0),
+                                         -1 * NVL(GJ.ENTERED_AMT, 0))),
+                                 -1 *
+                                 (DECODE(IC.SIGN,
+                                         '+',
+                                         NVL(GJ.ENTERED_AMT, 0),
+                                         -1 * NVL(GJ.ENTERED_AMT, 0)))))) PERIOD_UNPOSTED
+          FROM CUX.CUX_HRS_DEF_ROW_SET S,
+               CUX.CUX_HRS_DEF_ROW R,
+               CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+               CUX.CUX_HRS_DEF_ITEM_CONTENT IC,
+               apps.gl_code_combinations GCC,
+               apps.gl_ledgers gl,
+               apps.CUX_HRS_CORE_DIM_CHILD_V V,
+               CUX.CUX_HRS_ITEM_CONTENT_RANGE ICR,
+               apps.gl_balances gb2,
+               (SELECT jl.code_combination_id,
+                       SUM(NVL(ACCOUNTED_DR,0) - NVL(ACCOUNTED_CR,0)) ENTERED_AMT   --取所有币种折算成本位币的金额
+                  FROM apps.gl_je_headers jh, apps.gl_je_lines jl
+                 WHERE 1 = 1
+                   and jh.je_header_id = jl.je_header_id
+                   and jh.ledger_id = ${P_LEDGER}
+                   and jh.period_name = '${P_PERIOD}'
+                   and jh.actual_flag = 'A'
+                   and jl.period_name = jh.period_name
+                   AND jl.status != 'P'
+                   and decode('${P_INCLUDE_UNPOSTED}', 'Y', 1, 0) = 1
+                 GROUP BY jl.code_combination_id) GJ
+        
+         WHERE S.ROW_SET_NAME = '${rowSetName}'
+           AND S.ROW_SET_ID = R.ROW_SET_ID
+           AND R.DISPLAY_FLAG = 'Y'
+           AND R.ROW_ID = C.ROW_ID
+           AND C.CAL_ITEM_CODE = IC.ITEM_CODE
+           and gl.ledger_id = ${P_LEDGER}
+           AND IC.ITEM_CONTENT_ID = ICR.ITEM_CONTENT_ID
+           AND GCC.SEGMENT1 <= NVL(ICR.SEGMENT1_HIGH, GCC.SEGMENT1)
+           AND GCC.SEGMENT1 >= NVL(ICR.SEGMENT1_LOW, GCC.SEGMENT1)
+           AND GCC.SEGMENT2 <= NVL(ICR.SEGMENT2_HIGH, GCC.SEGMENT2)
+           AND GCC.SEGMENT2 >= NVL(ICR.SEGMENT2_LOW, GCC.SEGMENT2)
+           AND GCC.SEGMENT3 <= NVL(ICR.SEGMENT3_HIGH, GCC.SEGMENT3)
+           AND GCC.SEGMENT3 >= NVL(ICR.SEGMENT3_LOW, GCC.SEGMENT3)
+           AND GCC.SEGMENT8 <= NVL(ICR.SEGMENT8_HIGH, GCC.SEGMENT8)
+           AND GCC.SEGMENT8 >= NVL(ICR.SEGMENT8_LOW, GCC.SEGMENT8)
+           AND GCC.CHART_OF_ACCOUNTS_ID = gl.CHART_OF_ACCOUNTS_ID
+           and gcc.enabled_flag = 'Y'
+           and gcc.summary_flag = 'N'
+           AND V.PARENT_VALUE IN ('${P_SEG1}')
+           AND V.DIM_SEGMENT = 'SEGMENT1'
+           AND GCC.SEGMENT1 = V.DIM_VALUE
+           AND ${IF(LEN(P_SEG2) == 0,"1=1"," EXISTS (SELECT 1 FROM apps.CUX_HRS_CORE_DIM_CHILD_V  V2 WHERE V2.DIM_SEGMENT = 'SEGMENT2' AND GCC.SEGMENT2 = V2.DIM_VALUE AND V2.parent_value IN ('" +P_SEG2 + "'))")}
+           and gb2.ledger_id(+) = ${P_LEDGER}
+           and gb2.code_combination_id(+) = GCC.code_combination_id
+           and gb2.currency_code(+) = '${P_CURRENCY}'
+           and gb2.period_name(+) = '${P_PERIOD}'
+           and gb2.actual_flag(+) = 'A'
+           AND GJ.code_combination_id(+) = GCC.code_combination_id
+         GROUP BY V.PARENT_VALUE, R.ROW_NUM, R.ROW_NAME,
+               R.LINE_NUM) T
+ order by T.SEG1, to_number(T.ROW_NUM), T.ROW_NAME
+]]></Query>
+</TableData>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="P_INCLUDE_UNPOSTED"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="rowSetName"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_PERIOD"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG2"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_CURRENCY"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG1"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS2]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT RESULT.SEG1,
+       RESULT.SEG2,
+       RESULT.ROW_NUM,
+       RESULT.ROW_NAME,
+       SUM(PERIOD_END) PERIOD_END,
+       SUM(PERIOD_AMT) PERIOD_AMT
+  FROM (select *
+          from (SELECT T.SEG1,
+                       T.SEG2,
+                       T.ROW_NUM,
+                       T.ROW_NAME,
+                       T.PERIOD_END + NVL(T.PERIOD_UNPOSTED, 0) PERIOD_END, --本期末+本期未过账
+                       T.PERIOD_AMT + NVL(T.PERIOD_UNPOSTED, 0) PERIOD_AMT --本期发生+本期未过账
+                  FROM (select V.PARENT_VALUE SEG1,
+                               V2.PARENT_VALUE SEG2,
+                               R.ROW_NUM,
+                               R.ROW_NAME,
+                               R.LINE_NUM,
+                               SUM(DECODE(R.CHANGE_SIGN, 'Y', -1, 1) *
+                                   DECODE(C.SIGN, '+', 1, -1) *
+                                   DECODE(IC.SIGN, '+', 1, -1) *
+                                   (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                                    NVL(GB2.BEGIN_BALANCE_CR, 0) +
+                                    NVL(GB2.PERIOD_NET_DR, 0) -
+                                    NVL(GB2.PERIOD_NET_CR, 0))) PERIOD_END,
+                               SUM(DECODE(R.CHANGE_SIGN, 'Y', -1, 1) *
+                                   DECODE(C.SIGN, '+', 1, -1) *
+                                   DECODE(IC.SIGN, '+', 1, -1) *
+                                   (NVL(GB2.PERIOD_NET_DR, 0) -
+                                    NVL(GB2.PERIOD_NET_CR, 0))) PERIOD_AMT,
+                               SUM(DECODE(R.CHANGE_SIGN, 'Y', -1, 1) *
+                                   DECODE(C.SIGN, '+', 1, -1) *
+                                   DECODE(IC.SIGN, '+', 1, -1) *
+                                   NVL(GJ.ENTERED_AMT, 0)) PERIOD_UNPOSTED
+                          FROM CUX.CUX_HRS_DEF_ROW_SET S,
+                               CUX.CUX_HRS_DEF_ROW R,
+                               CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                               CUX.CUX_HRS_DEF_ITEM_CONTENT IC,
+                               apps.gl_code_combinations GCC,
+                               apps.gl_ledgers gl,
+                               apps.CUX_HRS_CORE_DIM_CHILD_V V,
+                               apps.CUX_HRS_CORE_DIM_CHILD_V V2,
+                               CUX.CUX_HRS_ITEM_CONTENT_RANGE ICR,
+                               apps.gl_balances gb2,
+                               (SELECT jl.code_combination_id,
+                                       SUM(NVL(ACCOUNTED_DR, 0) -
+                                           NVL(ACCOUNTED_CR, 0)) ENTERED_AMT --取所有币种折算成本位币的金额
+                                  FROM apps.gl_je_headers jh,
+                                       apps.gl_je_lines   jl
+                                 WHERE 1 = 1
+                                   and jh.je_header_id = jl.je_header_id
+                                   and jh.ledger_id = ${P_LEDGER}
+                                   and jh.period_name = '${P_PERIOD}'
+                                   and jh.actual_flag = 'A'
+                                   and jl.period_name = jh.period_name
+                                   AND jl.status != 'P'
+                                   and decode('${P_INCLUDE_UNPOSTED}',
+                                              'Y',
+                                              1,
+                                              0) = 1
+                                 GROUP BY jl.code_combination_id) GJ
+                        
+                         WHERE S.ROW_SET_NAME = '${rowSetName}'
+                           AND S.ROW_SET_ID = R.ROW_SET_ID
+                           AND R.DISPLAY_FLAG = 'Y'
+                           AND R.ROW_ID = C.ROW_ID
+                           AND C.CAL_ITEM_CODE = IC.ITEM_CODE
+                           and gl.ledger_id = ${P_LEDGER}
+                           AND IC.ITEM_CONTENT_ID = ICR.ITEM_CONTENT_ID
+                           AND GCC.SEGMENT1 between
+                               NVL(ICR.SEGMENT1_LOW, GCC.SEGMENT1) AND
+                               NVL(ICR.SEGMENT1_HIGH, GCC.SEGMENT1)
+                           AND GCC.SEGMENT2 between
+                               NVL(ICR.SEGMENT2_LOW, GCC.SEGMENT2) AND
+                               NVL(ICR.SEGMENT2_HIGH, GCC.SEGMENT2)
+                           AND GCC.SEGMENT3 between
+                               NVL(ICR.SEGMENT3_LOW, GCC.SEGMENT3) AND
+                               NVL(ICR.SEGMENT3_HIGH, GCC.SEGMENT3)
+                           AND GCC.SEGMENT8 between
+                               NVL(ICR.SEGMENT8_LOW, GCC.SEGMENT8) AND
+                               NVL(ICR.SEGMENT8_HIGH, GCC.SEGMENT8)
+                           AND GCC.CHART_OF_ACCOUNTS_ID =
+                               gl.CHART_OF_ACCOUNTS_ID
+                           and gcc.enabled_flag = 'Y'
+                           and gcc.summary_flag = 'N'
+                           AND V.PARENT_VALUE IN ('${P_SEG1}')
+                           AND V.DIM_SEGMENT = 'SEGMENT1'
+                           AND GCC.SEGMENT1 = V.DIM_VALUE
+                           AND V2.DIM_SEGMENT = 'SEGMENT2'
+                           AND GCC.SEGMENT2 = V2.DIM_VALUE
+                           AND V2.PARENT_VALUE IN ('${P_SEG2}')
+                           and gb2.ledger_id(+) = ${P_LEDGER}
+                           and gb2.code_combination_id(+) =
+                               GCC.code_combination_id
+                           and gb2.currency_code(+) = '${P_CURRENCY}'
+                           and gb2.period_name(+) = '${P_PERIOD}'
+                           and gb2.actual_flag(+) = 'A'
+                           AND GJ.code_combination_id(+) =
+                               GCC.code_combination_id
+                         GROUP BY V.PARENT_VALUE,
+                                  V2.PARENT_VALUE,
+                                  R.ROW_NUM,
+                                  R.ROW_NAME,
+                                  R.LINE_NUM) T) T
+        
+        UNION ALL
+        SELECT *
+          FROM (select result.segment1 SEG1,
+                       result.segment2 SEG2,
+                       result.ROW_NUM,
+                       result.ROW_NAME,
+                       sum(amount) PERIOD_END,
+                       sum(sumamount) PERIOD_AMT
+                  from (select l.segment1,
+                               l.segment2,
+                               R.ROW_NUM,
+                               R.ROW_NAME,
+                               R.LINE_NUM,
+                               NVL(l.accounted_dr, 0) - NVL(l.accounted_cr, 0) amount,
+                               0 sumamount
+                          from CUX.CUX_HRS_DEF_ROW_SET         S,
+                               CUX.CUX_HRS_DEF_ROW             R,
+                               CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                               CUX.CUX_HRS_DEF_ITEM_CONTENT    IC,
+                               hrs_core_je_header              h,
+                               hrs_core_je_line                l,
+                               apps.CUX_HRS_CORE_DIM_CHILD_V   V,
+                               apps.CUX_HRS_CORE_DIM_CHILD_V   V2
+                         where S.ROW_SET_NAME = '${rowSetName}'
+                           AND S.ROW_SET_ID = R.ROW_SET_ID
+                           AND R.DISPLAY_FLAG = 'Y'
+                           AND R.ROW_ID = C.ROW_ID
+                           AND C.CAL_ITEM_CODE = IC.ITEM_CODE
+                           and h.header_id = l.header_id
+                           and l.segment1 between
+                               nvl(ic.segment1_low, l.segment1) and
+                               nvl(ic.segment1_high, l.segment1)
+                           and l.segment2 between
+                               nvl(ic.segment2_low, l.segment2) and
+                               nvl(ic.segment2_high, l.segment2)
+                           and l.segment3 between
+                               nvl(ic.segment3_low, l.segment3) and
+                               nvl(ic.segment3_high, l.segment3)
+                           and l.segment8 between
+                               nvl(ic.segment8_low, l.segment8) and
+                               nvl(ic.segment8_high, l.segment8)
+                           AND V.PARENT_VALUE IN ('${P_SEG1}')
+                           AND H.LEDGER_ID = ${P_LEDGER}
+                           AND V.DIM_SEGMENT = 'SEGMENT1'
+                           AND L.SEGMENT1 = V.DIM_VALUE
+                           AND V2.DIM_SEGMENT = 'SEGMENT2'
+                           AND L.SEGMENT2 = V2.DIM_VALUE
+                           AND V2.PARENT_VALUE IN ('${P_SEG2}')
+                           and l.fin_element = '2010'
+                           and h.period_name = '${P_PERIOD}'
+                           AND H.CURRENCY_CODE = '${P_CURRENCY}'
+                        union all
+                        select l.segment1,
+                               l.segment2,
+                               R.ROW_NUM,
+                               R.ROW_NAME,
+                               R.LINE_NUM,
+                               0 amount,
+                               sum(NVL(l.accounted_dr, 0) -
+                                   NVL(l.accounted_cr, 0)) sumamount
+                          from CUX.CUX_HRS_DEF_ROW_SET         S,
+                               CUX.CUX_HRS_DEF_ROW             R,
+                               CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+                               CUX.CUX_HRS_DEF_ITEM_CONTENT    IC,
+                               hrs_core_je_header              h,
+                               hrs_core_je_line                l,
+                               apps.CUX_HRS_CORE_DIM_CHILD_V   V,
+                               apps.CUX_HRS_CORE_DIM_CHILD_V   V2
+                         where S.ROW_SET_NAME = '${rowSetName}'
+                           AND S.ROW_SET_ID = R.ROW_SET_ID
+                           AND R.DISPLAY_FLAG = 'Y'
+                           AND R.ROW_ID = C.ROW_ID
+                           AND C.CAL_ITEM_CODE = IC.ITEM_CODE
+                           and h.header_id = l.header_id
+                           and l.segment1 between
+                               nvl(ic.segment1_low, l.segment1) and
+                               nvl(ic.segment1_high, l.segment1)
+                           and l.segment2 between
+                               nvl(ic.segment2_low, l.segment2) and
+                               nvl(ic.segment2_high, l.segment2)
+                           and l.segment3 between
+                               nvl(ic.segment3_low, l.segment3) and
+                               nvl(ic.segment3_high, l.segment3)
+                           and l.segment8 between
+                               nvl(ic.segment8_low, l.segment8) and
+                               nvl(ic.segment8_high, l.segment8)
+                           AND V.PARENT_VALUE IN ('${P_SEG1}')
+                           AND H.LEDGER_ID = ${P_LEDGER}
+                           AND V.DIM_SEGMENT = 'SEGMENT1'
+                           AND L.SEGMENT1 = V.DIM_VALUE
+                           AND V2.DIM_SEGMENT = 'SEGMENT2'
+                           AND L.SEGMENT2 = V2.DIM_VALUE
+                           and l.fin_element = '2010'
+                           AND V2.PARENT_VALUE IN ('${P_SEG2}')
+                           and h.period_name between
+                               substr('${P_PERIOD}', 1, 4) || '-01' and
+                               '${P_PERIOD}'
+                           AND H.CURRENCY_CODE = '${P_CURRENCY}'
+                         group by l.segment1,
+                                  l.segment2,
+                                  R.ROW_NUM,
+                                  R.ROW_NAME,
+                                  R.LINE_NUM
+                        
+                        ) result
+                 group by result.segment1,
+                          result.segment2,
+                          result.ROW_NUM,
+                          result.ROW_NAME,
+                          result.LINE_NUM) T) RESULT
+ GROUP BY RESULT.SEG1, RESULT.SEG2, RESULT.ROW_NUM, RESULT.ROW_NAME
+]]></Query>
+</TableData>
+<TableData name="ds_BAK" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS1]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT T.SEG1,
+       T.SEG2,
+       T.ROW_NUM,
+       T.ROW_NAME,
+       T.PERIOD_END+NVL(T.PERIOD_UNPOSTED,0) PERIOD_END,--本期末+本期未过账
+       T.PERIOD_AMT+NVL(T.PERIOD_UNPOSTED,0) PERIOD_AMT --本期发生+本期未过账
+  FROM (select V.PARENT_VALUE SEG1,
+               V2.PARENT_VALUE SEG2,
+               R.ROW_NUM,
+               R.ROW_NAME,
+               R.LINE_NUM,
+               SUM(DECODE(R.CHANGE_SIGN, 'Y', -1, 1) *
+                   DECODE(C.SIGN, '+', 1, -1) * DECODE(IC.SIGN, '+', 1, -1) *
+                   (NVL(GB2.BEGIN_BALANCE_DR, 0) -
+                    NVL(GB2.BEGIN_BALANCE_CR, 0) + NVL(GB2.PERIOD_NET_DR, 0) -
+                    NVL(GB2.PERIOD_NET_CR, 0))) PERIOD_END,
+               SUM(DECODE(R.CHANGE_SIGN, 'Y', -1, 1) *
+                   DECODE(C.SIGN, '+', 1, -1) * DECODE(IC.SIGN, '+', 1, -1) *
+                   (NVL(GB2.PERIOD_NET_DR, 0) - NVL(GB2.PERIOD_NET_CR, 0))) PERIOD_AMT,
+               SUM(DECODE(R.CHANGE_SIGN, 'Y', -1, 1) *
+                   DECODE(C.SIGN, '+', 1, -1) * DECODE(IC.SIGN, '+', 1, -1) *
+                   NVL(GJ.ENTERED_AMT, 0)) PERIOD_UNPOSTED
+          FROM CUX.CUX_HRS_DEF_ROW_SET S,
+               CUX.CUX_HRS_DEF_ROW R,
+               CUX.CUX_HRS_DEF_ROW_CALCULATION C,
+               CUX.CUX_HRS_DEF_ITEM_CONTENT IC,
+               apps.gl_code_combinations GCC,
+               apps.gl_ledgers gl,
+               apps.CUX_HRS_CORE_DIM_CHILD_V V,
+               apps.CUX_HRS_CORE_DIM_CHILD_V V2,
+               CUX.CUX_HRS_ITEM_CONTENT_RANGE ICR,
+               apps.gl_balances gb2,
+               (SELECT jl.code_combination_id,
+                       SUM(NVL(ACCOUNTED_DR,0) - NVL(ACCOUNTED_CR,0)) ENTERED_AMT   --取所有币种折算成本位币的金额
+                  FROM apps.gl_je_headers jh, apps.gl_je_lines jl
+                 WHERE 1 = 1
+                   and jh.je_header_id = jl.je_header_id
+                   and jh.ledger_id = ${P_LEDGER}
+                   and jh.period_name = '${P_PERIOD}'
+                   and jh.actual_flag = 'A'
+                   and jl.period_name = jh.period_name
+                   AND jl.status != 'P'
+                   and decode('${P_INCLUDE_UNPOSTED}', 'Y', 1, 0) = 1
+                 GROUP BY jl.code_combination_id) GJ
+        
+         WHERE S.ROW_SET_NAME = '${rowSetName}'
+           AND S.ROW_SET_ID = R.ROW_SET_ID
+           AND R.DISPLAY_FLAG = 'Y'
+           AND R.ROW_ID = C.ROW_ID
+           AND C.CAL_ITEM_CODE = IC.ITEM_CODE
+           and gl.ledger_id = ${P_LEDGER}
+           AND IC.ITEM_CONTENT_ID = ICR.ITEM_CONTENT_ID
+           AND GCC.SEGMENT1 between NVL(ICR.SEGMENT1_LOW, GCC.SEGMENT1)
+           AND NVL(ICR.SEGMENT1_HIGH, GCC.SEGMENT1)
+           AND GCC.SEGMENT2 between NVL(ICR.SEGMENT2_LOW, GCC.SEGMENT2)
+           AND NVL(ICR.SEGMENT2_HIGH, GCC.SEGMENT2)
+           AND GCC.SEGMENT3 between NVL(ICR.SEGMENT3_LOW, GCC.SEGMENT3)
+           AND NVL(ICR.SEGMENT3_HIGH, GCC.SEGMENT3)
+           AND GCC.SEGMENT8 between NVL(ICR.SEGMENT8_LOW, GCC.SEGMENT8)
+           AND NVL(ICR.SEGMENT8_HIGH, GCC.SEGMENT8)
+           AND GCC.CHART_OF_ACCOUNTS_ID = gl.CHART_OF_ACCOUNTS_ID
+           and gcc.enabled_flag = 'Y'
+           and gcc.summary_flag = 'N'
+           AND V.PARENT_VALUE IN ('${P_SEG1}')
+           AND V.DIM_SEGMENT = 'SEGMENT1'
+           AND GCC.SEGMENT1 = V.DIM_VALUE
+           AND V2.DIM_SEGMENT = 'SEGMENT2'
+           AND GCC.SEGMENT2 = V2.DIM_VALUE
+           AND V2.PARENT_VALUE IN ('${P_SEG2}')
+           and gb2.ledger_id(+) = ${P_LEDGER}
+           and gb2.code_combination_id(+) = GCC.code_combination_id
+           and gb2.currency_code(+) = '${P_CURRENCY}'
+           and gb2.period_name(+) = '${P_PERIOD}'
+           and gb2.actual_flag(+) = 'A'
+           AND GJ.code_combination_id(+) = GCC.code_combination_id
+         GROUP BY V.PARENT_VALUE,V2.PARENT_VALUE, R.ROW_NUM, R.ROW_NAME,
+               R.LINE_NUM) T
+ order by T.SEG1, to_number(T.ROW_NUM), T.ROW_NAME
+]]></Query>
+</TableData>
+<TableData name="财务要素" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select lv.lookup_value, lv.description
+                  from hrs_core_lookup_type lt, hrs_core_lookup_value lv
+                 where lt.lookup_type_id = lv.lookup_type_id
+                   and lt.lookup_type = 'HRS_CORE_FIN_ELEMENT'
+                   order by lv.lookup_value]]></Query>
+</TableData>
+<TableData name="账套" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+
+
+           --账套
+  select lv.lookup_value, lv.description
+          from hrs_core_lookup_type lt, hrs_core_lookup_value lv
+         where lt.lookup_type_id = lv.lookup_type_id
+           and lt.lookup_type = 'HRS_CORE_LEDGER']]></Query>
+</TableData>
+<TableData name="公司" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O>
+<![CDATA[1001]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+
+SELECT distinct
+
+        R.ATTRIBUTE1,
+         R.ATTRIBUTE2  company_code,
+         R.ATTRIBUTE2||'  '|| (select description
+          from hrs_core_dimension d, hrs_core_dimension_value dv
+         where d.dimension_id = dv.dimension_id
+           and d.dimension_code = 'XXT_FIN_COA_COMPANY'
+           and Dv.Dim_Value =R.ATTRIBUTE2 ) description
+      
+  FROM HRS_DEF_ROW_SET RS, HRS_DEF_ROW R
+
+ WHERE RS.ROW_SET_NAME = 'ORG_P200V1'
+   AND RS.ROW_SET_ID = R.ROW_SET_ID
+   AND R.DISPLAY_FLAG = 'Y'
+   AND R.ATTRIBUTE1='${P_LEDGER}'
+   order by R.ATTRIBUTE2
+
+ ]]></Query>
+</TableData>
+<TableData name="部门" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG1"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HRS]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+
+SELECT distinct
+
+       R.ATTRIBUTE1,
+        R.ATTRIBUTE2,
+         R.ATTRIBUTE3 dept_code,
+         R.ATTRIBUTE3||'  '||R.ATTRIBUTE4 description
+         ,R.ATTRIBUTE4
+          
+          
+      
+  FROM HRS_DEF_ROW_SET RS, HRS_DEF_ROW R
+
+ WHERE RS.ROW_SET_NAME = 'ORG_P200V1'
+   AND RS.ROW_SET_ID = R.ROW_SET_ID
+   AND R.DISPLAY_FLAG = 'Y'
+   AND R.ATTRIBUTE1  = '${P_LEDGER}'
+   AND R.ATTRIBUTE2   IN ('${P_SEG1}')
+   order by R.ATTRIBUTE3
+
+
+                ]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<ServerPrinter/>
+<WebViewContent>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Export-Excel-Simple')}]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="true"/>
+<ConditionFuncCheck check="true"/>
+<ListFuncCheck check="true"/>
+</WebViewContent>
+</ReportWebAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[288000,1440000,288000,1008000,1008000,1008000,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[576000,0,11520000,1728000,4320000,4320000,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" cs="4" s="0">
+<O>
+<![CDATA[总部分部门利润表(实时)]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" rs="2" s="1">
+<O>
+<![CDATA[项目]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" rs="2" s="1">
+<O>
+<![CDATA[行次]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="3" cs="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="ds_SEG" columnName="DIM_VALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="DEPT_CODE" viName="DEPT_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ds_SEG2]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="1"/>
+</C>
+<C c="4" r="4" s="1">
+<O>
+<![CDATA[本期实际]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[FIND("A12", $P_TYPE) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="5" r="4" s="1">
+<O>
+<![CDATA[本年累计]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[FIND("A11", $P_TYPE) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="1" r="5">
+<O t="DSColumn">
+<Attributes dsName="ds_item" columnName="ROW_ID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="5" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds_item" columnName="ROW_NAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[ROW() % 2 = 1]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-3342337"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="3" r="5" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds_item" columnName="ROW_NUM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="5" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds_AMT" columnName="PERIOD_AMT"/>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[SEG2]]></CNAME>
+<Compare op="0">
+<ColumnRow column="4" row="3"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ROW_NUM]]></CNAME>
+<Compare op="0">
+<SimpleDSColumn dsName="ds_item" columnName="ROW_NUM"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ROW_NAME]]></CNAME>
+<Compare op="0">
+<SimpleDSColumn dsName="ds_item" columnName="ROW_NAME"/>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="网络报表1">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<Parameters>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$P_LEDGER]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_ROW_NAME"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C6]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_ROW_NUM"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D6]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$P_SEG1]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG2"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=E4]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_CURRENCY"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$P_CURRENCY]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_PERIOD"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$P_PERIOD]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_INCLUDE_UNPOSTED"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$P_INCLUDE_UNPOSTED]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_TYPE"/>
+<O>
+<![CDATA[A12]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="rowSetName"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$rowSetName]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<TargetFrame>
+<![CDATA[_blank]]></TargetFrame>
+<Features width="600" height="400"/>
+<ReportletName byPost="true">
+<![CDATA[/FIN_REPORT /FIN_EBS_DEPT_REPORT/FIN_PROFIT_ACTUAL_DEPT_REPORT_DETAIL.cpt&op=view]]></ReportletName>
+</JavaScript>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="5" r="5" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds_AMT" columnName="PERIOD_END"/>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[SEG2]]></CNAME>
+<Compare op="0">
+<ColumnRow column="4" row="3"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ROW_NUM]]></CNAME>
+<Compare op="0">
+<SimpleDSColumn dsName="ds_item" columnName="ROW_NUM"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ROW_NAME]]></CNAME>
+<Compare op="0">
+<SimpleDSColumn dsName="ds_item" columnName="ROW_NAME"/>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="网络报表1">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<JavaScript class="com.fr.js.ReportletHyperlink">
+<Parameters>
+<Parameter>
+<Attributes name="P_LEDGER"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$P_LEDGER]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_ROW_NUM"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D6]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_ROW_NAME"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C6]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$P_SEG1]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_SEG2"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=E4]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_CURRENCY"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$P_CURRENCY]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_PERIOD"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$P_PERIOD]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_INCLUDE_UNPOSTED"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$P_INCLUDE_UNPOSTED]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="P_TYPE"/>
+<O>
+<![CDATA[A11]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="rowSetName"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$rowSetName]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<TargetFrame>
+<![CDATA[_blank]]></TargetFrame>
+<Features width="600" height="400"/>
+<ReportletName byPost="true">
+<![CDATA[/FIN_REPORT /FIN_EBS_DEPT_REPORT/FIN_PROFIT_ACTUAL_DEPT_REPORT_DETAIL.cpt&op=view]]></ReportletName>
+</JavaScript>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="4" r="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="10">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="1" left="1" bottom="1" right="1"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1118482"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="finElement"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="LOOKUP_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[财务要素]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[1000\',\'1010\',\'2010]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="691" y="15" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelfinElement"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[财务要素:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="632" y="15" width="59" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="rowSetName"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ROW_SET_NAME" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[行集]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[P100V1]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="544" y="15" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelrowSetName"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[行集:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="500" y="15" width="44" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelP_LEDGER"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[账套：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="15" y="15" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="P_LEDGER"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[账套不能为空]]></EMSG>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="LOOKUP_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[账套]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[='1001']]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="55" y="15" width="63" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="Search"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+</InnerWidget>
+<BoundsAttr x="1056" y="15" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelP_CURRENCY"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[币种：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="300" y="45" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="P_CURRENCY"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="CODE" viName="DSC"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ds_currency]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[CNY]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="340" y="45" width="70" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelP_TYPE"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[数据类型：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="902" y="15" width="65" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelP_SEG2"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[部门：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="240" y="15" width="45" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelP_SEG1"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[公司：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="126" y="15" width="46" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelP_PERIOD"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[期间：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="366" y="15" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="P_PERIOD"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[期间不能为空]]></EMSG>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="PERIOD_NAME" viName="PERIOD_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ds_PERIOD]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("HRS1","select max(PERIOD_NAME)
+  from APPS.GL_PERIOD_STATUSES
+ WHERE CLOSING_STATUS IN ('O', 'C')
+   AND LEDGER_ID = "+$P_LEDGER+"
+   AND APPLICATION_ID = 101
+",1,1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="406" y="15" width="85" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelP_INCLUDE_UNPOSTED"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[含未过账：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="777" y="15" width="65" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="P_INCLUDE_UNPOSTED"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[含未过账不能为空]]></EMSG>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="CODE" viName="DSC"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ds_YN]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[Y]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="842" y="15" width="50" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="P_SEG1"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[公司不能为空]]></EMSG>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="COMPANY_CODE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[公司]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[130101]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="165" y="15" width="70" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="P_SEG2"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[请填写部门]]></EMSG>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="DEPT_CODE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[部门]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="285" y="15" width="70" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="P_TYPE"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<EMSG>
+<![CDATA[数据类型不能为空]]></EMSG>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ITEM_VALUE" viName="DESCRIPTION"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ds_TYPE]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[A11\',\'A12]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="967" y="15" width="60" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="P_PERIOD_FIRST"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("HRS","select period_name from hrs_core_fin_period where period_year=(SELECT PERIOD_YEAR FROM hrs_core_fin_period WHERE PERIOD_NAME='"+$P_PERIOD+"') AND PERIOD_NUM=1
+",1,1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="110" y="45" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="P_PERIOD_LAST"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("HRS","SELECT p1.PERIOD_NAME
+  FROM hrs_core_fin_period p1, hrs_core_fin_period p2
+ where p1.period_year =
+       decode(p2.period_num, 1, p2.period_year - 1, p2.period_year)
+   and p1.period_num = decode(p2.period_num,
+                              1,
+                              (select max(t.period_num)
+                                 from hrs_core_fin_period t
+                                where t.period_year = p2.period_year - 1),
+                              p2.period_num - 1)
+   and p2.period_name = '"+$P_PERIOD+"'
+",1,1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="200" y="45" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="P_PERIOD_LAST_YEAR"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("HRS","select period_name from hrs_core_fin_period where period_year=(SELECT PERIOD_YEAR-1 FROM hrs_core_fin_period WHERE PERIOD_NAME='"+$P_PERIOD+"') AND PERIOD_NUM=(SELECT PERIOD_NUM FROM hrs_core_fin_period WHERE PERIOD_NAME='"+$P_PERIOD+"')
+",1,1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="15" y="45" width="80" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="P_LEDGER"/>
+<Widget widgetName="P_SEG1"/>
+<Widget widgetName="P_SEG2"/>
+<Widget widgetName="P_PERIOD"/>
+<Widget widgetName="rowSetName"/>
+<Widget widgetName="finElement"/>
+<Widget widgetName="P_INCLUDE_UNPOSTED"/>
+<Widget widgetName="P_TYPE"/>
+<Widget widgetName="P_PERIOD_LAST_YEAR"/>
+<Widget widgetName="P_PERIOD_FIRST"/>
+<Widget widgetName="P_PERIOD_LAST"/>
+<Widget widgetName="P_CURRENCY"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="true"/>
+<Position position="0"/>
+<Design_Width design_width="1188"/>
+<NameTagModified/>
+<WidgetNameTagMap>
+<NameTag name="P_INCLUDE_UNPOSTED" tag="含未过账："/>
+<NameTag name="finElement" tag="财务要素:"/>
+<NameTag name="rowSetName" tag="行集:"/>
+<NameTag name="P_LEDGER" tag="账套："/>
+<NameTag name="P_PERIOD_LAST" tag="P_PERIOD_LAST:"/>
+<NameTag name="P_PERIOD" tag="期间："/>
+<NameTag name="P_PERIOD_LAST_YEAR" tag="P_PERIOD_LAST_YEAR:"/>
+<NameTag name="P_SEG2" tag="部门："/>
+<NameTag name="P_CURRENCY" tag="币种："/>
+<NameTag name="P_TYPE" tag="数据类型："/>
+<NameTag name="P_PERIOD_FIRST" tag="P_PERIOD_FIRST:"/>
+<NameTag name="P_SEG1" tag="公司："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="1188" height="41"/>
+</ParameterUI>
+<Parameter>
+<Attributes name="P_TYPE"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</ReportParameterAttr>
+<StyleList>
+<Style style_name="A-HRS-head1"/>
+<Style style_name="A-HRS-head2"/>
+<Style style_name="A-HRS-head3-T"/>
+<Style horizontal_alignment="0" imageLayout="1" paddingLeft="6">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-1"/>
+<Border>
+<Top style="1" color="-4144960"/>
+<Bottom style="1" color="-4144960"/>
+<Left style="1" color="-4144960"/>
+<Right style="1" color="-4144960"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#,##0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72" foreground="-16776961" underline="1"/>
+<Background name="ColorBackground" color="-1"/>
+<Border>
+<Top style="1" color="-4144960"/>
+<Bottom style="1" color="-4144960"/>
+<Left style="1" color="-4144960"/>
+<Right style="1" color="-4144960"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+<TemplateID TemplateID="382c39ee-4fc0-4b9f-acdb-3ca73a1dcd32"/>
+</WorkBook>

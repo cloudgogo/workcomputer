@@ -9,3 +9,6 @@ ECMAscript是几大公司联合ECMA组织搞出的标准,JavaScript是它的一�
 ## javaScript版本
 JavaScript的版本其实就是说他实现了ECMAScript的那个版本,最新的ECMAScript6标准(ES6)已经在2015年6月发布了
 
+
+## 此部分内容由廖雪峰的javascript来
+

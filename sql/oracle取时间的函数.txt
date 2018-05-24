@@ -1,0 +1,76 @@
+Oracle中如何获取系统当前时间
+ 
+select to_char(sysdate,'yyyy-mm-dd hh24:mi:ss') from dual; 
+ 
+ORACLE里获取一个时间的年、季、月、周、日的函数 
+select  to_char(sysdate, 'yyyy' )  from dual; --年 
+ 
+select  to_char(sysdate, 'MM' )  from dual; --月 
+select  to_char(sysdate, 'dd' )  from dual; --日 
+select  to_char(sysdate, 'Q')  from dual; --季 
+select  to_char(sysdate, 'iw')  from dual; --周--按日历上的那种，每年有52或者53周 
+/* 
+hh 小时(12) 
+hh24 小时(24) 
+Mi 分 
+ss 秒 
+D 周中的星期几 
+ddd 年中的第几天 
+WW 年中的第几个星期 
+W 该月中第几个星期 --每年的1月1号至1月7号为第一周，以此类推，每年53周 
+*/ 
+   
+获取系统日期： SYSDATE() 
+　　格式化日期： 
+     TO_CHAR(SYSDATE(),'YY/MM/DD HH24:MI:SS) 
+　   或 TO_DATE(SYSDATE(),'YY/MM/DD HH24:MI:SS) 
+　　 select to_char(sysdate,'yyyy-MM-dd HH24:mi:ss')  from dual; 
+　　 select to_char(sysdate,'yyyy-MM-dd HH24:mm:ss')  from dual; 
+　　 select to_char(sysdate,'yy-mm-dd hh24:mi:ss')  from dual 
+　　 select to_date('2009-12-25 14:23:31','yyyy-mm-dd,hh24:mi:ss') from dual 
+　　而如果把上式写作： 
+　　 select  to_date('2009-12-25 14:23:31','yyyy-mm-dd,hh:mi:ss')  from dual 
+　　则会报错，因为小时hh是12进制，14为非法输入，不能匹配。 
+　　转换的格式： 
+　　表示 year 的： 
+    y 表示年的最后一位 、 
+　　yy 表示年的最后2位 、 
+　　yyy 表示年的最后3位 、 
+　　yyyy 用4位数表示年 
+　　表示month的： 
+    mm 用2位数字表示月 、 
+　　mon 用简写形式， 比如11月或者nov 、 
+　　month 用全称， 比如11月或者november 
+　　表示day的： 
+    dd 表示当月第几天 、 
+　　ddd 表示当年第几天 、 
+　　dy 当周第几天，简写， 比如星期五或者fri 、 
+　　day 当周第几天，全称， 比如星期五或者friday 
+　　表示hour的： 
+    hh 2位数表示小时 12进制 、 
+　　hh24 2位数表示小时 24小时 
+　　表示minute的： 
+    mi 2位数表示分钟 
+　　表示second的： 
+    ss 2位数表示秒 60进制 
+　　表示季度的： 
+    q 一位数 表示季度 （1-4） 
+　　另外还有ww 用来表示当年第几周 w用来表示当月第几周。 
+ 
+　　当前时间减去7分钟的时间 
+　　 select   sysdate,sysdate - interval '7' MINUTE  from  dual; 
+　　当前时间减去7小时的时间 
+　　 select   sysdate - interval '7' hour  from dual; 
+　　当前时间减去7天的时间 
+　　 select   sysdate - interval '7' day  from dual; 
+　　当前时间减去7月的时间 
+　　 select   sysdate,sysdate - interval '7' month  from dual; 
+　　当前时间减去7年的时间 
+　　 select   sysdate,sysdate - interval '7' year  from dual; 
+　　时间间隔乘以一个数字 
+　　 select   sysdate,sysdate - 8*interval '7' hour  from dual; 
+      
+    select to_char(sysdate,'yyyy-mm-dd:hh24:mi:ss:pm:dy') from dual;                     年  月 日 24制小时 分 秒 上/下午 星期中文;      
+--获取11月天数--select to_char(last_day(to_date('2010-11-1','YYYY-MM-DD')),'DD') from dual;  
+--获取12月天数--select to_char(last_day(to_date('2010-12-1','YYYY-MM-DD')),'DD') from dual;      
+显示上个礼拜一到礼拜日  SELECT to_char(SYSDATE,'yyyymmdd')-to_number(to_char(SYSDATE,'d')-1) - 6, to_char(SYSDATE,'yyyymmdd')-to_number(to_char(SYSDATE,'d')-1)    from dual 

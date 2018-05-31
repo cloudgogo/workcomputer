@@ -1,0 +1,1 @@
+window.parent.FS.tabPane.addItem({title:"签约完成情况",src:"${servletURL}?reportlet=HX_OPERATING_CONTROL%2FFINANCE%2FOPE_FIN_SIGN_FINISH_SITUATION.cpt"}) 

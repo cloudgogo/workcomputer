@@ -1,0 +1,213 @@
+
+select  to_char(sysdate, 'yyyy' )  from dual; --年 
+select  to_char(sysdate, 'MM' )  from dual; --月 
+select  to_char(sysdate, 'dd' )  from dual; --日 
+select  to_char(sysdate, 'Q')  from dual; --季 
+
+select substr('2018Q01 ',0,4) from dual;
+
+
+select * from dm_mcl_acct_quarter;
+
+
+select * from  dm_mcl_acct_month;
+select * from  dim_period;
+
+select * 
+
+select distinct period_quarter from dim_period where ;
+
+
+-- result1
+select *
+  from (select result.*,
+               case result.org_name
+                 when '孔雀城住宅' then
+                  '住宅'
+                 when '华夏幸福' then
+                  '股份公司'
+                 when '产业新城' then
+                  '新城'
+                 when '产业小镇' then
+                  '小镇'
+                 when '物业' then
+                  '其他'
+                 when '产业新城全口径' then
+                  '新城全口径'
+               end org_name_o
+          from (select acc.*, org.org_name
+                  from dm_mcl_acct_year acc, dim_org org, dim_index ind
+                 where acc.org_id = org.org_id
+                   and acc.index_id = ind.index_id
+                   and acc.data_year = to_char(sysdate, 'yyyy')
+                   and ind.index_name = '签约'
+                   and org_name in ('华夏幸福',
+                                    '产业新城',
+                                    '产业小镇',
+                                    '孔雀城住宅',
+                                    '物业')
+                union all
+                select acc.*, org.org_name || '全口径'
+                  from dm_mcl_acct_year acc, dim_org org, dim_index ind
+                 where acc.org_id = org.org_id
+                   and acc.index_id = ind.index_id
+                   and acc.data_year = to_char(sysdate, 'yyyy')
+                   and ind.index_id =
+                       (select index_id
+                          from (select *
+                                  from dim_index i
+                                 start with i.index_name = '签约'
+                                connect by prior i.index_id = i.father_id) i
+                         where i.index_name = '产业新城')
+                   and org_name = '产业新城') result) res
+ where res.org_name_o = '新城';
+ 
+ 
+ --result2 
+ --年度
+select res.*,'当年' period,'当年' periodtype
+  from (select result.*,
+               case result.org_name
+                 when '孔雀城住宅' then
+                  '住宅'
+                 when '华夏幸福' then
+                  '股份公司'
+                 when '产业新城' then
+                  '新城'
+                 when '产业小镇' then
+                  '小镇'
+                 when '物业' then
+                  '其他'
+                 when '产业新城全口径' then
+                  '新城全口径'
+               end org_name_o
+          from (select acc.*, org.org_name
+                  from dm_mcl_acct_year acc, dim_org org, dim_index ind
+                 where acc.org_id = org.org_id
+                   and acc.index_id = ind.index_id
+                   and acc.data_year = to_char(sysdate, 'yyyy')
+                   and ind.index_name = '签约'
+                   and org_name in ('华夏幸福',
+                                    '产业新城',
+                                    '产业小镇',
+                                    '孔雀城住宅',
+                                    '物业')
+                union all
+                select acc.*, org.org_name || '全口径'
+                  from dm_mcl_acct_year acc, dim_org org, dim_index ind
+                 where acc.org_id = org.org_id
+                   and acc.index_id = ind.index_id
+                   and acc.data_year = to_char(sysdate, 'yyyy')
+                   and ind.index_id =
+                       (select index_id
+                          from (select *
+                                  from dim_index i
+                                 start with i.index_name = '签约'
+                                connect by prior i.index_id = i.father_id) i
+                         where i.index_name = '产业新城')
+                   and org_name = '产业新城') result) res
+ where res.org_name_o = '新城'
+ 
+union all 
+ --年度对应的季度
+ select res.*,  CASE substr(res.data_quarter,6,2) WHEN '01' THEN  '一' when '02' then '二' when '03' then '三' when '04' then '四' end ||'季度' period,'当年' periodtype
+  from (select result.*,
+               case result.org_name
+                 when '孔雀城住宅' then
+                  '住宅'
+                 when '华夏幸福' then
+                  '股份公司'
+                 when '产业新城' then
+                  '新城'
+                 when '产业小镇' then
+                  '小镇'
+                 when '物业' then
+                  '其他'
+                 when '产业新城全口径' then
+                  '新城全口径'
+               end org_name_o
+          from (select acc.*, org.org_name
+                  from dm_mcl_acct_quarter acc, dim_org org, dim_index ind
+                 where acc.org_id = org.org_id
+                   and acc.index_id = ind.index_id
+                   and acc.data_year = to_char(sysdate, 'yyyy')
+                   and ind.index_name = '签约'
+                   and org_name in ('华夏幸福',
+                                    '产业新城',
+                                    '产业小镇',
+                                    '孔雀城住宅',
+                                    '物业')
+                union all
+                select acc.*, org.org_name || '全口径'
+                  from dm_mcl_acct_quarter acc, dim_org org, dim_index ind
+                 where acc.org_id = org.org_id
+                   and acc.index_id = ind.index_id
+                   and acc.data_year = to_char(sysdate, 'yyyy')
+                   and ind.index_id =
+                       (select index_id
+                          from (select *
+                                  from dim_index i
+                                 start with i.index_name = '签约'
+                                connect by prior i.index_id = i.father_id) i
+                         where i.index_name = '产业新城')
+                   and org_name = '产业新城') result) res
+ where res.org_name_o = '新城'
+ 
+ union all 
+ --季度
+ 
+
+ --季度对应的月度
+  select res.*,  '季度' period,'当季' periodtype
+  from (select result.*,
+               case result.org_name
+                 when '孔雀城住宅' then
+                  '住宅'
+                 when '华夏幸福' then
+                  '股份公司'
+                 when '产业新城' then
+                  '新城'
+                 when '产业小镇' then
+                  '小镇'
+                 when '物业' then
+                  '其他'
+                 when '产业新城全口径' then
+                  '新城全口径'
+               end org_name_o
+          from (select acc.*, org.org_name
+                  from dm_mcl_acct_month acc, dim_org org, dim_index ind
+                 where acc.org_id = org.org_id
+                   and acc.index_id = ind.index_id
+                   and acc.data_quarter= to_char(sysdate, 'Q')||'季度'||' '  
+                   and ind.index_name = '签约'
+                   and org_name in ('华夏幸福',
+                                    '产业新城',
+                                    '产业小镇',
+                                    '孔雀城住宅',
+                                    '物业')
+                union all
+                select acc.*, org.org_name || '全口径'
+                  from dm_mcl_acct_month acc, dim_org org, dim_index ind
+                 where acc.org_id = org.org_id
+                   and acc.index_id = ind.index_id
+                   and acc.data_quarter= to_char(sysdate, 'Q')||'季度'||' '
+                   and ind.index_id =
+                       (select index_id
+                          from (select *
+                                  from dim_index i
+                                 start with i.index_name = '签约'
+                                connect by prior i.index_id = i.father_id) i
+                         where i.index_name = '产业新城')
+                   and org_name = '产业新城') result) res
+ where res.org_name_o = '新城';
+ 
+ -- 时间维度
+ select distinct period_year,period_quarter,period_month,week_nbr_in_month from dim_period 
+ order by  
+ ;
+ 
+ 
+ select distinct period_type_id from dm_mcl_acct 
+ 
+ 
+ 

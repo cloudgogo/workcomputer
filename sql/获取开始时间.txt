@@ -1,0 +1,79 @@
+??1 取周的开始时间和结束时间
+取周的开始时间，以星期一为开始。
+
+SQL>SELECT TRUNC(TO_DATE('2013-11-25 10:31:11','YYYY-MM-DD HH24:MI:SS'),'D') + 1 ASA FROM DUAL;
+
+A
+
+-----------
+
+2013/11/25
+
+取周的结束时间，以星期日为结束
+
+SQL>SELECT TRUNC(TO_DATE('2013-11-25 10:31:11','YYYY-MM-DD HH24:MI:SS'),'D') + 7 ASA FROM DUAL;
+
+A
+
+-----------
+
+2013/12/1
+
+2 取月的开始时间和结束时间
+取月的开始时间
+
+SQL>SELECT TRUNC(TO_DATE('2013-11-25 10:31:11','YYYY-MM-DD HH24:MI:SS'),'MM') AS AFROM DUAL;
+
+A
+
+-----------
+
+2013/11/1
+
+取月的结束时间
+
+SQL>SELECT LAST_DAY(TO_DATE('2013-11-25 10:31:11','YYYY-MM-DD HH24:MI:SS')) AS AFROM DUAL;
+
+A
+
+-----------
+
+2013/11/30
+
+3 取季的开始时间和结束时间
+取季的开始时间
+
+SQL>SELECT TRUNC(TO_DATE('2013-11-25 10:31:11','YYYY-MM-DD HH24:MI:SS'),'Q') AS AFROM DUAL;
+
+A
+
+-----------
+
+2013/10/1
+
+取季的结束时间
+
+SQL>SELECT ADD_MONTHS(TRUNC(TO_DATE('2013-11-25 10:31:11','YYYY-MM-DDHH24:MI:SS'),'Q'),3)-1 AS A FROM DUAL;
+
+A
+
+-----------
+
+2013/12/31
+
+4 取年的开始时间和结束时间
+取年的开始时间
+
+SQL>SELECT TRUNC(TO_DATE('2013-11-25 10:31:11','YYYY-MM-DD HH24:MI:SS'),'YYYY') ASA FROM DUAL;
+
+A
+
+-----------
+
+2013/1/1
+
+取年的结束时间
+
+SQL>SELECT ADD_MONTHS(TRUNC(TO_DATE('2013-11-25 10:31:11','YYYY-MM-DDHH24:MI:SS'),'YYYY'),12)-1 AS A FROM DUAL;
+
+A

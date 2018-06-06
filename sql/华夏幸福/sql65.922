@@ -1,0 +1,90 @@
+select * from (
+select acc.target_value,acc.actual_value,acc.forecate_value,acc.last_actual_value,acc.last_rate_value,org.org_id,org.org_name,org.org_sname
+  from dm_mcl_acct acc,
+       (SELECT *
+          FROM DIM_ORG
+         START WITH ORG_NAME = (case &dept
+                      when '股份公司' then
+                       '华夏幸福'
+                      when '住宅' then
+                       '孔雀城住宅'
+                      when '新城' then
+                       '产业新城'
+                      when '小镇' then
+                       '产业小镇'
+                      when '物业' then
+                       '其他'
+                    end)
+        CONNECT BY PRIOR ORG_ID = FATHER_ID) org,
+       dim_index ind
+ where acc.org_id = org.org_id
+   and acc.index_id = ind.index_id
+   and org.org_name not in
+       ('华夏幸福', '孔雀城住宅', '产业新城', '产业小镇', '物业')
+   and ind.index_name = '签约'
+   and org.org_type = decode(&dept, '住宅', '分公司', &orgtype)
+   and acc.period_type_id= case &period when '当年' then to_char(sysdate-1,'yyyy') when '当季' then to_char(sysdate-1,'yyyy')||'Q0'||to_char(sysdate-1,'Q') when '当月' then to_char(sysdate-1,'yyyy')||'M'||to_char(sysdate-1,'MM')  end
+   order by nvl(acc.actual_value,0) desc
+    ) res
+   where rownum<=10
+   ;        
+   
+   
+   
+   select * from (
+select acc.target_value,acc.actual_value,acc.forecate_value,acc.last_actual_value,acc.last_rate_value,org.org_id,org.org_name,org.org_sname
+  from dm_mcl_acct acc,
+       DIM_ORG org,
+       dim_index ind
+ where acc.org_id = org.org_id
+   and acc.index_id = ind.index_id
+   and org.org_name not in
+       ('产业新城')
+   and ind.index_id =
+               (select index_id
+                  from (select *
+                          from dim_index i
+                         start with i.index_name = '签约'
+                        connect by prior i.index_id = i.father_id) i
+                 where i.index_name = '产业新城')
+   and org.org_type = decode(&dept, '住宅', '分公司', &orgtype)
+   and acc.period_type_id= case &period when '当年' then to_char(sysdate-1,'yyyy') when '当季' then to_char(sysdate-1,'yyyy')||'Q0'||to_char(sysdate-1,'Q') when '当月' then to_char(sysdate-1,'yyyy')||'M'||to_char(sysdate-1,'MM')  end
+   order by nvl(acc.actual_value,0) desc
+    ) res
+   where rownum<=10
+   and decode(&dept,'新城全口径',1,0)=1
+   order by actual_value
+   
+   
+   ;
+SELECT *
+  FROM DIM_ORG
+ START WITH ORG_NAME = (case &DEPT
+              when '股份公司' then
+               '华夏幸福'
+              when '住宅' then
+               '孔雀城住宅'
+              when '新城' then
+               '产业新城'
+              when '小镇' then
+               '产业小镇'
+              when '物业' then
+               '其他'
+            end)
+CONNECT BY PRIOR ORG_ID = FATHER_ID
+
+
+select acc.*, org.org_name || '全口径'
+  from dm_mcl_acct_year acc, dim_org org, dim_index ind
+ where acc.org_id = org.org_id
+   and acc.index_id = ind.index_id
+   and acc.data_year = to_char(sysdate - 1, 'yyyy') -- pram2
+   and ind.index_id = (select index_id
+                         from (select *
+                                 from dim_index i
+                                start with i.index_name = '签约' -- pram1
+                               connect by prior i.index_id = i.father_id) i
+                        where i.index_name = '产业新城')
+   --and org_name = '产业新城'
+
+

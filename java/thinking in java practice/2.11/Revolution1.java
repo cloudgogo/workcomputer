@@ -6,7 +6,7 @@ public class Revolution1 {
         System.out.println(r.printinformation());
     }
     public String printinformation(){
-       String information= "int���ͳ�ʼֵ"+ this.intvalue+",char���ͳ�ʼֵ"+this.charvalue;
+       String information= "int类型初始值"+ this.intvalue+",char类型初始值"+this.charvalue;
        return information;
     }
 }

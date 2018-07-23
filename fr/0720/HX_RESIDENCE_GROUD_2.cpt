@@ -521,6 +521,8 @@ for(var m = 1; m <= t; m++) {
 <O t="DSColumn">
 <Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
 <![CDATA[VACANTID]]></CNAME>
 <Compare op="0">
@@ -676,6 +678,8 @@ for(var m = 1; m <= t; m++) {
 <O t="DSColumn">
 <Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
 <![CDATA[VACANTID]]></CNAME>
 <Compare op="0">
@@ -831,6 +835,8 @@ for(var m = 1; m <= t; m++) {
 <O t="DSColumn">
 <Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
 <![CDATA[VACANTID]]></CNAME>
 <Compare op="0">
@@ -986,6 +992,8 @@ for(var m = 1; m <= t; m++) {
 <O t="DSColumn">
 <Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
 <![CDATA[VACANTID]]></CNAME>
 <Compare op="0">
@@ -1141,6 +1149,8 @@ for(var m = 1; m <= t; m++) {
 <O t="DSColumn">
 <Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
 <![CDATA[VACANTID]]></CNAME>
 <Compare op="0">
@@ -1291,6 +1301,8 @@ for(var m = 1; m <= t; m++) {
 <O t="DSColumn">
 <Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
 <![CDATA[VACANTID]]></CNAME>
 <Compare op="0">
@@ -1825,7 +1837,7 @@ for(var m = 1; m <= t; m++) {
 </StyleList>
 <DesignerVersion DesignerVersion="JAA"/>
 <PreviewType PreviewType="2"/>
-<TemplateID TemplateID="171e7e15-f46c-47f2-aa96-a607feb05e0d"/>
+<TemplateID TemplateID="3fb5a596-d5d9-4928-985c-14f2e50017bd"/>
 <TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
 <TemplateIdAttMark TemplateId="6ea84c54-eb51-4aba-bf47-9023844488bc"/>
 </TemplateIdAttMark>

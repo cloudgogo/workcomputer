@@ -114,12 +114,13 @@ order by order_key ]]></Query>
 <![CDATA[oracle_test]]></DatabaseName>
 </Connection>
 <Query>
-<![CDATA[with org_x as (SELECT distinct * FROM DIM_ORG o START WITH o.org_id  in (SELECT distinct v.org_id from  dm_res_viewvacant v WHERE 1=1 ) connect by prior o.father_id=o.org_id
+<![CDATA[with org_x as (SELECT distinct * FROM DIM_ORG o START WITH o.org_id in ( select distinct areaid  from  bass_ods.ods_v_operate_landtarget l WHERE 1=1 
+) connect by prior o.father_id=o.org_id
 union all
-select distinct v.vacantid org_id,
+select distinct v.id org_id,
                 o.org_id father_id,
-                v.vacantname org_name,
-                v.vacantname org_sname,
+                v.name org_name,
+                v.name org_sname,
                 null org_en_name,
                 6 org_level,
                 null order_key,
@@ -136,13 +137,14 @@ select distinct v.vacantid org_id,
                 null org_area_id,
                 null org_area,
                 null org_cy,
-                o.org_code || '-' || v.vacantid org_code
-  from dm_res_viewvacant v, dim_org o
- where v.org_id = o.org_id
+                o.org_code || '-' || v.id org_code
+  from bass_ods.ods_v_operate_landtarget v, dim_org o
+ where v.areaid = o.org_id 
+
 
 )
 
-select  * from org_x ]]></Query>
+select  * from org_x]]></Query>
 </TableData>
 <TableData name="Tree1" class="com.fr.data.impl.RecursionTableData">
 <markFields>
@@ -156,7 +158,7 @@ select  * from org_x ]]></Query>
 <originalTableDataName>
 <![CDATA[组织2]]></originalTableDataName>
 </TableData>
-<TableData name="已确权未预售" class="com.fr.data.impl.DBTableData">
+<TableData name="已取指标未确权" class="com.fr.data.impl.DBTableData">
 <Parameters/>
 <Attributes maxMemRowCount="-1"/>
 <Connection class="com.fr.data.impl.NameDatabaseConnection">
@@ -164,120 +166,82 @@ select  * from org_x ]]></Query>
 <![CDATA[oracle_test]]></DatabaseName>
 </Connection>
 <Query>
-<![CDATA[ select NULL ORG_ID,
-        NULL RESOURCEPROPID,
-        O.ORG_ID1 VACANTID,
-        NULL VACANTNAME,
-        NULL FLOORAREA,
-        SUM(V.BUILDINGAREA) BUILDINGAREA,
-        NULL VACANTAREA,
-        NULL DEVELOPSTATUS,
-        NULL REASONTYPE,
-        NULL REASONDESC,
-        NULL ISDELETED,
-        NULL CREATETIME,
-        SUM(V.THEVALUE) THEVALUE,
-        NULL RECENTDEVELOP,
-        NULL PRESALETIME 
-   from dm_res_viewvacant v, MV_DIM_ORG o
-  where V.ORG_ID = O.ORG_ID5
-  GROUP BY O.ORG_ID1
-  UNION ALL 
-     select NULL ORG_ID,
-        NULL RESOURCEPROPID,
-        O.ORG_ID2 VACANTID,
-        NULL VACANTNAME,
-        NULL FLOORAREA,
-        SUM(V.BUILDINGAREA) BUILDINGAREA,
-        NULL VACANTAREA,
-        NULL DEVELOPSTATUS,
-        NULL REASONTYPE,
-        NULL REASONDESC,
-        NULL ISDELETED,
-        NULL CREATETIME,
-        SUM(V.THEVALUE) THEVALUE,
-        NULL RECENTDEVELOP,
-        NULL PRESALETIME 
-   from dm_res_viewvacant v, MV_DIM_ORG o
-  where V.ORG_ID = O.ORG_ID5
-  GROUP BY O.ORG_ID2
-  UNION ALL
-     select NULL ORG_ID,
-        NULL RESOURCEPROPID,
-        O.ORG_ID3 VACANTID,
-        NULL VACANTNAME,
-        NULL FLOORAREA,
-        SUM(V.BUILDINGAREA) BUILDINGAREA,
-        NULL VACANTAREA,
-        NULL DEVELOPSTATUS,
-        NULL REASONTYPE,
-        NULL REASONDESC,
-        NULL ISDELETED,
-        NULL CREATETIME,
-        SUM(V.THEVALUE) THEVALUE,
-        NULL RECENTDEVELOP,
-        NULL PRESALETIME 
-   from dm_res_viewvacant v, MV_DIM_ORG o
-  where V.ORG_ID = O.ORG_ID5
-  GROUP BY O.ORG_ID3
-  UNION ALL 
-     select NULL ORG_ID,
-        NULL RESOURCEPROPID,
-        O.ORG_ID4 VACANTID,
-        NULL VACANTNAME,
-        NULL FLOORAREA,
-        SUM(V.BUILDINGAREA) BUILDINGAREA,
-        NULL VACANTAREA,
-        NULL DEVELOPSTATUS,
-        NULL REASONTYPE,
-        NULL REASONDESC,
-        NULL ISDELETED,
-        NULL CREATETIME,
-        SUM(V.THEVALUE) THEVALUE,
-        NULL RECENTDEVELOP,
-        NULL PRESALETIME 
-   from dm_res_viewvacant v, MV_DIM_ORG o
-  where V.ORG_ID = O.ORG_ID5
-  GROUP BY O.ORG_ID4
-  
-    UNION ALL 
-     select NULL ORG_ID,
-        NULL RESOURCEPROPID,
-        O.ORG_ID5 VACANTID,
-        NULL VACANTNAME,
-        NULL FLOORAREA,
-        SUM(V.BUILDINGAREA) BUILDINGAREA,
-        NULL VACANTAREA,
-        NULL DEVELOPSTATUS,
-        NULL REASONTYPE,
-        NULL REASONDESC,
-        NULL ISDELETED,
-        NULL CREATETIME,
-        SUM(V.THEVALUE) THEVALUE,
-        NULL RECENTDEVELOP,
-        NULL PRESALETIME 
-   from dm_res_viewvacant v, MV_DIM_ORG o
-  where V.ORG_ID = O.ORG_ID5
-  GROUP BY O.ORG_ID5
-  UNION ALL 
-  SELECT * FROM  dm_res_viewvacant v
-  
+<![CDATA[select o.org_id1 id,
+       null gettargetdate,
+       sum(acreagepm) acreagepm,
+       null typeid,
+       null typename,
+       sum(rightpm) rightpm,
+       sum(notrightpm) notrightpm,
+       null notright
+  from bass_ods.ods_v_operate_landtarget l, MV_DIM_ORG o
+ where l.areaid = O.ORG_ID5
+ group by o.org_id1
+union all
+select o.org_id2 id,
+       null gettargetdate,
+       sum(acreagepm) acreagepm,
+       null typeid,
+       null typename,
+       sum(rightpm) rightpm,
+       sum(notrightpm) notrightpm,
+       null notright
+  from bass_ods.ods_v_operate_landtarget l, MV_DIM_ORG o
+ where l.areaid = O.ORG_ID5
+ group by o.org_id2
+union all
+select o.org_id3 id,
+       null gettargetdate,
+       sum(acreagepm) acreagepm,
+       null typeid,
+       null typename,
+       sum(rightpm) rightpm,
+       sum(notrightpm) notrightpm,
+       null notright
+  from bass_ods.ods_v_operate_landtarget l, MV_DIM_ORG o
+ where l.areaid = O.ORG_ID5
+ group by o.org_id3
+union all
+select o.org_id4 id,
+       null gettargetdate,
+       sum(acreagepm) acreagepm,
+       null typeid,
+       null typename,
+       sum(rightpm) rightpm,
+       sum(notrightpm) notrightpm,
+       null notright
+  from bass_ods.ods_v_operate_landtarget l, MV_DIM_ORG o
+ where l.areaid = O.ORG_ID5
+ group by o.org_id4
+union all
+select o.org_id5 id,
+       null gettargetdate,
+       sum(acreagepm) acreagepm,
+       null typeid,
+       null typename,
+       sum(rightpm) rightpm,
+       sum(notrightpm) notrightpm,
+       null notright
+  from bass_ods.ods_v_operate_landtarget l, MV_DIM_ORG o
+ where l.areaid = O.ORG_ID5
+ group by o.org_id5
+union all
+
+select id,
+       gettargetdate,
+       acreagepm,
+       typeid,
+       typename,
+       rightpm,
+       notrightpm,
+       notright
+  from bass_ods.ods_v_operate_landtarget l
 ]]></Query>
 </TableData>
 <TableData name="orglistnew" class="com.fr.data.impl.DBTableData">
 <Parameters>
 <Parameter>
-<Attributes name="DEVELOPSTATUS"/>
-<O>
-<![CDATA[]]></O>
-</Parameter>
-<Parameter>
 <Attributes name="orgcode"/>
-<O>
-<![CDATA[]]></O>
-</Parameter>
-<Parameter>
-<Attributes name="RECENTDEVELOP"/>
 <O>
 <![CDATA[]]></O>
 </Parameter>
@@ -288,12 +252,13 @@ select  * from org_x ]]></Query>
 <![CDATA[oracle_test]]></DatabaseName>
 </Connection>
 <Query>
-<![CDATA[with org_x as (SELECT distinct * FROM DIM_ORG o START WITH o.org_id  in (SELECT distinct v.org_id from  dm_res_viewvacant v WHERE 1=1 ${if(len(DEVELOPSTATUS)=0,"","and v.DEVELOPSTATUS="+DEVELOPSTATUS)}  ${if(len(RECENTDEVELOP)=0,"","and v.RECENTDEVELOP='"+RECENTDEVELOP+"'")}  ) connect by prior o.father_id=o.org_id
+<![CDATA[with org_x as (SELECT distinct * FROM DIM_ORG o START WITH o.org_id in ( select distinct areaid  from  bass_ods.ods_v_operate_landtarget l WHERE 1=1 
+) connect by prior o.father_id=o.org_id
 union all
-select distinct v.vacantid org_id,
+select distinct v.id org_id,
                 o.org_id father_id,
-                v.vacantname org_name,
-                v.vacantname org_sname,
+                v.name org_name,
+                v.name org_sname,
                 null org_en_name,
                 6 org_level,
                 null order_key,
@@ -310,9 +275,10 @@ select distinct v.vacantid org_id,
                 null org_area_id,
                 null org_area,
                 null org_cy,
-                o.org_code || '-' || v.vacantid org_code
-  from dm_res_viewvacant v, dim_org o
- where v.org_id = o.org_id  ${if(len(DEVELOPSTATUS)=0,"","and v.DEVELOPSTATUS="+DEVELOPSTATUS)}  ${if(len(RECENTDEVELOP)=0,"","and v.RECENTDEVELOP='"+RECENTDEVELOP+"'")}
+                o.org_code || '-' || v.id org_code
+  from bass_ods.ods_v_operate_landtarget v, dim_org o
+ where v.areaid = o.org_id 
+
 
 )
 
@@ -354,7 +320,7 @@ select  * from org_x  where  org_code like ${if(len(orgcode)=0,"'HX%'","'"+orgco
 </TableDataMap>
 <ReportWebAttr>
 <Title>
-<![CDATA[已确权未预售]]></Title>
+<![CDATA[已取指标未确权]]></Title>
 <ServerPrinter/>
 <WebViewContent>
 <Listener event="afterload">
@@ -415,7 +381,7 @@ for(var m = 1; m <= t; m++) {
 <RowHeight defaultValue="723900">
 <![CDATA[1152000,864000,864000,864000,864000,864000,864000,864000,723900,723900,723900]]></RowHeight>
 <ColumnWidth defaultValue="2743200">
-<![CDATA[576000,9563100,2133600,4495800,2743200,2743200,2743200,4229100,13106400,2743200,2743200]]></ColumnWidth>
+<![CDATA[576000,9563100,0,2133600,4495800,2743200,2743200,2743200,4229100,13106400,2743200]]></ColumnWidth>
 <CellElementList>
 <C c="0" r="0">
 <PrivilegeControl/>
@@ -427,47 +393,47 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand/>
 </C>
-<C c="2" r="0" s="0">
+<C c="3" r="0" s="0">
 <O>
-<![CDATA[范围]]></O>
+<![CDATA[批次号]]></O>
 <PrivilegeControl/>
 <CellGUIAttr adjustmode="2"/>
 <CellPageAttr/>
 <Expand/>
 </C>
-<C c="3" r="0" s="0">
-<O>
-<![CDATA[是否开工]]></O>
-<PrivilegeControl/>
-<Expand/>
-</C>
 <C c="4" r="0" s="0">
 <O>
-<![CDATA[建筑面积]]></O>
+<![CDATA[指标批复时间]]></O>
 <PrivilegeControl/>
 <Expand/>
 </C>
 <C c="5" r="0" s="0">
 <O>
-<![CDATA[货值]]></O>
+<![CDATA[未确权土地面积]]></O>
 <PrivilegeControl/>
 <Expand/>
 </C>
 <C c="6" r="0" s="0">
 <O>
-<![CDATA[近期是否开发]]></O>
+<![CDATA[用地性质]]></O>
 <PrivilegeControl/>
 <Expand/>
 </C>
 <C c="7" r="0" s="0">
 <O>
-<![CDATA[预售时间]]></O>
+<![CDATA[域内/域外]]></O>
 <PrivilegeControl/>
 <Expand/>
 </C>
 <C c="8" r="0" s="0">
 <O>
-<![CDATA[当前进展及卡点]]></O>
+<![CDATA[未确权原因分类]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="0" s="0">
+<O>
+<![CDATA[备注（卡点：城规、征地拆迁、政策等）]]></O>
 <PrivilegeControl/>
 <Expand/>
 </C>
@@ -517,12 +483,14 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0" leftParentDefault="false" upParentDefault="false"/>
 </C>
-<C c="2" r="1" s="2">
+<C c="2" r="1">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
+<Attributes dsName="已取指标未确权" columnName="ID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
-<![CDATA[VACANTID]]></CNAME>
+<![CDATA[ID]]></CNAME>
 <Compare op="0">
 <ColumnRow column="1" row="1"/>
 </Compare>
@@ -534,6 +502,10 @@ for(var m = 1; m <= t; m++) {
 <Parameters/>
 </O>
 <PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B2"/>
+</C>
+<C c="3" r="1" s="2">
+<PrivilegeControl/>
 <Present class="com.fr.base.present.DictPresent">
 <Dictionary class="com.fr.data.impl.CustomDictionary">
 <CustomDictAttr>
@@ -542,11 +514,11 @@ for(var m = 1; m <= t; m++) {
 </CustomDictAttr>
 </Dictionary>
 </Present>
-<Expand dir="0" leftParentDefault="false" left="B2"/>
+<Expand dir="0"/>
 </C>
-<C c="3" r="1" s="2">
+<C c="4" r="1" s="2">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="DEVELOPSTATUS"/>
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -563,19 +535,9 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0"/>
 </C>
-<C c="4" r="1" s="3">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="BUILDINGAREA"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
-<PrivilegeControl/>
-<Expand dir="0"/>
-</C>
 <C c="5" r="1" s="3">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="THEVALUE"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -583,9 +545,9 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="6" r="1" s="2">
+<C c="6" r="1" s="3">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RECENTDEVELOP"/>
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -594,8 +556,12 @@ for(var m = 1; m <= t; m++) {
 <Expand dir="0"/>
 </C>
 <C c="7" r="1" s="2">
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="1" s="2">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="PRESALETIME"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -603,13 +569,7 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="8" r="1" s="4">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="REASONDESC"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
+<C c="9" r="1" s="4">
 <PrivilegeControl/>
 <CellGUIAttr>
 <ToolTipText>
@@ -621,7 +581,7 @@ for(var m = 1; m <= t; m++) {
 <FormulaDict>
 <![CDATA[=$$$]]></FormulaDict>
 <EFormulaDict>
-<![CDATA[=if(len($$$)<18,$$$,left($$$,18)+"...")]]></EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
 </Dictionary>
 </Present>
 <Expand dir="0"/>
@@ -672,12 +632,14 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0" leftParentDefault="false" left="B2" upParentDefault="false"/>
 </C>
-<C c="2" r="2" s="6">
+<C c="2" r="2">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
+<Attributes dsName="已取指标未确权" columnName="ID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
-<![CDATA[VACANTID]]></CNAME>
+<![CDATA[ID]]></CNAME>
 <Compare op="0">
 <ColumnRow column="1" row="2"/>
 </Compare>
@@ -689,6 +651,10 @@ for(var m = 1; m <= t; m++) {
 <Parameters/>
 </O>
 <PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B3"/>
+</C>
+<C c="3" r="2" s="6">
+<PrivilegeControl/>
 <Present class="com.fr.base.present.DictPresent">
 <Dictionary class="com.fr.data.impl.CustomDictionary">
 <CustomDictAttr>
@@ -697,11 +663,11 @@ for(var m = 1; m <= t; m++) {
 </CustomDictAttr>
 </Dictionary>
 </Present>
-<Expand dir="0" leftParentDefault="false" left="B3"/>
+<Expand dir="0"/>
 </C>
-<C c="3" r="2" s="6">
+<C c="4" r="2" s="6">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="DEVELOPSTATUS"/>
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -718,19 +684,9 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0"/>
 </C>
-<C c="4" r="2" s="7">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="BUILDINGAREA"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
-<PrivilegeControl/>
-<Expand dir="0"/>
-</C>
 <C c="5" r="2" s="7">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="THEVALUE"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -738,9 +694,9 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="6" r="2" s="6">
+<C c="6" r="2" s="7">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RECENTDEVELOP"/>
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -749,8 +705,12 @@ for(var m = 1; m <= t; m++) {
 <Expand dir="0"/>
 </C>
 <C c="7" r="2" s="6">
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="6">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="PRESALETIME"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -758,13 +718,7 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="8" r="2" s="8">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="REASONDESC"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
+<C c="9" r="2" s="8">
 <PrivilegeControl/>
 <CellGUIAttr>
 <ToolTipText>
@@ -776,7 +730,7 @@ for(var m = 1; m <= t; m++) {
 <FormulaDict>
 <![CDATA[=$$$]]></FormulaDict>
 <EFormulaDict>
-<![CDATA[=if(len($$$)<18,$$$,left($$$,18)+"...")]]></EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
 </Dictionary>
 </Present>
 <Expand dir="0"/>
@@ -827,12 +781,14 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0" leftParentDefault="false" left="B3" upParentDefault="false"/>
 </C>
-<C c="2" r="3" s="10">
+<C c="2" r="3">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
+<Attributes dsName="已取指标未确权" columnName="ID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
-<![CDATA[VACANTID]]></CNAME>
+<![CDATA[ID]]></CNAME>
 <Compare op="0">
 <ColumnRow column="1" row="3"/>
 </Compare>
@@ -844,6 +800,10 @@ for(var m = 1; m <= t; m++) {
 <Parameters/>
 </O>
 <PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B4"/>
+</C>
+<C c="3" r="3" s="10">
+<PrivilegeControl/>
 <Present class="com.fr.base.present.DictPresent">
 <Dictionary class="com.fr.data.impl.CustomDictionary">
 <CustomDictAttr>
@@ -852,11 +812,11 @@ for(var m = 1; m <= t; m++) {
 </CustomDictAttr>
 </Dictionary>
 </Present>
-<Expand dir="0" leftParentDefault="false" left="B4"/>
+<Expand dir="0"/>
 </C>
-<C c="3" r="3" s="10">
+<C c="4" r="3" s="10">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="DEVELOPSTATUS"/>
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -873,19 +833,9 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0"/>
 </C>
-<C c="4" r="3" s="11">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="BUILDINGAREA"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
-<PrivilegeControl/>
-<Expand dir="0"/>
-</C>
 <C c="5" r="3" s="11">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="THEVALUE"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -893,9 +843,9 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="6" r="3" s="10">
+<C c="6" r="3" s="11">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RECENTDEVELOP"/>
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -904,8 +854,12 @@ for(var m = 1; m <= t; m++) {
 <Expand dir="0"/>
 </C>
 <C c="7" r="3" s="10">
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="3" s="10">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="PRESALETIME"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -913,13 +867,7 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="8" r="3" s="12">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="REASONDESC"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
+<C c="9" r="3" s="12">
 <PrivilegeControl/>
 <CellGUIAttr>
 <ToolTipText>
@@ -931,7 +879,7 @@ for(var m = 1; m <= t; m++) {
 <FormulaDict>
 <![CDATA[=$$$]]></FormulaDict>
 <EFormulaDict>
-<![CDATA[=if(len($$$)<18,$$$,left($$$,18)+"...")]]></EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
 </Dictionary>
 </Present>
 <Expand dir="0"/>
@@ -982,12 +930,14 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0" leftParentDefault="false" left="B4" upParentDefault="false"/>
 </C>
-<C c="2" r="4" s="14">
+<C c="2" r="4">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
+<Attributes dsName="已取指标未确权" columnName="ID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
-<![CDATA[VACANTID]]></CNAME>
+<![CDATA[ID]]></CNAME>
 <Compare op="0">
 <ColumnRow column="1" row="4"/>
 </Compare>
@@ -999,6 +949,10 @@ for(var m = 1; m <= t; m++) {
 <Parameters/>
 </O>
 <PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B5"/>
+</C>
+<C c="3" r="4" s="14">
+<PrivilegeControl/>
 <Present class="com.fr.base.present.DictPresent">
 <Dictionary class="com.fr.data.impl.CustomDictionary">
 <CustomDictAttr>
@@ -1007,11 +961,11 @@ for(var m = 1; m <= t; m++) {
 </CustomDictAttr>
 </Dictionary>
 </Present>
-<Expand dir="0" leftParentDefault="false" left="B5"/>
+<Expand dir="0"/>
 </C>
-<C c="3" r="4" s="14">
+<C c="4" r="4" s="14">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="DEVELOPSTATUS"/>
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1028,19 +982,9 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0"/>
 </C>
-<C c="4" r="4" s="15">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="BUILDINGAREA"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
-<PrivilegeControl/>
-<Expand dir="0"/>
-</C>
 <C c="5" r="4" s="15">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="THEVALUE"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1048,9 +992,9 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="6" r="4" s="14">
+<C c="6" r="4" s="15">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RECENTDEVELOP"/>
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1059,8 +1003,12 @@ for(var m = 1; m <= t; m++) {
 <Expand dir="0"/>
 </C>
 <C c="7" r="4" s="14">
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="4" s="14">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="PRESALETIME"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1068,13 +1016,7 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="8" r="4" s="16">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="REASONDESC"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
+<C c="9" r="4" s="16">
 <PrivilegeControl/>
 <CellGUIAttr>
 <ToolTipText>
@@ -1086,7 +1028,7 @@ for(var m = 1; m <= t; m++) {
 <FormulaDict>
 <![CDATA[=$$$]]></FormulaDict>
 <EFormulaDict>
-<![CDATA[=if(len($$$)<18,$$$,left($$$,18)+"...")]]></EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
 </Dictionary>
 </Present>
 <Expand dir="0"/>
@@ -1137,12 +1079,14 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0" leftParentDefault="false" left="B5" upParentDefault="false"/>
 </C>
-<C c="2" r="5" s="14">
+<C c="2" r="5">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
+<Attributes dsName="已取指标未确权" columnName="ID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
-<![CDATA[VACANTID]]></CNAME>
+<![CDATA[ID]]></CNAME>
 <Compare op="0">
 <ColumnRow column="1" row="5"/>
 </Compare>
@@ -1154,6 +1098,10 @@ for(var m = 1; m <= t; m++) {
 <Parameters/>
 </O>
 <PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B6"/>
+</C>
+<C c="3" r="5" s="14">
+<PrivilegeControl/>
 <Present class="com.fr.base.present.DictPresent">
 <Dictionary class="com.fr.data.impl.CustomDictionary">
 <CustomDictAttr>
@@ -1162,11 +1110,11 @@ for(var m = 1; m <= t; m++) {
 </CustomDictAttr>
 </Dictionary>
 </Present>
-<Expand dir="0" leftParentDefault="false" left="B6"/>
+<Expand dir="0"/>
 </C>
-<C c="3" r="5" s="14">
+<C c="4" r="5" s="14">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="DEVELOPSTATUS"/>
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1183,19 +1131,9 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0"/>
 </C>
-<C c="4" r="5" s="15">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="BUILDINGAREA"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
-<PrivilegeControl/>
-<Expand dir="0"/>
-</C>
 <C c="5" r="5" s="15">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="THEVALUE"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1203,9 +1141,9 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="6" r="5" s="14">
+<C c="6" r="5" s="15">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RECENTDEVELOP"/>
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1214,8 +1152,12 @@ for(var m = 1; m <= t; m++) {
 <Expand dir="0"/>
 </C>
 <C c="7" r="5" s="14">
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="5" s="14">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="PRESALETIME"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1223,13 +1165,7 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="8" r="5" s="16">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="REASONDESC"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
+<C c="9" r="5" s="16">
 <PrivilegeControl/>
 <CellGUIAttr>
 <ToolTipText>
@@ -1241,7 +1177,7 @@ for(var m = 1; m <= t; m++) {
 <FormulaDict>
 <![CDATA[=$$$]]></FormulaDict>
 <EFormulaDict>
-<![CDATA[=if(len($$$)<18,$$$,left($$$,18)+"...")]]></EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
 </Dictionary>
 </Present>
 <Expand dir="0"/>
@@ -1287,12 +1223,14 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0" leftParentDefault="false" left="B6" upParentDefault="false"/>
 </C>
-<C c="2" r="6" s="14">
+<C c="2" r="6">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RESOURCEPROPID"/>
+<Attributes dsName="已取指标未确权" columnName="ID"/>
 <Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
 <CNAME>
-<![CDATA[VACANTID]]></CNAME>
+<![CDATA[ID]]></CNAME>
 <Compare op="0">
 <ColumnRow column="1" row="6"/>
 </Compare>
@@ -1304,6 +1242,10 @@ for(var m = 1; m <= t; m++) {
 <Parameters/>
 </O>
 <PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B7"/>
+</C>
+<C c="3" r="6" s="14">
+<PrivilegeControl/>
 <Present class="com.fr.base.present.DictPresent">
 <Dictionary class="com.fr.data.impl.CustomDictionary">
 <CustomDictAttr>
@@ -1312,11 +1254,11 @@ for(var m = 1; m <= t; m++) {
 </CustomDictAttr>
 </Dictionary>
 </Present>
-<Expand dir="0" leftParentDefault="false" left="B7"/>
+<Expand dir="0"/>
 </C>
-<C c="3" r="6" s="14">
+<C c="4" r="6" s="14">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="DEVELOPSTATUS"/>
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1333,19 +1275,9 @@ for(var m = 1; m <= t; m++) {
 </Present>
 <Expand dir="0"/>
 </C>
-<C c="4" r="6" s="15">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="BUILDINGAREA"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
-<PrivilegeControl/>
-<Expand dir="0"/>
-</C>
 <C c="5" r="6" s="15">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="THEVALUE"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1353,9 +1285,9 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="6" r="6" s="14">
+<C c="6" r="6" s="15">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="RECENTDEVELOP"/>
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1364,8 +1296,12 @@ for(var m = 1; m <= t; m++) {
 <Expand dir="0"/>
 </C>
 <C c="7" r="6" s="14">
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="6" s="14">
 <O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="PRESALETIME"/>
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
 <Complex/>
 <RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
 <Parameters/>
@@ -1373,13 +1309,7 @@ for(var m = 1; m <= t; m++) {
 <PrivilegeControl/>
 <Expand dir="0"/>
 </C>
-<C c="8" r="6" s="16">
-<O t="DSColumn">
-<Attributes dsName="已确权未预售" columnName="REASONDESC"/>
-<Complex/>
-<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
-<Parameters/>
-</O>
+<C c="9" r="6" s="16">
 <PrivilegeControl/>
 <CellGUIAttr>
 <ToolTipText>
@@ -1391,7 +1321,7 @@ for(var m = 1; m <= t; m++) {
 <FormulaDict>
 <![CDATA[=$$$]]></FormulaDict>
 <EFormulaDict>
-<![CDATA[=if(len($$$)<18,$$$,left($$$,18)+"...")]]></EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
 </Dictionary>
 </Present>
 <Expand dir="0"/>
@@ -1445,6 +1375,7 @@ for(var m = 1; m <= t; m++) {
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.ComboBox">
 <WidgetName name="DEVELOPSTATUS"/>
+<LabelName name="域内/域外:"/>
 <WidgetAttr description="">
 <PrivilegeControl/>
 </WidgetAttr>
@@ -1454,9 +1385,8 @@ for(var m = 1; m <= t; m++) {
 <![CDATA[false]]></CustomData>
 <Dictionary class="com.fr.data.impl.CustomDictionary">
 <CustomDictAttr>
-<Dict key="1" value="未开工"/>
-<Dict key="2" value="已开工未预售"/>
-<Dict key="3" value="已预售"/>
+<Dict key="1" value="域内"/>
+<Dict key="2" value="域外"/>
 </CustomDictAttr>
 </Dictionary>
 <widgetValue>
@@ -1474,7 +1404,7 @@ for(var m = 1; m <= t; m++) {
 </WidgetAttr>
 <widgetValue>
 <O>
-<![CDATA[是否开工:]]></O>
+<![CDATA[域内/域外:]]></O>
 </widgetValue>
 <LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
 <FRFont name="微软雅黑" style="0" size="64"/>
@@ -1514,7 +1444,7 @@ for(var m = 1; m <= t; m++) {
 </WidgetAttr>
 <widgetValue>
 <O>
-<![CDATA[近期是否开发:]]></O>
+<![CDATA[未确权原因分类:]]></O>
 </widgetValue>
 <LabelAttr verticalcenter="true" textalign="4" noWrap="true" autoline="true"/>
 <FRFont name="微软雅黑" style="0" size="64"/>
@@ -1537,7 +1467,7 @@ for(var m = 1; m <= t; m++) {
 <FRFont name="微软雅黑" style="1" size="72" foreground="-13421773"/>
 <border style="0" color="-723724"/>
 </InnerWidget>
-<BoundsAttr x="125" y="9" width="231" height="21"/>
+<BoundsAttr x="145" y="9" width="231" height="21"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.Label">
@@ -1547,13 +1477,13 @@ for(var m = 1; m <= t; m++) {
 </WidgetAttr>
 <widgetValue>
 <O>
-<![CDATA[已确权未预售]]></O>
+<![CDATA[已取指标未确权]]></O>
 </widgetValue>
 <LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
 <FRFont name="微软雅黑" style="1" size="96" foreground="-6877671"/>
 <border style="0" color="-723724"/>
 </InnerWidget>
-<BoundsAttr x="20" y="5" width="114" height="29"/>
+<BoundsAttr x="20" y="5" width="125" height="29"/>
 </Widget>
 <Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
 <InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
@@ -1612,10 +1542,11 @@ for(var m = 1; m <= t; m++) {
 <Position position="0"/>
 <Design_Width design_width="960"/>
 <NameTagModified>
+<TagModified tag="DEVELOPSTATUS" modified="true"/>
 <TagModified tag="orgcode" modified="true"/>
 </NameTagModified>
 <WidgetNameTagMap>
-<NameTag name="DEVELOPSTATUS" tag="DEVELOPSTATUS:"/>
+<NameTag name="DEVELOPSTATUS" tag="是否开工:"/>
 <NameTag name="RECENTDEVELOP" tag="近期是否开发:"/>
 </WidgetNameTagMap>
 </Layout>
@@ -1825,7 +1756,7 @@ for(var m = 1; m <= t; m++) {
 </StyleList>
 <DesignerVersion DesignerVersion="JAA"/>
 <PreviewType PreviewType="2"/>
-<TemplateID TemplateID="171e7e15-f46c-47f2-aa96-a607feb05e0d"/>
+<TemplateID TemplateID="60959c3d-a5e3-4d77-aa15-f1e48fd235fa"/>
 <TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
 <TemplateIdAttMark TemplateId="6ea84c54-eb51-4aba-bf47-9023844488bc"/>
 </TemplateIdAttMark>

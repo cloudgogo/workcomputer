@@ -1,0 +1,2034 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="orglist" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="orgcode"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH org_ys AS(
+SELECT DISTINCT 
+  a.ORG_CLASSIFY_ID,
+  b.ORG_ID,
+  decode(a.ORG_CLASSIFY,'环京',b.ORG_ID||'1','外埠',b.ORG_ID||'2') as CLASSIFY_id,
+  a.ORG_CLASSIFY ,
+ case a.ORG_CLASSIFY  when '环京'  then  b.ORDER_KEY+1 when '外埠' then b.ORDER_KEY+2 else b.ORDER_KEY end ORDER_KEY ,
+
+  b.ORG_CODE
+FROM dim_org a
+LEFT JOIN dim_org b
+ON a.ORG_CLASSIFY_ID=b.ORG_NAME
+WHERE a.ORG_CLASSIFY_ID is not NULL
+AND a.ORG_CLASSIFY is not NULL
+
+),
+--二级父级替换
+FATHER_org as (
+SELECT 
+b.ORG_ID,
+CASE WHEN a.CLASSIFY_id IS NULL THEN b.FATHER_ID ELSE a.CLASSIFY_id END as FATHER_ID,
+b.ORG_NAME,
+b.ORG_SNAME,
+b.ORG_EN_NAME,
+b.ORG_LEVEL,
+b.ORDER_KEY,
+b.ORG_TYPE_ID,
+b.ORG_TYPE,
+b.ORG_CLASSIFY_ID,
+b.ORG_CLASSIFY,
+b.LONGITUDE,
+b.LATITUDE,
+b.ORG_SRC_CODE,
+b.START_DATE,
+b.END_DATE,
+b.START_FLAG,
+b.ORG_AREA_ID,
+b.ORG_AREA,
+b.ORG_CY,
+b.ORG_CODE
+FROM DIM_ORG  b
+LEFT JOIN org_ys a
+ON a.ORG_ID=b.FATHER_ID
+AND a.ORG_CLASSIFY=b.ORG_CLASSIFY
+),
+--增加环京外埠
+HW_Z AS (
+SELECT 
+CLASSIFY_id AS ORG_ID,
+ORG_ID AS FATHER_ID,
+ORG_CLASSIFY AS ORG_NAME,
+ORG_CLASSIFY AS ORG_SNAME,
+NULL AS ORG_EN_NAME,
+NULL AS ORG_LEVEL,
+ORDER_KEY,
+NULL AS ORG_TYPE_ID,
+NULL AS ORG_TYPE,
+ORG_CLASSIFY_ID,
+ORG_CLASSIFY,
+NULL AS LONGITUDE,
+NULL AS LATITUDE,
+NULL AS ORG_SRC_CODE,
+NULL AS START_DATE,
+NULL AS END_DATE,
+NULL AS START_FLAG,
+NULL AS ORG_AREA_ID,
+NULL AS ORG_AREA,
+NULL AS ORG_CY,
+ORG_CODE
+FROM org_ys
+),
+org_x as(
+SELECT * FROM FATHER_org  
+UNION ALL
+SELECT * FROM HW_Z
+)
+select  * from org_x  where  org_code like ${if(len(orgcode)=0,"'HX%'","'"+orgcode+"%'") }
+order by order_key ]]></Query>
+</TableData>
+<TableData name="orgTree" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[orglistnew]]></originalTableDataName>
+</TableData>
+<TableData name="组织2" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with org_x as (SELECT distinct * FROM DIM_ORG o START WITH o.org_id in ( select distinct areaid  from  bass_ods.ods_v_operate_landtarget l WHERE 1=1 
+) connect by prior o.father_id=o.org_id
+union all
+select distinct v.id org_id,
+                o.org_id father_id,
+                v.name org_name,
+                v.name org_sname,
+                null org_en_name,
+                6 org_level,
+                null order_key,
+                o.org_type_id org_type_id,
+                o.org_type org_type,
+                o.org_classify_id org_classify_id,
+                o.org_classify org_classify,
+                null longitude,
+                null latitude,
+                null org_src_code,
+                null start_date,
+                null end_date,
+                null start_flag,
+                null org_area_id,
+                null org_area,
+                null org_cy,
+                o.org_code || '-' || v.id org_code
+  from bass_ods.ods_v_operate_landtarget v, dim_org o
+ where v.areaid = o.org_id 
+
+
+)
+
+select  * from org_x]]></Query>
+</TableData>
+<TableData name="Tree1" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[组织2]]></originalTableDataName>
+</TableData>
+<TableData name="已取指标未确权" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select o.org_id1 id,
+       null gettargetdate,
+       sum(acreagepm) acreagepm,
+       null typeid,
+       null typename,
+       sum(rightpm) rightpm,
+       sum(notrightpm) notrightpm,
+       null notright,
+       null isfield, --域内域外
+	  null norightwhy, --备注
+	  null batchnumber --批次号
+  from DM_RES_LANDTARGET l, MV_DIM_ORG o
+ where l.areaid = O.ORG_ID5
+ group by o.org_id1
+union all
+select o.org_id2 id,
+       null gettargetdate,
+       sum(acreagepm) acreagepm,
+       null typeid,
+       null typename,
+       sum(rightpm) rightpm,
+       sum(notrightpm) notrightpm,
+       null notright,
+       null isfield, --域内域外
+	  null norightwhy, --备注
+	  null batchnumber --批次号
+  from DM_RES_LANDTARGET l, MV_DIM_ORG o
+ where l.areaid = O.ORG_ID5
+ group by o.org_id2
+union all
+select o.org_id3 id,
+       null gettargetdate,
+       sum(acreagepm) acreagepm,
+       null typeid,
+       null typename,
+       sum(rightpm) rightpm,
+       sum(notrightpm) notrightpm,
+       null notright,
+       null isfield, --域内域外
+	  null norightwhy, --备注
+	  null batchnumber --批次号
+  from DM_RES_LANDTARGET l, MV_DIM_ORG o
+ where l.areaid = O.ORG_ID5
+ group by o.org_id3
+union all
+select o.org_id4 id,
+       null gettargetdate,
+       sum(acreagepm) acreagepm,
+       null typeid,
+       null typename,
+       sum(rightpm) rightpm,
+       sum(notrightpm) notrightpm,
+       null notright,
+       null isfield, --域内域外
+	  null norightwhy, --备注
+	  null batchnumber --批次号
+       
+  from DM_RES_LANDTARGET l, MV_DIM_ORG o
+ where l.areaid = O.ORG_ID5
+ group by o.org_id4
+union all
+select o.org_id5 id,
+       null gettargetdate,
+       sum(acreagepm) acreagepm,
+       null typeid,
+       null typename,
+       sum(rightpm) rightpm,
+       sum(notrightpm) notrightpm,
+       null notright,
+       null isfield, --域内域外
+	  null norightwhy, --备注
+	  null batchnumber --批次号
+  from DM_RES_LANDTARGET l, MV_DIM_ORG o
+ where l.areaid = O.ORG_ID5
+ group by o.org_id5
+union all
+
+select id,
+       gettargetdate,
+       acreagepm,
+       typeid,
+       typename,
+       rightpm,
+       notrightpm,
+       notright,
+       isfield, --域内域外
+	  norightwhy, --备注
+	  batchnumber --批次号
+  from DM_RES_LANDTARGET l
+]]></Query>
+</TableData>
+<TableData name="orglistnew" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="notright"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="orgcode"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="isfield"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with org_x as (SELECT distinct * FROM DIM_ORG o START WITH o.org_id in ( select distinct areaid  from  bass_ods.ods_v_operate_landtarget l WHERE 1=1  
+ ${if(isfield="（全选）","","and l.isfield='"+isfield+"'")}  
+${if(notright="（全选）","","and l.notright='"+notright+"'")} 
+) connect by prior o.father_id=o.org_id
+union all
+select distinct l.id org_id,
+                o.org_id father_id,
+                l.name org_name,
+                l.name org_sname,
+                null org_en_name,
+                6 org_level,
+                null order_key,
+                o.org_type_id org_type_id,
+                o.org_type org_type,
+                o.org_classify_id org_classify_id,
+                o.org_classify org_classify,
+                null longitude,
+                null latitude,
+                null org_src_code,
+                null start_date,
+                null end_date,
+                null start_flag,
+                null org_area_id,
+                null org_area,
+                null org_cy,
+                o.org_code || '-' || l.id org_code
+  from bass_ods.ods_v_operate_landtarget l, dim_org o
+ where l.areaid = o.org_id 
+ ${if(isfield="（全选）","","and l.isfield='"+isfield+"'")}  
+${if(notright="（全选）","","and l.notright='"+notright+"'")} 
+)
+
+select  * from org_x  where  org_code like ${if(len(orgcode)=0,"'HX%'","'"+orgcode+"%'") }]]></Query>
+</TableData>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select distinct v.vacantid org_id,
+                o.org_id father_id,
+                v.vacantname org_name,
+                v.vacantname org_sname,
+                null org_en_name,
+                6 org_level,
+                null order_key,
+                o.org_type_id org_type_id,
+                o.org_type org_type,
+                o.org_classify_id org_classify_id,
+                o.org_classify org_classify,
+                null longitude,
+                null latitude,
+                null org_src_code,
+                null start_date,
+                null end_date,
+                null start_flag,
+                null org_area_id,
+                null org_area,
+                null org_cy,
+                o.org_code || '-' || v.vacantid org_code
+  from dm_res_viewvacant v, dim_org o
+ where v.org_id = o.org_id
+]]></Query>
+</TableData>
+<TableData name="域内域外" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+select '（全选）' isfield from dual
+union all
+select distinct
+       isfield
+  from DM_RES_LANDTARGET l 
+  where length(l.isfield)<>0 ]]></Query>
+</TableData>
+<TableData name="原因" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+select '（全选）' notright from dual
+union all
+select distinct
+       notright
+  from DM_RES_LANDTARGET l 
+  where length(l.notright)<>0 ]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[已取指标未确权]]></Title>
+<ServerPrinter/>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[//展开的最大节点级值  
+var t = 5;   
+for(var m = 1; m <= t; m++) {  
+    //循环执行“+”号展开  
+    $('.x-treenode-unexpand').trigger('click');  
+}  
+
+
+var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="startload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.Export">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[输出]]></Text>
+<IconName>
+<![CDATA[export]]></IconName>
+<Buttons pdf="true" excelP="true" excelO="true" excelS="true" word="true" image="true" html="true"/>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportWebAttr>
+<ElementCaseMobileAttr>
+<ElementCaseMobileAttrProvider horizontal="1" vertical="1" zoom="true" refresh="false" isUseHTML="false" isMobileCanvasSize="false"/>
+</ElementCaseMobileAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[1152000,864000,864000,864000,864000,864000,864000,864000,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2705100,576000,9563100,0,7772400,3810000,5486400,3771900,2171700,3467100,11887200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(A2:A7)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="2" r="0" s="0">
+<O>
+<![CDATA[组织机构]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="0" s="0">
+<O>
+<![CDATA[批次号]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="5" r="0" s="0">
+<O>
+<![CDATA[指标批复时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="0" s="0">
+<O>
+<![CDATA[未确权土地面积（万平）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="0" s="0">
+<O>
+<![CDATA[用地性质]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="0" s="0">
+<O>
+<![CDATA[域内/域外]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="0" s="0">
+<O>
+<![CDATA[未确权原因分类]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="0" s="0">
+<O>
+<![CDATA[备注（卡点：城规、征地拆迁、政策等）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(LEN(C2)=0,0,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C2"/>
+</C>
+<C c="2" r="1" s="1">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_0"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-8355712"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglistnew]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" upParentDefault="false"/>
+</C>
+<C c="3" r="1">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ID"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="1"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C2"/>
+</C>
+<C c="4" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="BATCHNUMBER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="域内"/>
+<Dict key="2" value="域外"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="未开工"/>
+<Dict key="2" value="已开工未预售"/>
+<Dict key="3" value="已预售"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="1" s="3">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ISFIELD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NORIGHTWHY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr>
+<ToolTipText>
+<![CDATA[=$$$]]></ToolTipText>
+</CellGUIAttr>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.FormulaDictionary">
+<FormulaDict>
+<![CDATA[=$$$]]></FormulaDict>
+<EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="0" r="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(LEN(C3)=0,0,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C3"/>
+</C>
+<C c="2" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_1"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-6710887"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglistnew]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C2" upParentDefault="false"/>
+</C>
+<C c="3" r="2">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ID"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="4" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="BATCHNUMBER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="域内"/>
+<Dict key="2" value="域外"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="未开工"/>
+<Dict key="2" value="已开工未预售"/>
+<Dict key="3" value="已预售"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="7">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ISFIELD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="2" s="8">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NORIGHTWHY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr>
+<ToolTipText>
+<![CDATA[=$$$]]></ToolTipText>
+</CellGUIAttr>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.FormulaDictionary">
+<FormulaDict>
+<![CDATA[=$$$]]></FormulaDict>
+<EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="0" r="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(LEN(C4)=0,0,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C4"/>
+</C>
+<C c="2" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-3355444"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglistnew]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C3" upParentDefault="false"/>
+</C>
+<C c="3" r="3">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ID"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="3"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C4"/>
+</C>
+<C c="4" r="3" s="10">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="BATCHNUMBER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="域内"/>
+<Dict key="2" value="域外"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="3" s="10">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="未开工"/>
+<Dict key="2" value="已开工未预售"/>
+<Dict key="3" value="已预售"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="3" s="11">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="3" s="10">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="3" s="10">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ISFIELD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="3" s="10">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="3" s="12">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NORIGHTWHY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr>
+<ToolTipText>
+<![CDATA[=$$$]]></ToolTipText>
+</CellGUIAttr>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.FormulaDictionary">
+<FormulaDict>
+<![CDATA[=$$$]]></FormulaDict>
+<EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="0" r="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(LEN(C5)=0,0,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C5"/>
+</C>
+<C c="2" r="4" s="13">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-1644826"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglistnew]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C4" upParentDefault="false"/>
+</C>
+<C c="3" r="4">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ID"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="4"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C5"/>
+</C>
+<C c="4" r="4" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="BATCHNUMBER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="域内"/>
+<Dict key="2" value="域外"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="4" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="未开工"/>
+<Dict key="2" value="已开工未预售"/>
+<Dict key="3" value="已预售"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="4" s="15">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="4" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="4" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ISFIELD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="4" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NORIGHTWHY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr>
+<ToolTipText>
+<![CDATA[=$$$]]></ToolTipText>
+</CellGUIAttr>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.FormulaDictionary">
+<FormulaDict>
+<![CDATA[=$$$]]></FormulaDict>
+<EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="0" r="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(LEN(C6)=0,0,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C6"/>
+</C>
+<C c="2" r="5" s="17">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_4"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-1644826"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglistnew]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C5" upParentDefault="false"/>
+</C>
+<C c="3" r="5">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ID"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="5"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C6"/>
+</C>
+<C c="4" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="BATCHNUMBER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="域内"/>
+<Dict key="2" value="域外"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="未开工"/>
+<Dict key="2" value="已开工未预售"/>
+<Dict key="3" value="已预售"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="5" s="15">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ISFIELD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="5" s="16">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NORIGHTWHY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr>
+<ToolTipText>
+<![CDATA[=$$$]]></ToolTipText>
+</CellGUIAttr>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.FormulaDictionary">
+<FormulaDict>
+<![CDATA[=$$$]]></FormulaDict>
+<EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="0" r="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(LEN(C7)=0,0,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C7"/>
+</C>
+<C c="2" r="6" s="18">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_5"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-1644826"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglistnew]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C6" upParentDefault="false"/>
+</C>
+<C c="3" r="6">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ID"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="6"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C7"/>
+</C>
+<C c="4" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="BATCHNUMBER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="域内"/>
+<Dict key="2" value="域外"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="GETTARGETDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="未开工"/>
+<Dict key="2" value="已开工未预售"/>
+<Dict key="3" value="已预售"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="6" s="15">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHTPM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="TYPENAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="ISFIELD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NOTRIGHT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="已取指标未确权" columnName="NORIGHTWHY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr>
+<ToolTipText>
+<![CDATA[=$$$]]></ToolTipText>
+</CellGUIAttr>
+<CellPageAttr/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.FormulaDictionary">
+<FormulaDict>
+<![CDATA[=$$$]]></FormulaDict>
+<EFormulaDict>
+<![CDATA[=if(len($$$) < 18, $$$, left($$$, 18) + "...")]]></EFormulaDict>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+<Background name="NullBackground"/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<LayerReportAttr isPageQuery="true" countPerPage="30"/>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0" useParamsTemplate="false"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1380618"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelDEVELOPSTATUS_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[组织:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="64"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="34" width="29" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="isfield"/>
+<LabelName name="域内/域外:"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<DirectEdit>
+<![CDATA[false]]></DirectEdit>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ISFIELD" viName="ISFIELD"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[域内域外]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[（全选）]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="260" y="34" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelisfield"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[域内/域外:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="64"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="200" y="34" width="60" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="notright"/>
+<LabelName name="未确权原因分类:"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<DirectEdit>
+<![CDATA[false]]></DirectEdit>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="NOTRIGHT" viName="NOTRIGHT"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[原因]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[（全选）]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="442" y="34" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelnotright"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[未确权原因分类:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="64"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="351" y="34" width="91" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label3_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[已取指标未确权]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="96" foreground="-6877671"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="5" width="125" height="29"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
+<WidgetName name="orgcode"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr selectLeafOnly="false"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="false"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_CODE" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[Tree1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[HX]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="49" y="34" width="141" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="formSubmit0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-6877671"/>
+</initial>
+<FRFont name="SimSun" style="1" size="72" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="610" y="34" width="80" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="orgcode"/>
+<Widget widgetName="isfield"/>
+<Widget widgetName="notright"/>
+<Widget widgetName="formSubmit0"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<UseParamsTemplate use="false"/>
+<Position position="0"/>
+<Design_Width design_width="960"/>
+<NameTagModified>
+<TagModified tag="orgcode" modified="true"/>
+</NameTagModified>
+<WidgetNameTagMap>
+<NameTag name="notright" tag="未确权原因分类:"/>
+<NameTag name="isfield" tag="域内/域外:"/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="960" height="59"/>
+</ParameterUI>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6877671"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1" paddingLeft="4" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingLeft="4" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="4" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="12">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1" paddingLeft="4" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingLeft="4" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="4" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="22">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1" paddingLeft="4" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingLeft="4" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="4" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="32">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1" paddingLeft="4" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingLeft="4" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="4" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="42">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="52">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="0f69de31-cc99-4d18-aa8c-8b1aee749133"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="6ea84c54-eb51-4aba-bf47-9023844488bc"/>
+</TemplateIdAttMark>
+</WorkBook>

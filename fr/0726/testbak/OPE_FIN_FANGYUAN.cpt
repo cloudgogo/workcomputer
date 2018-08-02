@@ -1,0 +1,1563 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with w1 as (
+select 1 as id,t.* from DM_RES_PROJECTINFO t
+where 1=1
+union all
+select 0,'（全选）' as buid,
+'（全选）','（全选）','（全选）','（全选）',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+'（全选）',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'（全选）','（全选）','（全选）','（全选）',
+'（全选）'
+from dual
+)
+select * from w1 order by id]]></Query>
+</TableData>
+<TableData name="fangyuan" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="ORGID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="BUID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="realpermittime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="planpermittime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="AREAID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="PROGRESS"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+select ROWNUM,T1.* from DM_RES_PROJECTINFO T1
+where 1=1
+${if(len(realpermittime)==0,"","and to_char(nvl(realpermittime,planpermittime),'yyyymm') <= replace('"+realpermittime+"','-','')")}
+${if(len(planpermittime)==0,"","and to_char(nvl(realpermittime,planpermittime),'yyyymm') >= replace('"+planpermittime+"','-','')")}
+${if(len(ORGID)==0,"",if(ORGID == '（全选）',"","and ORGID ='"+ORGID+"'"))}
+${if(len(AREAID)==0,"",if(AREAID == '（全选）',"","and AREAID ='"+AREAID+"'"))}
+${if(len(BUID)==0,"",if(BUID == '（全选）',"","and BUID ='"+BUID+"'"))}
+${if(len(PROGRESS)==0,"",if(PROGRESS == '（全选）',"","and PROGRESS ='"+PROGRESS+"'"))}]]></Query>
+</TableData>
+<TableData name="ds2" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="BUID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with w1 as (
+select 1 as id,t.* from DM_RES_PROJECTINFO t
+where 1=1
+${if(len(BUID)==0,"",if(BUID == '（全选）',"","and BUID ='"+BUID+"'"))}
+union all
+select 0,'（全选）' as buid,
+'（全选）','（全选）','（全选）','（全选）',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+'（全选）',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'（全选）','（全选）','（全选）','（全选）',
+'（全选）'
+from dual
+)
+select * from w1 order by id]]></Query>
+</TableData>
+<TableData name="ds3" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="BUID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="AREAID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with w1 as (
+select 1 as id,t.* from DM_RES_PROJECTINFO t
+where 1=1
+--${if(len(AREAID)==0,"","and AREAID ='"+AREAID+"'")}
+${if(and(len(AREAID)==0,len(BUID)==0),"",if(len(AREAID)==0,if( BUID == '（全选）',""," and BUID='"+BUID+"'"),if(AREAID == '（全选）',"","and AREAID ='"+AREAID+"'")))}
+union all
+select 0,'（全选）' as buid,
+'（全选）','（全选）','（全选）','（全选）',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+'（全选）',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'（全选）','（全选）','（全选）','（全选）',
+'（全选）'
+from dual
+)
+select * from w1 order by id]]></Query>
+</TableData>
+<TableData name="ds4" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select min(nvl(realpermittime,PLANPERMITTIME)) as minplanpermittime,max(nvl(realpermittime,PLANPERMITTIME)) as maxpermittime from DM_RES_PROJECTINFO]]></Query>
+</TableData>
+<TableData name="统计" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="ORGID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="BUID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="realpermittime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="planpermittime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="AREAID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="PROGRESS"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select max(ROWNUM) from DM_RES_PROJECTINFO T1
+where 1=1
+${if(len(realpermittime)==0,"","and realpermittime <= to_date('"+realpermittime+"','yyyy-mm-dd')")}
+${if(len(planpermittime)==0,"","and planpermittime >= to_date('"+planpermittime+"','yyyy-mm-dd')")}
+${if(len(ORGID)==0,"","and ORGID ='"+ORGID+"'")}
+${if(len(AREAID)==0,"","and AREAID ='"+AREAID+"'")}
+${if(len(BUID)==0,"","and BUID ='"+BUID+"'")}
+${if(len(PROGRESS)==0,"","and PROGRESS ='"+PROGRESS+"'")}
+]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[房源明细表]]></Title>
+<ServerPrinter/>
+<WebPageContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();
+
+
+var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+//获取A1单元格的值]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="startload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="export1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(value("hx_aut",2,1))=0,1,if(StringFind(value("hx_aut",2,1),"no")<>-1,0,if(StringFind(value("hx_aut",2,1),"zzpdfy001")<>-1,1,0)))]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[//导出
+if (export1 == 0) {
+
+    var item = contentPane.toolbar.getWidgetByName("ExcelO").setVisible(false);
+}]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.page.First">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-First')}]]></Text>
+<IconName>
+<![CDATA[first]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Previous">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Previous')}]]></Text>
+<IconName>
+<![CDATA[previous]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.PageNavi">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Next">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Next')}]]></Text>
+<IconName>
+<![CDATA[next]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Last">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Last')}]]></Text>
+<IconName>
+<![CDATA[last]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<WebPage isPage="false" isShowAsImage="false" isAutoScale="false" isTDHeavy="false"/>
+</WebPageContent>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[//展开的最大节点级值  
+var t = 5;   
+for(var m = 1; m <= t; m++) {  
+    //循环执行“+”号展开  
+    $('.x-treenode-unexpand').trigger('click');  
+}  
+]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="startload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+//获取A1单元格的值]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="startload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="export1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(value("hx_aut",2,1))=0,1,if(StringFind(value("hx_aut",2,1),"no")<>-1,0,if(StringFind(value("hx_aut",2,1),"zzpdfy001")<>-1,1,0)))]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[//导出
+if (export1 == 0) {
+
+    var item = contentPane.toolbar.getWidgetByName("ExcelO").setVisible(false);
+}]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportWebAttr>
+<ReportFitAttr fitStateInPC="3" fitFont="false"/>
+<ElementCaseMobileAttr>
+<ElementCaseMobileAttrProvider horizontal="1" vertical="1" zoom="true" refresh="false" isUseHTML="false" isMobileCanvasSize="false"/>
+</ElementCaseMobileAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR F="0" T="1"/>
+<FR/>
+<HC F="2" T="5"/>
+<FC/>
+<UPFCR COLUMN="true" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,838200,864000,864000,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,342900,2019300,4495800,3162300,6553200,12382500,5181600,5219700,5981700,5334000,5486400,3962400,0,0,0,0,0,0,5295900,4896000,4896000,4896000,4896000,4896000,4896000,4896000,4896000,4896000,4896000,4896000,4896000,4896000,4896000,4896000,4896000,720000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=count(d3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="1" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="0" rs="2" s="0">
+<O>
+<![CDATA[序号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="0" rs="2" s="0">
+<O>
+<![CDATA[事业部]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="0" rs="2" s="0">
+<O>
+<![CDATA[区域]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="0" rs="2" s="0">
+<O>
+<![CDATA[分公司]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="0" rs="2" s="0">
+<O>
+<![CDATA[项目/地块]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="0" rs="2" s="0">
+<O>
+<![CDATA[批次]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="0" rs="2" s="0">
+<O>
+<![CDATA[占地面积（亩）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="0" rs="2" s="0">
+<O>
+<![CDATA[建筑面积（万平）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="0" rs="2" s="0">
+<O>
+<![CDATA[总货值（亿元）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="0" rs="2" s="0">
+<O>
+<![CDATA[剩余库存（亿元）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="0" rs="2" s="0">
+<O>
+<![CDATA[是否域外]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="0" rs="2" s="0">
+<O>
+<![CDATA[确权日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="0" rs="2" s="0">
+<O>
+<![CDATA[计划确权日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="0" rs="2" s="0">
+<O>
+<![CDATA[开工日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="0" rs="2" s="0">
+<O>
+<![CDATA[计划开工日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="0" rs="2" s="0">
+<O>
+<![CDATA[预售日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="18" r="0" rs="2" s="0">
+<O>
+<![CDATA[计划预售日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="19" r="0" rs="2" s="0">
+<O>
+<![CDATA[进度]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="0" cs="2" s="0">
+<O>
+<![CDATA[预售证]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="0" cs="2" s="0">
+<O>
+<![CDATA[规划设计要点]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="0" cs="2" s="0">
+<O>
+<![CDATA[摘牌]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="26" r="0" cs="2" s="0">
+<O>
+<![CDATA[土方及桩基进场]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="28" r="0" cs="2" s="0">
+<O>
+<![CDATA[规划方案政府审批]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="30" r="0" cs="2" s="0">
+<O>
+<![CDATA[示范区开放]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="32" r="0" cs="2" s="0">
+<O>
+<![CDATA[开盘]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="34" r="0" cs="2" s="0">
+<O>
+<![CDATA[现金流回正]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="36" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="1" s="0">
+<O>
+<![CDATA[计划]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="21" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="1" s="0">
+<O>
+<![CDATA[计划]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="1" s="0">
+<O>
+<![CDATA[计划]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="25" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="26" r="1" s="0">
+<O>
+<![CDATA[计划]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="27" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="28" r="1" s="0">
+<O>
+<![CDATA[计划]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="29" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="30" r="1" s="0">
+<O>
+<![CDATA[计划]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="31" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="32" r="1" s="0">
+<O>
+<![CDATA[计划]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="33" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="34" r="1" s="0">
+<O>
+<![CDATA[计划]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="35" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="ROWNUM"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[BUID]]></CNAME>
+<Compare op="1">
+<O>
+<![CDATA[（全选）]]></O>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-1842205"/>
+</HighlightAction>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[&C3%100=0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.PageHighlightAction">
+<P i="1"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="3" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="BUID"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[BUID]]></CNAME>
+<Compare op="1">
+<O>
+<![CDATA[（全选）]]></O>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="BUID" viName="BUNAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[fangyuan]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="AREAID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="AREAID" viName="AREANAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[fangyuan]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="ORGID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORGID" viName="ORGNAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[fangyuan]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PROID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="PROID" viName="PRONAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[fangyuan]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="BATCHID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="BATCHID" viName="BATCHNAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[fangyuan]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="COVERAREA"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="ACREAGE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="TOTALVALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="SURPLUSVALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="ISAUTHENTIC"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALDEALTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANDEALTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALSTARTTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANSTARTTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALPERMITTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANPERMITTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PROGRESS"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANPERMITTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALPERMITTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="22" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANNINGTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALPLANNINGTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANDEALTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALDEALTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANSTARTTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALSTARTTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALPLANTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="30" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANDEMONSTRATIONTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="31" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALDEMONSTRATIONTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="32" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANOPENINGTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="33" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALOPENINGTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="34" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="PLANCASHFLOWSBACKTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="fangyuan" columnName="REALCASHFLOWSBACKTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+<Background name="NullBackground"/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0" useParamsTemplate="false"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1380618"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="PROGRESS"/>
+<LabelName name="进度："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<DirectEdit>
+<![CDATA[false]]></DirectEdit>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="PROGRESS" viName="PROGRESS"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ds1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[（全选）]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="944" y="37" width="111" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[进度：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="906" y="37" width="38" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label3"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[房源]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="96" foreground="-6877671"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="6" y="8" width="111" height="29"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="BUID"/>
+<LabelName name="事业部："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<DirectEdit>
+<![CDATA[false]]></DirectEdit>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="BUID" viName="BUNAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ds1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[（全选）]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="56" y="37" width="111" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="AREAID"/>
+<LabelName name="区域："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<DirectEdit>
+<![CDATA[false]]></DirectEdit>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="AREAID" viName="AREANAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ds2]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[（全选）]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="226" y="37" width="113" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="ORGID"/>
+<LabelName name="分公司："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<DirectEdit>
+<![CDATA[false]]></DirectEdit>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORGID" viName="ORGNAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ds3]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[（全选）]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="412" y="37" width="111" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="realpermittime"/>
+<LabelName name="至"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr format="yyyy-MM" startdatefm="=$planpermittime" enddatefm="=value(&quot;ds4&quot;,2,1)"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=left(today(),7)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="775" y="37" width="102" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="planpermittime"/>
+<LabelName name="预售时间："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr format="yyyy-MM" startdatefm="=value(&quot;ds4&quot;,1,1)" enddatefm="=value(&quot;ds4&quot;,2,1)"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=concatenate(left(now(),5),"01")]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="632" y="37" width="123" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="formSubmit0_c_c"/>
+<LabelName name="事业部："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-7336680"/>
+</initial>
+<FRFont name="SimSun" style="1" size="72" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="1091" y="37" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[事业部：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="6" y="37" width="50" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label1_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[至]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="755" y="37" width="20" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label2_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[区域：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="188" y="37" width="38" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label3_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[计划预售时间：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="545" y="37" width="87" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label4_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[分公司：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="362" y="37" width="50" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="BUID"/>
+<Widget widgetName="AREAID"/>
+<Widget widgetName="ORGID"/>
+<Widget widgetName="planpermittime"/>
+<Widget widgetName="realpermittime"/>
+<Widget widgetName="PROGRESS"/>
+<Widget widgetName="formSubmit0_c_c"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<UseParamsTemplate use="false"/>
+<Position position="0"/>
+<Design_Width design_width="1276"/>
+<NameTagModified>
+<TagModified tag="planpermittime" modified="true"/>
+<TagModified tag="orgcode" modified="true"/>
+</NameTagModified>
+<WidgetNameTagMap>
+<NameTag name="ORGID" tag="分公司："/>
+<NameTag name="BUID" tag="事业部："/>
+<NameTag name="realpermittime" tag="至"/>
+<NameTag name="AREAID" tag="区域："/>
+<NameTag name="planpermittime" tag="预售时间："/>
+<NameTag name="PROGRESS" tag="进度："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="1276" height="62"/>
+</ParameterUI>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[全口径]]></O>
+</Parameter>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6877671"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="0"/>
+<TemplateID TemplateID="a1a82ed7-6fac-45c6-9db4-426922ece6ae"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="6ea84c54-eb51-4aba-bf47-9023844488bc"/>
+</TemplateIdAttMark>
+</WorkBook>

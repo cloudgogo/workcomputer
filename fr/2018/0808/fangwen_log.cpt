@@ -1,0 +1,1038 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select distinct sys_name, name from jygk_log_record a where 1=1 and not exists (
+SELECT U.ID, U.LOGINNAME, U.FULLNAME, U.EEMPLOYEEID,
+J.USERID, J.ORGANIZATIONID, J.ORGANIZATIONNAME, J.JOBINFOID, J.JOBINFONAME, J.POSITIONID, J.POSITIONNAME
+FROM UDMUSER U JOIN UDMJOB J ON U.ID = J.USERID
+WHERE U.MASTERDATA_DATASTATUS = 'A' AND J.JOBINDICATE = 'P' AND J.DICTPOSITIONSTATUS = 'A' AND J.MASTERDATA_DATASTATUS = 'A'
+and u.loginname  in('jinning_hrbp','SYS_MSG_RTX','niuyujie','qilan_abs_huailai','yggx_tg','zhulin6_hrbp','sunliao','wanghui','dongmeng','vxmgl2','zhongzhuan','vwangjialin','vyangzhaohui','wuyang_hrbp','lvxiangdong_hrbp','vsuwei','sunguochen','vguoxing','vxiangwei','wangxixi','xieyang','vzhangli1','sunxiaofei','vtanglei','vzhaoyichao','wangpan7','nieminjie','vwanglichun','yangchun5','yangsiyuan','vchengtianxian','vwangpeng','vliuyinglei','vjingningning','zhangwei85','vzhouyourong','fuweiju_hrbp','vjiangzeshan','wangyuying5','zhaobin6_zp','vguochunyu','wangyangrl_hr','vliyubo','vmashuang','vzhengyuhui','jiangchenyang_hrbp','vliushuang','vdengjianpu','uappmonitoring','wumosi_hrbp','vcbss2','vgaoxiaochao','vlvmingfang','wangzhao1','vxmgl1','vfanyuning','shichunzhao_hrbp','gaoliwen_hrbp','vzhuangning','HRADMIN','gaojisheng','blsys','daiyong','vzhangchunyu1','vwanghuaiang','wangling5','cihongyu','vhuxiaowei','vguozhihong','wudi17_hrbp','vmaying','baohongjun_hrbp','vhuangzhongdi','purchase','eHR','huangyi3_zf','vzengdecheng','vzhangyang','vguoying','yangjieqiong_hrbp','vzhoujinhua','vlirenjie','vchentianlong','guoliqun_hrbp','vliuyue','vlanshengxing','lilei9','vyangshuang1','ijasmin','jiangpeipei','zhangxu31','vsunqinnan','1232shenji','zhangjingrun','vliubotao','zhangbingjie','zhengfangjie_hrbp','lilizb_hrbp','shiyan6_hrbp','xueqiang1','vwangyanli','admincw','wxkqcrjcp','jitao','liuchao18_hr','cuixingzhu','zhangzhibin5','vxiafan','caozikai','zhenghonglei','dingjia','vwanghongfei','wangxiong_hrbp','vwangsimiao','mengqi1_hrbp','vzhuyonglong','vzhengwenju','vlibo1','chenqiuying','vtianshiwen','dingtao3','vyujing','gaoxu3','admineas','vguozeqian','vkangshasha','zhanghongwen','liwentao6','vlibeibei','vchenguojun','topksupport1','vluoqingkun','wuyao1','vduanjinzhi','vliqing','liminghui','filetransfer','vlongwuquan','huming','vfengxiaoqian','vsunlu','maming3_hrbp','shoulou1','vzhangbo2','hanliu','changhao','guozihao_hrbp','qiminzheng','lisanbin','renliguwen1','zhaiyunzhi','vxingfeizhou','maguanghui','vzhangdan','vyangjing','vgepeng','admincb','tianji_hrbp','xuyiping3_hrbp','vxuexiaojing','vqumingming','wangjun29','guoqian1_hrbp','vqinyuliang','vguotaiping','vliruiqi','vzhangzhaowei','vrenguodong','yinming','vqinfuqiang','vpengbo','vliubaiming','huxiaolei_hrbp','IThelpdes2','fujialiang','lixianzhong','vzhangyan','lisaike','vwangzhao','vhanyongna','vningjiandong','vcbkf3','vhuyuanyuan','vmaochunjie','vliuxiaobo','vliudawei','vwangyue6','vdenghongzhi','vwangyanfei','zhaochangxin1','wanglifeng3','yaoyangfang_hrbp','xujing6_jt','vluoyanxing','shilong','vtianyuanyuan','vhongjianan','zhulin15_hrbp','luozhen','vguomeng','vgouruchun','PSADMIN','vchengben2','vshichao','vzhanglinlin','vlirudong','vgaoyang','vyaoshengnan','vluqiuyu','vcbkf2','vhujintao','xiaojin','wangchong6_zp','callcenter1','liuchaonan_hrbp','vjykj5','vzhaoshang','vqianfeiyang','zhuwenyi','hanbing6','vzhangyijuan','vtianxueshan','vlisheng1','vsunjiaxin','vlinhui','vpanyang','dongaimei','wumeinan','vcaoyan','zhaoyiping','wanggang31_hrd','vchenjiaqi','luyuanlong','vliangjunli','vjindongfang','niulei','vyinqiangqiang','vlihongxiao','vzengtao','vzhaocai','zhangyali_hrbp','huangpeng3','vsushilei','liujinyin','wangyanyan_hrbp','daidongzhen_hr','itsurvey','baozhijun_hrbp','vlifuqiang','vcbss3','vguofei','Vzhangqiang','vzcadmin','gaolei11','zhangqien_od','vhuanghesong','zhangqi_hr','vjykj3','liuchunxiang1','liuyihong','zhangxin25','duzhiyuan_hrbp','vyaopeng','vwanglei2','vlijincheng','vliuyanjie','konglingkang','wangjianshen','IThelpdes1','vgechenlong','wangzhihao','wangshibo','vyinxiaojie','chenjie9','vzhaiyuguo','lisicong','vguomingming','chenqiang7_hr','vyuchangchun','vgengxiaoliang','vzhangbo','vdongwenjie','zhangqian15','vwangwenbo','chendawei1','vrenxiujie','fenglixx','vtianqingwei','zhaoti_hr','houheping','adminyx','vjiayiduan','wangbeichen','zhangqi19_hr','vchenkun','vhuangzekang','vzhangyongrun','vlichao1','sunjianying1','libo10','vchengben','cuihongyan_hrbp','linyu5','yanjianxun','vhongxv','fssc','jinxianrui','liushiming','tongchengcheng','vxiaokai','jianglili5','mixiaoyun','zhaomeng5_hrbp','lishuai8','vsunran','support-lccb','renyingzhe_hr','zhangjianbing','vdengjing','vhujunyuan','xuqingkai','uydbgzs','zhaoyang','vhexiaoliang','vzhongjun','libin11','tuwenhao','wangyunfeng3','vpeifeng','fanchengfei','vxieying1','yangshigang_hrbp','vwangmingxin','vwangjianwei','vwykq','vlijiangtao','vwangputuo','vliyongchao','hanshuo7','vxiangmingyou1','vdongjipeng','vFSSC2','vhuanweiadmin','liujing30_hrbp','hongxiaoyu','vchangguixiao','zhaozhiyu1','vjiangfeng','vliujianfeng','vmaqianqian','vwangjialong','xumiao5','vliming1','hantao3','zhangxueyu1','vyangcaishan','baipengfei_hr','hopesupport1','tangwei5','vrent','vliukun','vjykj1','njzhongzhuan','yangkaining_hrbp','vcbkf1','vhouzhihua','vchenjianguang','yanwei','vchengben4','jinyuan','vsunxu','hesugang','sunlin3_hrbp','SYS_MSG','vqiaopeng','heyin','vwenchenglin','vjiachuntai','luyue','ITservice','scan','vjiakai','sunyixin','vhaolijuan','liyufeng8','vwangxu1','vmaling','vluchao1','vacaiwu','easuser','vjinxin','vzhuyanping','liujie31','vkangjia','vchenjingjing','vshiyujuan','vzhouying','vliuxueyuan','wangzhenliang_hr','vxmgl3','shangjie1','admin_oa','adminsys','vhuangshun','vlichi','yanghongliang1','vcbss1','vxuzhaohui','vlizhiguang','vlijunming','maowei','vshenyongsheng','zhangyaoqiang','vlichao','chenwei25','vcuijinxin','vwangtao','zhangwang8_zp','renlixinziguwen2','vzhangyanqing','liuqiankun_hrbp','vliuchenxing','vchenwang','vsunyi','xuqiulin','vzhaolin','heyanfei1','vzhangjunpeng','wangchunyu3','shoulou2','qiuqian','dongkun','wangwei82_hrbp','vdingxuefeng','vlishuaixia','vdaiqing','vshisuping','vyinminglei','hujingyi_hrbp','yangchao15','liuzhaoxiang','vchengben1','zhangjing26_hrbp','liukai26','vchengqi','wangjing_it','vheyuehua','liushuang15_hrbp','vwangjing6','shixiang_hrbp','vcbzixun','vyaoxin1','songwenju','yuhanglujia','lipengxiang_hrbp','yggx_tg1','vzhangjieyu','yinnan5_hrbp','vzhangbo3','fengzhihong','vyuexin','wangyu16','liubaozhu','vlishuang1','vzhuyuehui','vlimeng','vlisong','zhangzhiwen1','jinyan1','kongdeqiang','vzhangxiang','hanfei3','vquaihui','vcbkf4','adminwy','vchengben3','vyaoxiaobin','vzhanghongbo1','wubingfeng','vpmsupport','vchenqiong','yanjie','Vhuwenpeng','wangqiye_hrbp','suilong_hrbp','vxutao','weiyongqing','vzhixin','vchengben5','vzhangxu','vlijingguang','lidandan1_hr','zhoutao1','zongming_hrbp','shaoxiaofang','limingwei','vlifangfang','vqiufangfang','callcenter2','anjing1_hrbp','vcaishengning','zhangsiwei','vwangyilin','wangjie18','vjiancha','vchenxiaoming','liyani','dayinji','huyuhang','vfuxianglei','shichunzhao_hr','vzhuxiaoli','vwanghaiqiang','huangshigang','wangyuzb','vfssc4','zhangchao29','chenjianjun7','kongxiaohui','liyang33','vwuweizhao','vhanxiang','vquyue','vguojingrong','vzhangyueyue','vliyang','uwyelearning','zhangyalin_hrbp','gaoyan17','vfuyan','vfengpishuai','zouzhaoqin','xiaoshijie','vwuyu','vqinlong','vzhuangpeng','vguozhichao','vwangshichao','mrecord','liuchangjiang','vgaoxiangyun','jiangpan','zhaoyazhi','vsunaihua','mengshuai','vcaijing','vzhangpeikun','vxumeng','zhangdan3_hrbp','vendor','wangyangrl_hrbp','sunning1','jinmin','vchenyanqiang','csadmin','vwutan','renliguwen2','SYS_MSG_Mail','vjinguangmou','fanshuo5','mahui1','vmaxuezhen','vliulutao','vwangchong','vgaoxue','vcuihongzhi','vzhaipengsheng','vwangbin1','liushan_hrbp','yinbo_hrbp','guanyanjun','zengjing3','liuyan27_hr','newapp','vwangmeifang','vyangmingyang','vliweina','Umkhsupport','vzhoujixiang','vliuwenbo','easadmin','vchenyong','Vliuweikang','vmakai','zouzhiqun','vzhouzhen','zhuhailiang','IThelpdes3','vwangzheng','vliulijun','vmaxin','mohualiang','vfengxu','renlixinziguwen1','vsongjian','vlifan','litieying','vcaiman','sunyongye') 
+and a.sys_name=u.LOGINNAME
+)
+
+--'admin',]]></Query>
+</TableData>
+<TableData name="ds3" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="end_date"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="name"/>
+<O>
+<![CDATA[admin]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tree"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="start_date"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.time, a.*
+  from jygk_log_record a
+ where 1 = 1
+ ${if(len(name)=0, "", " and sys_name in ('"+name+"') ")}
+ --${if(len(tree)=0, "", " and wenjianmingcheng = '"+tree+"' ")}
+ ${if(len(tree)=0, "", " and wenjianmingcheng in ('"+treelayer(tree, true, "\',\'")+"')") }
+ 
+ ${if(len(start_date)=0, "", " and trunc(a.time) between
+       to_date('"+start_date+"', 'yyyy-mm-dd')  and
+       to_date('"+end_date+"', 'yyyy-mm-dd')  ")}
+and not exists (
+SELECT U.ID, U.LOGINNAME, U.FULLNAME, U.EEMPLOYEEID,
+J.USERID, J.ORGANIZATIONID, J.ORGANIZATIONNAME, J.JOBINFOID, J.JOBINFONAME, J.POSITIONID, J.POSITIONNAME
+FROM UDMUSER U JOIN UDMJOB J ON U.ID = J.USERID
+WHERE U.MASTERDATA_DATASTATUS = 'A' AND J.JOBINDICATE = 'P' AND J.DICTPOSITIONSTATUS = 'A' AND J.MASTERDATA_DATASTATUS = 'A'
+and u.loginname  in('jinning_hrbp','SYS_MSG_RTX','niuyujie','qilan_abs_huailai','yggx_tg','zhulin6_hrbp','sunliao','wanghui','dongmeng','vxmgl2','zhongzhuan','vwangjialin','vyangzhaohui','wuyang_hrbp','lvxiangdong_hrbp','vsuwei','sunguochen','vguoxing','vxiangwei','wangxixi','xieyang','vzhangli1','sunxiaofei','vtanglei','vzhaoyichao','wangpan7','nieminjie','vwanglichun','yangchun5','yangsiyuan','vchengtianxian','vwangpeng','vliuyinglei','vjingningning','zhangwei85','vzhouyourong','fuweiju_hrbp','vjiangzeshan','wangyuying5','zhaobin6_zp','vguochunyu','wangyangrl_hr','vliyubo','vmashuang','vzhengyuhui','jiangchenyang_hrbp','vliushuang','vdengjianpu','uappmonitoring','wumosi_hrbp','vcbss2','vgaoxiaochao','vlvmingfang','wangzhao1','vxmgl1','vfanyuning','shichunzhao_hrbp','gaoliwen_hrbp','vzhuangning','HRADMIN','gaojisheng','blsys','daiyong','vzhangchunyu1','vwanghuaiang','wangling5','cihongyu','vhuxiaowei','vguozhihong','wudi17_hrbp','vmaying','baohongjun_hrbp','vhuangzhongdi','purchase','eHR','huangyi3_zf','vzengdecheng','vzhangyang','vguoying','yangjieqiong_hrbp','vzhoujinhua','vlirenjie','vchentianlong','guoliqun_hrbp','vliuyue','vlanshengxing','lilei9','vyangshuang1','ijasmin','jiangpeipei','zhangxu31','vsunqinnan','1232shenji','zhangjingrun','vliubotao','zhangbingjie','zhengfangjie_hrbp','lilizb_hrbp','shiyan6_hrbp','xueqiang1','vwangyanli','admincw','wxkqcrjcp','jitao','liuchao18_hr','cuixingzhu','zhangzhibin5','vxiafan','caozikai','zhenghonglei','dingjia','vwanghongfei','wangxiong_hrbp','vwangsimiao','mengqi1_hrbp','vzhuyonglong','vzhengwenju','vlibo1','chenqiuying','vtianshiwen','dingtao3','vyujing','gaoxu3','admineas','vguozeqian','vkangshasha','zhanghongwen','liwentao6','vlibeibei','vchenguojun','topksupport1','vluoqingkun','wuyao1','vduanjinzhi','vliqing','liminghui','filetransfer','vlongwuquan','huming','vfengxiaoqian','vsunlu','maming3_hrbp','shoulou1','vzhangbo2','hanliu','changhao','guozihao_hrbp','qiminzheng','lisanbin','renliguwen1','zhaiyunzhi','vxingfeizhou','maguanghui','vzhangdan','vyangjing','vgepeng','admincb','tianji_hrbp','xuyiping3_hrbp','vxuexiaojing','vqumingming','wangjun29','guoqian1_hrbp','vqinyuliang','vguotaiping','vliruiqi','vzhangzhaowei','vrenguodong','yinming','vqinfuqiang','vpengbo','vliubaiming','huxiaolei_hrbp','IThelpdes2','fujialiang','lixianzhong','vzhangyan','lisaike','vwangzhao','vhanyongna','vningjiandong','vcbkf3','vhuyuanyuan','vmaochunjie','vliuxiaobo','vliudawei','vwangyue6','vdenghongzhi','vwangyanfei','zhaochangxin1','wanglifeng3','yaoyangfang_hrbp','xujing6_jt','vluoyanxing','shilong','vtianyuanyuan','vhongjianan','zhulin15_hrbp','luozhen','vguomeng','vgouruchun','PSADMIN','vchengben2','vshichao','vzhanglinlin','vlirudong','vgaoyang','vyaoshengnan','vluqiuyu','vcbkf2','vhujintao','xiaojin','wangchong6_zp','callcenter1','liuchaonan_hrbp','vjykj5','vzhaoshang','vqianfeiyang','zhuwenyi','hanbing6','vzhangyijuan','vtianxueshan','vlisheng1','vsunjiaxin','vlinhui','vpanyang','dongaimei','wumeinan','vcaoyan','zhaoyiping','wanggang31_hrd','vchenjiaqi','luyuanlong','vliangjunli','vjindongfang','niulei','vyinqiangqiang','vlihongxiao','vzengtao','vzhaocai','zhangyali_hrbp','huangpeng3','vsushilei','liujinyin','wangyanyan_hrbp','daidongzhen_hr','itsurvey','baozhijun_hrbp','vlifuqiang','vcbss3','vguofei','Vzhangqiang','vzcadmin','gaolei11','zhangqien_od','vhuanghesong','zhangqi_hr','vjykj3','liuchunxiang1','liuyihong','zhangxin25','duzhiyuan_hrbp','vyaopeng','vwanglei2','vlijincheng','vliuyanjie','konglingkang','wangjianshen','IThelpdes1','vgechenlong','wangzhihao','wangshibo','vyinxiaojie','chenjie9','vzhaiyuguo','lisicong','vguomingming','chenqiang7_hr','vyuchangchun','vgengxiaoliang','vzhangbo','vdongwenjie','zhangqian15','vwangwenbo','chendawei1','vrenxiujie','fenglixx','vtianqingwei','zhaoti_hr','houheping','adminyx','vjiayiduan','wangbeichen','zhangqi19_hr','vchenkun','vhuangzekang','vzhangyongrun','vlichao1','sunjianying1','libo10','vchengben','cuihongyan_hrbp','linyu5','yanjianxun','vhongxv','fssc','jinxianrui','liushiming','tongchengcheng','vxiaokai','jianglili5','mixiaoyun','zhaomeng5_hrbp','lishuai8','vsunran','support-lccb','renyingzhe_hr','zhangjianbing','vdengjing','vhujunyuan','xuqingkai','uydbgzs','zhaoyang','vhexiaoliang','vzhongjun','libin11','tuwenhao','wangyunfeng3','vpeifeng','fanchengfei','vxieying1','yangshigang_hrbp','vwangmingxin','vwangjianwei','vwykq','vlijiangtao','vwangputuo','vliyongchao','hanshuo7','vxiangmingyou1','vdongjipeng','vFSSC2','vhuanweiadmin','liujing30_hrbp','hongxiaoyu','vchangguixiao','zhaozhiyu1','vjiangfeng','vliujianfeng','vmaqianqian','vwangjialong','xumiao5','vliming1','hantao3','zhangxueyu1','vyangcaishan','baipengfei_hr','hopesupport1','tangwei5','vrent','vliukun','vjykj1','njzhongzhuan','yangkaining_hrbp','vcbkf1','vhouzhihua','vchenjianguang','yanwei','vchengben4','jinyuan','vsunxu','hesugang','sunlin3_hrbp','SYS_MSG','vqiaopeng','heyin','vwenchenglin','vjiachuntai','luyue','ITservice','scan','vjiakai','sunyixin','vhaolijuan','liyufeng8','vwangxu1','vmaling','vluchao1','vacaiwu','easuser','vjinxin','vzhuyanping','liujie31','vkangjia','vchenjingjing','vshiyujuan','vzhouying','vliuxueyuan','wangzhenliang_hr','vxmgl3','shangjie1','admin_oa','adminsys','vhuangshun','vlichi','yanghongliang1','vcbss1','vxuzhaohui','vlizhiguang','vlijunming','maowei','vshenyongsheng','zhangyaoqiang','vlichao','chenwei25','vcuijinxin','vwangtao','zhangwang8_zp','renlixinziguwen2','vzhangyanqing','liuqiankun_hrbp','vliuchenxing','vchenwang','vsunyi','xuqiulin','vzhaolin','heyanfei1','vzhangjunpeng','wangchunyu3','shoulou2','qiuqian','dongkun','wangwei82_hrbp','vdingxuefeng','vlishuaixia','vdaiqing','vshisuping','vyinminglei','hujingyi_hrbp','yangchao15','liuzhaoxiang','vchengben1','zhangjing26_hrbp','liukai26','vchengqi','wangjing_it','vheyuehua','liushuang15_hrbp','vwangjing6','shixiang_hrbp','vcbzixun','vyaoxin1','songwenju','yuhanglujia','lipengxiang_hrbp','yggx_tg1','vzhangjieyu','yinnan5_hrbp','vzhangbo3','fengzhihong','vyuexin','wangyu16','liubaozhu','vlishuang1','vzhuyuehui','vlimeng','vlisong','zhangzhiwen1','jinyan1','kongdeqiang','vzhangxiang','hanfei3','vquaihui','vcbkf4','adminwy','vchengben3','vyaoxiaobin','vzhanghongbo1','wubingfeng','vpmsupport','vchenqiong','yanjie','Vhuwenpeng','wangqiye_hrbp','suilong_hrbp','vxutao','weiyongqing','vzhixin','vchengben5','vzhangxu','vlijingguang','lidandan1_hr','zhoutao1','zongming_hrbp','shaoxiaofang','limingwei','vlifangfang','vqiufangfang','callcenter2','anjing1_hrbp','vcaishengning','zhangsiwei','vwangyilin','wangjie18','vjiancha','vchenxiaoming','liyani','dayinji','huyuhang','vfuxianglei','shichunzhao_hr','vzhuxiaoli','vwanghaiqiang','huangshigang','wangyuzb','vfssc4','zhangchao29','chenjianjun7','kongxiaohui','liyang33','vwuweizhao','vhanxiang','vquyue','vguojingrong','vzhangyueyue','vliyang','uwyelearning','zhangyalin_hrbp','gaoyan17','vfuyan','vfengpishuai','zouzhaoqin','xiaoshijie','vwuyu','vqinlong','vzhuangpeng','vguozhichao','vwangshichao','mrecord','liuchangjiang','vgaoxiangyun','jiangpan','zhaoyazhi','vsunaihua','mengshuai','vcaijing','vzhangpeikun','vxumeng','zhangdan3_hrbp','vendor','wangyangrl_hrbp','sunning1','jinmin','vchenyanqiang','csadmin','vwutan','renliguwen2','SYS_MSG_Mail','vjinguangmou','fanshuo5','mahui1','vmaxuezhen','vliulutao','vwangchong','vgaoxue','vcuihongzhi','vzhaipengsheng','vwangbin1','liushan_hrbp','yinbo_hrbp','guanyanjun','zengjing3','liuyan27_hr','newapp','vwangmeifang','vyangmingyang','vliweina','Umkhsupport','vzhoujixiang','vliuwenbo','easadmin','vchenyong','Vliuweikang','vmakai','zouzhiqun','vzhouzhen','zhuhailiang','IThelpdes3','vwangzheng','vliulijun','vmaxin','mohualiang','vfengxu','renlixinziguwen1','vsongjian','vlifan','litieying','vcaiman','sunyongye') 
+and a.sys_name=u.LOGINNAME
+)
+order by a.time desc]]></Query>
+</TableData>
+<TableData name="tree" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.*, substr(a.id, 3, 20) from dim_page a order by substr(a.id, 3, 20) ]]></Query>
+</TableData>
+<TableData name="Tree1" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<markFieldsName>
+<![CDATA[ID]]></markFieldsName>
+<originalTableDataName>
+<![CDATA[tree]]></originalTableDataName>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[访问日志]]></Title>
+<ServerPrinter/>
+<WebPageContent>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.page.First">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-First')}]]></Text>
+<IconName>
+<![CDATA[first]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Previous">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Previous')}]]></Text>
+<IconName>
+<![CDATA[previous]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.PageNavi">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Next">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Next')}]]></Text>
+<IconName>
+<![CDATA[next]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Last">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Last')}]]></Text>
+<IconName>
+<![CDATA[last]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.Export">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Export')}]]></Text>
+<IconName>
+<![CDATA[export]]></IconName>
+<Buttons pdf="true" excelP="true" excelO="true" excelS="true" word="true" image="true" html="true"/>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<WebPage isPage="false" isShowAsImage="false" isAutoScale="false" isTDHeavy="false"/>
+</WebPageContent>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[////展开的最大节点级值  
+//var t = 4;   
+//for(var m = 1; m <= t; m++) {  
+//    //循环执行“+”号展开  
+//    $('.x-treenode-unexpand').trigger('click');  
+//}  
+
+var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+//获取A1单元格的值]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="startload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var timer1 = setTimeout(function(){
+ 		  var _x = $('.slimScrollBarY')[0]A;
+ 		  if(_x){
+$('.slimScrollBarY').css('width','15px'); //Y轴宽
+$('.slimScrollBarX').css('height','15px');//X轴高
+$('.slimScrollBarX').css('background','#000000');//X轴颜色
+$('.slimScrollBarX').css('opacity','0.65');//X轴透明度
+$('.slimScrollBarY').css('background','#000000');//Y轴颜色
+$('.slimScrollBarY').css('opacity','0.65');//Y轴透明度 
+ 			 clearInterval(timer1);
+ 			 }
+ 	  	},1000);]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<WebWriteContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[////展开的最大节点级值  
+//var t = 4;   
+//for(var m = 1; m <= t; m++) {  
+//    //循环执行“+”号展开  
+//    $('.x-treenode-unexpand').trigger('click');  
+//}  
+
+var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+//获取A1单元格的值]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="startload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var timer1 = setTimeout(function(){
+ 		  var _x = $('.slimScrollBarY')[0]A;
+ 		  if(_x){
+$('.slimScrollBarY').css('width','15px'); //Y轴宽
+$('.slimScrollBarX').css('height','15px');//X轴高
+$('.slimScrollBarX').css('background','#000000');//X轴颜色
+$('.slimScrollBarX').css('opacity','0.65');//X轴透明度
+$('.slimScrollBarY').css('background','#000000');//Y轴颜色
+$('.slimScrollBarY').css('opacity','0.65');//Y轴透明度 
+ 			 clearInterval(timer1);
+ 			 }
+ 	  	},1000);]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<ShowIcon>
+<![CDATA[false]]></ShowIcon>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SelectedColor/>
+<WebWrite SheetPosition="3"/>
+<RptLocation isShowAtLeft="true"/>
+<UnloadCheck/>
+<ShowWidgets/>
+<OtherAttr isAutoStash="false"/>
+</WebWriteContent>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportWebAttr>
+<ReportExportAttr>
+<ExcelExportAttr hideColumn="false" hideRow="false"/>
+<PDFExportAttr/>
+<HTMLExportAttr/>
+<WordExportAttr/>
+</ReportExportAttr>
+<ReportFitAttr fitStateInPC="3" fitFont="false"/>
+<ElementCaseMobileAttr>
+<ElementCaseMobileAttrProvider horizontal="1" vertical="1" zoom="true" refresh="false" isUseHTML="false" isMobileCanvasSize="false"/>
+</ElementCaseMobileAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR F="0" T="0"/>
+<FR/>
+<HC F="0" T="6"/>
+<FC/>
+<UPFCR COLUMN="true" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[1152000,864000,723900,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[495300,576000,4320000,3456000,4320000,4320000,3456000,14400000,7200000,8640000,11520000,14400000,14400000,5760000,3600000,3600000,2743200,7200000,2743200,7200000,14400000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=count(G2)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="2" r="0" s="1">
+<O>
+<![CDATA[系统用户名]]></O>
+<PrivilegeControl/>
+<Expand extendable="3"/>
+</C>
+<C c="3" r="0" s="1">
+<O>
+<![CDATA[用户]]></O>
+<PrivilegeControl/>
+<Expand extendable="3"/>
+</C>
+<C c="4" r="0" s="1">
+<O>
+<![CDATA[所属部门]]></O>
+<PrivilegeControl/>
+<Expand extendable="3"/>
+</C>
+<C c="5" r="0" s="1">
+<O>
+<![CDATA[职位]]></O>
+<PrivilegeControl/>
+<Expand extendable="3"/>
+</C>
+<C c="6" r="0" s="1">
+<O>
+<![CDATA[报表模块]]></O>
+<PrivilegeControl/>
+<Expand extendable="3"/>
+</C>
+<C c="7" r="0" s="1">
+<O>
+<![CDATA[访问路径]]></O>
+<PrivilegeControl/>
+<Expand extendable="3"/>
+</C>
+<C c="8" r="0" s="1">
+<O>
+<![CDATA[文件名称]]></O>
+<PrivilegeControl/>
+<Expand extendable="3"/>
+</C>
+<C c="9" r="0" s="1">
+<O>
+<![CDATA[访问文档]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="0" s="1">
+<O>
+<![CDATA[参数名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="0" s="1">
+<O>
+<![CDATA[参数值]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="0" s="1">
+<O>
+<![CDATA[参数名&参数值]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="0" s="2">
+<O>
+<![CDATA[时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="0" s="1">
+<O>
+<![CDATA[是否导出EXCEL]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="0" s="1">
+<O>
+<![CDATA[是否点击链接]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="0" s="1">
+<O>
+<![CDATA[链接参数名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="0" s="2">
+<O>
+<![CDATA[链接参数值]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="18" r="0">
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="19" r="0" s="1">
+<O>
+<![CDATA[链接模板]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="0" s="1">
+<O>
+<![CDATA[链接参数值&模板名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="SYS_NAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper">
+<Attr divideMode="1"/>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[(row()-1)%100=0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.PageHighlightAction">
+<P i="1"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="3" r="1" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="NAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="1" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="SUOSHUBUMEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="1" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="ZHIWU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="1" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="BAOBIAOMOKUAI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="FANGWENLUJING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="WENJIANMINGCHENG"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="FANGWENWENJIAN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="CANSHUMING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="CANSHU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="CANSHUMINGYUCANSHU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="TIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="1" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="DAOCHU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="1" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="SHIFOUDIANJILIANJIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="LIANJIECANSHUMING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="LIANJIECANSHU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="1">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="LIANJIEMINGYUCANSHU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="1" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=INDEXOFARRAY(SPLIT(s2, ":"), 2)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="1" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds3" columnName="LIANJIEMINGYUCANSHU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<FrozenColumnRow columnrow="H2"/>
+<PaperSetting>
+<PaperSize width="73440000" height="73440000"/>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0" useParamsTemplate="false"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1380618"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
+<WidgetName name="tree"/>
+<LabelName name="目录："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr mutiSelect="true" returnFullPath="true" selectLeafOnly="true"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="false"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="LEVELS" viName="LEVELS"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[Tree1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="282" y="34" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="end_date"/>
+<LabelName name="—"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=TODAY()+1]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="535" y="34" width="100" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="start_date"/>
+<LabelName name="日期："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=TODAY()]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="422" y="34" width="100" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelorg_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[目录：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="242" y="34" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="name"/>
+<LabelName name="姓名："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="SYS_NAME" viName="NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ds1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("oracle_test","select distinct sys_name from jygk_log_record a where 1=1 and not exists (select u.fullname from udmuser u where 1=1 and u.loginname  in('jinning_hrbp','SYS_MSG_RTX','niuyujie','qilan_abs_huailai','yggx_tg','zhulin6_hrbp','sunliao','wanghui','dongmeng','vxmgl2','zhongzhuan','vwangjialin','vyangzhaohui','wuyang_hrbp','lvxiangdong_hrbp','vsuwei','sunguochen','vguoxing','vxiangwei','wangxixi','xieyang','vzhangli1','sunxiaofei','vtanglei','vzhaoyichao','wangpan7','nieminjie','vwanglichun','yangchun5','yangsiyuan','vchengtianxian','vwangpeng','vliuyinglei','vjingningning','zhangwei85','vzhouyourong','fuweiju_hrbp','vjiangzeshan','wangyuying5','zhaobin6_zp','vguochunyu','wangyangrl_hr','vliyubo','vmashuang','vzhengyuhui','jiangchenyang_hrbp','vliushuang','vdengjianpu','uappmonitoring','wumosi_hrbp','vcbss2','vgaoxiaochao','vlvmingfang','wangzhao1','vxmgl1','vfanyuning','shichunzhao_hrbp','gaoliwen_hrbp','vzhuangning','HRADMIN','gaojisheng','blsys','daiyong','vzhangchunyu1','vwanghuaiang','wangling5','cihongyu','vhuxiaowei','vguozhihong','wudi17_hrbp','vmaying','baohongjun_hrbp','vhuangzhongdi','purchase','eHR','huangyi3_zf','vzengdecheng','vzhangyang','vguoying','yangjieqiong_hrbp','vzhoujinhua','vlirenjie','vchentianlong','guoliqun_hrbp','vliuyue','vlanshengxing','lilei9','vyangshuang1','ijasmin','jiangpeipei','zhangxu31','vsunqinnan','1232shenji','zhangjingrun','vliubotao','zhangbingjie','zhengfangjie_hrbp','lilizb_hrbp','shiyan6_hrbp','xueqiang1','vwangyanli','admincw','wxkqcrjcp','jitao','liuchao18_hr','cuixingzhu','zhangzhibin5','vxiafan','caozikai','zhenghonglei','dingjia','vwanghongfei','wangxiong_hrbp','vwangsimiao','mengqi1_hrbp','vzhuyonglong','vzhengwenju','vlibo1','chenqiuying','vtianshiwen','dingtao3','vyujing','gaoxu3','admineas','vguozeqian','vkangshasha','zhanghongwen','liwentao6','vlibeibei','vchenguojun','topksupport1','vluoqingkun','wuyao1','vduanjinzhi','vliqing','liminghui','filetransfer','vlongwuquan','huming','vfengxiaoqian','vsunlu','maming3_hrbp','shoulou1','vzhangbo2','hanliu','changhao','guozihao_hrbp','qiminzheng','lisanbin','renliguwen1','zhaiyunzhi','vxingfeizhou','maguanghui','vzhangdan','vyangjing','vgepeng','admincb','tianji_hrbp','xuyiping3_hrbp','vxuexiaojing','vqumingming','wangjun29','guoqian1_hrbp','vqinyuliang','vguotaiping','vliruiqi','vzhangzhaowei','vrenguodong','yinming','vqinfuqiang','vpengbo','vliubaiming','huxiaolei_hrbp','IThelpdes2','fujialiang','lixianzhong','vzhangyan','lisaike','vwangzhao','vhanyongna','vningjiandong','vcbkf3','vhuyuanyuan','vmaochunjie','vliuxiaobo','vliudawei','vwangyue6','vdenghongzhi','vwangyanfei','zhaochangxin1','wanglifeng3','yaoyangfang_hrbp','xujing6_jt','vluoyanxing','shilong','vtianyuanyuan','vhongjianan','zhulin15_hrbp','luozhen','vguomeng','vgouruchun','PSADMIN','vchengben2','vshichao','vzhanglinlin','vlirudong','vgaoyang','vyaoshengnan','vluqiuyu','vcbkf2','vhujintao','xiaojin','wangchong6_zp','callcenter1','liuchaonan_hrbp','vjykj5','vzhaoshang','vqianfeiyang','zhuwenyi','hanbing6','vzhangyijuan','vtianxueshan','vlisheng1','vsunjiaxin','vlinhui','vpanyang','dongaimei','wumeinan','vcaoyan','zhaoyiping','wanggang31_hrd','vchenjiaqi','luyuanlong','vliangjunli','vjindongfang','niulei','vyinqiangqiang','vlihongxiao','vzengtao','vzhaocai','zhangyali_hrbp','huangpeng3','vsushilei','liujinyin','wangyanyan_hrbp','daidongzhen_hr','itsurvey','baozhijun_hrbp','vlifuqiang','vcbss3','vguofei','Vzhangqiang','vzcadmin','gaolei11','zhangqien_od','vhuanghesong','zhangqi_hr','vjykj3','liuchunxiang1','liuyihong','zhangxin25','duzhiyuan_hrbp','vyaopeng','vwanglei2','vlijincheng','vliuyanjie','konglingkang','wangjianshen','IThelpdes1','vgechenlong','wangzhihao','wangshibo','vyinxiaojie','chenjie9','vzhaiyuguo','lisicong','vguomingming','chenqiang7_hr','vyuchangchun','vgengxiaoliang','vzhangbo','vdongwenjie','zhangqian15','vwangwenbo','chendawei1','vrenxiujie','fenglixx','vtianqingwei','zhaoti_hr','houheping','adminyx','vjiayiduan','wangbeichen','zhangqi19_hr','vchenkun','vhuangzekang','vzhangyongrun','vlichao1','sunjianying1','libo10','vchengben','cuihongyan_hrbp','linyu5','yanjianxun','vhongxv','fssc','jinxianrui','liushiming','tongchengcheng','vxiaokai','jianglili5','mixiaoyun','zhaomeng5_hrbp','lishuai8','vsunran','support-lccb','renyingzhe_hr','zhangjianbing','vdengjing','vhujunyuan','xuqingkai','uydbgzs','zhaoyang','vhexiaoliang','vzhongjun','libin11','tuwenhao','wangyunfeng3','vpeifeng','fanchengfei','vxieying1','yangshigang_hrbp','vwangmingxin','vwangjianwei','vwykq','vlijiangtao','vwangputuo','vliyongchao','hanshuo7','vxiangmingyou1','vdongjipeng','vFSSC2','vhuanweiadmin','liujing30_hrbp','hongxiaoyu','vchangguixiao','zhaozhiyu1','vjiangfeng','vliujianfeng','vmaqianqian','vwangjialong','xumiao5','vliming1','hantao3','zhangxueyu1','vyangcaishan','baipengfei_hr','hopesupport1','tangwei5','vrent','vliukun','vjykj1','njzhongzhuan','yangkaining_hrbp','vcbkf1','vhouzhihua','vchenjianguang','yanwei','vchengben4','jinyuan','vsunxu','hesugang','sunlin3_hrbp','SYS_MSG','vqiaopeng','heyin','vwenchenglin','vjiachuntai','luyue','ITservice','scan','vjiakai','sunyixin','vhaolijuan','liyufeng8','vwangxu1','vmaling','vluchao1','vacaiwu','easuser','vjinxin','vzhuyanping','liujie31','vkangjia','vchenjingjing','vshiyujuan','vzhouying','vliuxueyuan','wangzhenliang_hr','vxmgl3','shangjie1','admin_oa','adminsys','vhuangshun','vlichi','yanghongliang1','vcbss1','vxuzhaohui','vlizhiguang','vlijunming','maowei','vshenyongsheng','zhangyaoqiang','vlichao','chenwei25','vcuijinxin','vwangtao','zhangwang8_zp','renlixinziguwen2','vzhangyanqing','liuqiankun_hrbp','vliuchenxing','vchenwang','vsunyi','xuqiulin','vzhaolin','heyanfei1','vzhangjunpeng','wangchunyu3','shoulou2','qiuqian','dongkun','wangwei82_hrbp','vdingxuefeng','vlishuaixia','vdaiqing','vshisuping','vyinminglei','hujingyi_hrbp','yangchao15','liuzhaoxiang','vchengben1','zhangjing26_hrbp','liukai26','vchengqi','wangjing_it','vheyuehua','liushuang15_hrbp','vwangjing6','shixiang_hrbp','vcbzixun','vyaoxin1','songwenju','yuhanglujia','lipengxiang_hrbp','yggx_tg1','vzhangjieyu','yinnan5_hrbp','vzhangbo3','fengzhihong','vyuexin','wangyu16','liubaozhu','vlishuang1','vzhuyuehui','vlimeng','vlisong','zhangzhiwen1','jinyan1','kongdeqiang','vzhangxiang','hanfei3','vquaihui','vcbkf4','adminwy','vchengben3','vyaoxiaobin','vzhanghongbo1','wubingfeng','vpmsupport','vchenqiong','yanjie','Vhuwenpeng','wangqiye_hrbp','suilong_hrbp','vxutao','weiyongqing','vzhixin','vchengben5','vzhangxu','vlijingguang','lidandan1_hr','zhoutao1','zongming_hrbp','shaoxiaofang','limingwei','vlifangfang','vqiufangfang','callcenter2','anjing1_hrbp','vcaishengning','zhangsiwei','vwangyilin','wangjie18','vjiancha','vchenxiaoming','liyani','dayinji','huyuhang','vfuxianglei','shichunzhao_hr','vzhuxiaoli','vwanghaiqiang','huangshigang','wangyuzb','vfssc4','zhangchao29','chenjianjun7','kongxiaohui','liyang33','vwuweizhao','vhanxiang','vquyue','vguojingrong','vzhangyueyue','vliyang','uwyelearning','zhangyalin_hrbp','gaoyan17','vfuyan','vfengpishuai','zouzhaoqin','xiaoshijie','vwuyu','vqinlong','vzhuangpeng','vguozhichao','vwangshichao','mrecord','liuchangjiang','vgaoxiangyun','jiangpan','zhaoyazhi','vsunaihua','mengshuai','vcaijing','vzhangpeikun','vxumeng','zhangdan3_hrbp','vendor','wangyangrl_hrbp','sunning1','jinmin','vchenyanqiang','csadmin','vwutan','renliguwen2','SYS_MSG_Mail','vjinguangmou','fanshuo5','mahui1','vmaxuezhen','vliulutao','vwangchong','vgaoxue','vcuihongzhi','vzhaipengsheng','vwangbin1','liushan_hrbp','yinbo_hrbp','guanyanjun','zengjing3','liuyan27_hr','newapp','vwangmeifang','vyangmingyang','vliweina','Umkhsupport','vzhoujixiang','vliuwenbo','easadmin','vchenyong','Vliuweikang','vmakai','zouzhiqun','vzhouzhen','zhuhailiang','IThelpdes3','vwangzheng','vliulijun','vmaxin','mohualiang','vfengxu','renlixinziguwen1','vsongjian','vlifan','litieying','vcaiman','sunyongye') and a.sys_name=u.LOGINNAME)", 1)]]></Attributes>
+</O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="60" y="34" width="159" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labeltime_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[—]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="522" y="34" width="13" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labeltime"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[日期：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="382" y="34" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[访问日志]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="96" foreground="-6877671"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="5" width="111" height="29"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="Search"/>
+<LabelName name="—"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-6877671"/>
+</initial>
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="661" y="34" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelorg"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[姓名：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="34" width="40" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="name"/>
+<Widget widgetName="tree"/>
+<Widget widgetName="start_date"/>
+<Widget widgetName="end_date"/>
+<Widget widgetName="Search"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<UseParamsTemplate use="false"/>
+<Position position="0"/>
+<Design_Width design_width="960"/>
+<NameTagModified>
+<TagModified tag="dateEditor1" modified="true"/>
+<TagModified tag="name" modified="true"/>
+</NameTagModified>
+<WidgetNameTagMap>
+<NameTag name="end_date" tag="—"/>
+<NameTag name="Search" tag="—"/>
+<NameTag name="tree" tag="目录："/>
+<NameTag name="start_date" tag="日期："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="960" height="59"/>
+</ParameterUI>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportParameterAttr>
+<StyleList>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6877671"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6877671"/>
+<Border>
+<Top color="-1"/>
+<Bottom color="-1"/>
+<Left color="-1"/>
+<Right color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-2171170"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-2171170"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="a36e7392-6178-4638-bd58-457e3192f9f5"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="e9ab4b53-66ce-4f61-a050-0fdc2db8ed82"/>
+</TemplateIdAttMark>
+</WorkBook>

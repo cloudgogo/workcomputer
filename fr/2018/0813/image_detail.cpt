@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="micurl"/>
+<O>
+<![CDATA[plan.cfldcn.com/Statistics/ViewMonthlyDynamicsImg.aspx?FilePath=//nas2.cfldcn.com/jinduguanli/文件/ImportentProject/1557db1f-6304-426e-bedb-176c9bcb115f/3612396f-1372-4a75-a32a-407ed4c562a8_s.jpg]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select i.imgpath from   DM_PROJECT_TIM_IMAGE i where i.minimumimgpath='${micurl}']]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<ServerPrinter/>
+<WebViewContent>
+<ToolBars/>
+<SortFuncCheck check="true"/>
+<ConditionFuncCheck check="true"/>
+<ListFuncCheck check="true"/>
+</WebViewContent>
+</ReportWebAttr>
+<ReportFitAttr fitStateInPC="2" fitFont="false"/>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[0,17183100,0,0,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[0,29794200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=toimage("http://" + replace(B4, "文件", encode("文件")), false, "830", "600")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="IMGPATH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0" useParamsTemplate="true"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList/>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="811fa938-ff59-4cab-8c87-2387eedba307"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="4cd4f56d-7e4a-484b-ab05-5f6ba8f7d583"/>
+</TemplateIdAttMark>
+</WorkBook>

@@ -1,0 +1,52 @@
+//判断是否进行更改，更改为1 
+var changeflag = 0;
+if ((FL === FL_re && depttype === depttype_re && deptment === deptment_re && projecttype === projecttype_re) || chaolj == "否") {
+    changeflag = 0;
+} else {
+    changeflag = 1;
+}
+
+//执行插入操作
+if (changeflag = 1) {
+    //参数赋值
+    var baobiaomokuai = "土地端到端";
+    var wenjianmingcheng = "盘点信息-土地";
+    var canshuming = "FL;depttype;deptment;projecttype"; //参数en
+    var canshu = "全部"; //参数zh
+    var canshumingyucanshu = "7"; // 参数组合
+    var fangwenlujing = "${formletName}";
+    var fangwenwenjian = FR.remoteEvaluate('=INDEXOFARRAY(SPLIT(formletName,"/"),count(SPLIT(formletName,"/")))');
+
+
+    var shifoudianjilianjie = "8";
+    var lianjiecanshuming = "9";
+    var lianjiecanshu = "10";
+    var lianjiemingyucanshu = "11";
+    FR.ajax({
+        url: "${servletURL}" + "?reportlet=logs/loginsert.cpt&op=write&format=submit",
+        data: {
+            "baobiaomokuai": baobiaomokuai,
+            "fangwenlujing": fangwenlujing,
+            "fangwenwenjian": fangwenwenjian,
+            "wenjianmingcheng": wenjianmingcheng,
+            "canshuming": canshuming,
+            "canshu": canshu,
+            "canshumingyucanshu": canshumingyucanshu,
+            "shifoudianjilianjie": shifoudianjilianjie,
+            "lianjiecanshuming": lianjiecanshuming,
+            "lianjiecanshu": lianjiecanshu,
+            "lianjiemingyucanshu": lianjiemingyucanshu
+        }
+
+    }
+    );
+
+
+    //记录值更新
+
+    this.options.form.getWidgetByName("FL_re").setValue(FL);
+    this.options.form.getWidgetByName("depttype_re").setValue(depttype);
+    this.options.form.getWidgetByName("deptment_re").setValue(deptment);
+    this.options.form.getWidgetByName("projecttype_re").setValue(projecttype);
+    this.options.form.getWidgetByName("chaolj").setValue("否");
+}

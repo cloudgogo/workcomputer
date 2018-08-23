@@ -1,0 +1,38 @@
+
+//参数赋值
+    var baobiaomokuai = "经营管控";
+    var fangwenlujing = FR.remoteEvaluate('=reportName');
+    
+    var fangwenwenjian = FR.remoteEvaluate('=INDEXOFARRAY(SPLIT(reportName,"/"),count(SPLIT(reportName,"/")))');
+    var wenjianmingcheng = "业务类-产业新城重点项目";
+    
+    var canshuming = "org;projecttype;year_cash;city_name"; //参数en
+    var canshu = FR.remoteEvaluate('=if(len($org)=0 ,"",$org+";")+if(len($projecttype)=0 ,"",$projecttype+";")+if(len($year_cash)=0 ,"",$year_cash+";")+if(len($city_name)=0 ,"",$city_name+";")'); //参数zh
+    var canshumingyucanshu = FR.remoteEvaluate('=if(len($org)=0,"","org:"+$org)+"; "+if(len($projecttype)=0,"","projecttype:"+$projecttype)+"; "+if(len($year_cash)=0,"","year_cash:"+$year_cash)+"; "+if(len($city_name)=0,"","city_name:"+$city_name)+"; "');  // 参数组合
+        
+    var shifoudianjilianjie = "否";
+    var lianjiecanshuming = "";
+    var lianjiecanshu = "";
+    var lianjiemingyucanshu = "";
+    var daochu="否";
+    
+    
+    FR.ajax({
+        url: "${servletURL}" + "?reportlet=HX_JurisdictionAndLog/loginsert.cpt&op=write&format=submit",
+        data: {
+            "baobiaomokuai": baobiaomokuai,
+            "fangwenlujing": fangwenlujing,
+            "fangwenwenjian": fangwenwenjian,
+            "wenjianmingcheng": wenjianmingcheng,
+            "canshuming": canshuming,
+            "canshu": canshu,
+            "canshumingyucanshu": canshumingyucanshu,
+            "shifoudianjilianjie": shifoudianjilianjie,
+            "lianjiecanshuming": lianjiecanshuming,
+            "lianjiecanshu": lianjiecanshu,
+            "lianjiemingyucanshu": lianjiemingyucanshu,
+            "daochu":daochu
+        }
+
+    }
+    );

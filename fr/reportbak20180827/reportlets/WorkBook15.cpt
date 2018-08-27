@@ -1,0 +1,2756 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="1干部总数班子" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[ select '班子' AS ISBZ,DESCR,COUNT(YGID) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部'  AND ISBZ = 'Y'
+   and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+ order by DESCR]]></Query>
+</TableData>
+<TableData name="1干部总数人数" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[--核心干部
+select '核心干部' AS ISHXGB,count(ISBZ) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where  ISHXGB = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数
+     and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') 
+ UNION
+ --一把手
+ select '一把手' AS ISYBS, count(ISYBS) COUNT_ISYB
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' and ISYBS = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+     and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')
+UNION
+--班子
+select '班子' AS ISBZ, count(ISBZ) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' and ISBZ = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+     and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')
+UNION
+--其他
+select '其他' AS ISBZ, count(ygid) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND zhiwei  LIKE '%储备区域总%'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数
+     and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')    
+UNION
+--其他干部
+select '其它干部' AS ISBZ,count(YGFENLEI) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND ISHXGB<>'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数
+     and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') ]]></Query>
+</TableData>
+<TableData name="1干部总数其他干部" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select '其它干部' AS QTGB,DESCR,COUNT(YGID) COUNT_QTGB
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND ISHXGB<>'Y'
+  and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   GROUP BY DESCR
+   order by DESCR]]></Query>
+</TableData>
+<TableData name="3干部基础属性人数" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select DESCR,count(case when ygfenlei='干部' then YGID end) 干部 ,count(case when iszhuying='主营' then YGID end) 主营
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+  and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   GROUP BY DESCR]]></Query>
+</TableData>
+<TableData name="3干部基础属性页平均司龄" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select DESCR,avg(case when ygfenlei='干部' then SILING end) 干部平均司龄,
+avg(case when ISHXGB = 'Y' then SILING end) 核心干部平均司龄
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1 
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')
+   GROUP BY DESCR]]></Query>
+</TableData>
+<TableData name="3干部基础属性页司龄阶段" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select  
+  count(case when (case when ygfenlei='干部' then SILING end) between 0 and 0.5 then YGID end) gb1,
+  count(case when (case when ygfenlei='干部' then SILING end) between 0.5 and 1 then YGID end) gb2,
+  count(case when (case when ygfenlei='干部' then SILING end) between 1 and 3 then YGID end) gb3,
+  count(case when (case when ygfenlei='干部' then SILING end) between 3 and 5 then YGID end) gb4,
+  count(case when (case when ygfenlei='干部' then SILING end) between 5 and 10 then YGID end) gb5,
+  count(case when (case when ygfenlei='干部' then SILING end)>10 then YGID end) gb6,
+  count(case when (case when ISHXGB = 'Y' then SILING end) between 0 and 0.5 then YGID end) hx1,
+  count(case when (case when ISHXGB = 'Y' then SILING end) between 0.5 and 1 then YGID end) hx2,
+  count(case when (case when ISHXGB = 'Y' then SILING end) between 1 and 3 then YGID end) hx3,
+  count(case when (case when ISHXGB = 'Y' then SILING end) between 3 and 5 then YGID end) hx4,
+  count(case when (case when ISHXGB = 'Y' then SILING end) between 5 and 10 then YGID end) hx5,
+  count(case when (case when ISHXGB = 'Y' then SILING end)>10 then YGID end) hx6
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')]]></Query>
+</TableData>
+<TableData name="4干部入职页累计" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select DESCR,
+       COUNT(CASE WHEN TO_char(RZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}' THEN ygid END ) 累计入职人数,
+       COUNT(CASE WHEN TO_char(RZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}' AND ishxgb='Y' THEN ygid END) 核心干部入职人数,
+       COUNT(case WHEN TO_char(RZDATE,'YYYY-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') then ygid end) 当月入职人数,
+       COUNT(case WHEN TO_char(RZDATE,'YYYY-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') then ygid end) 上月入职人数
+ from ODM_HR_RZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where ISLIZHI='在职'
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR]]></Query>
+</TableData>
+<TableData name="5干部离职页" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select DESCR,
+       COUNT(CASE WHEN TO_char(LZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}'
+       AND YGFENLEI LIKE '%干部%' THEN ygid END) 累计干部离职人数,
+       COUNT(CASE WHEN TO_char(LZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}'
+       AND ishxgb='Y' THEN ygid  END) 累计核心干部离职人数
+        from ODM_HR_LZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1 
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR]]></Query>
+</TableData>
+<TableData name="4在职干部级别" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT ROWNUM, a.* FROM (
+SELECT ZHIJI,COUNT(YGID) ORDERBY from ODM_HR_RZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ WHERE ISLIZHI = '在职'
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   AND DQYGFENLEI LIKE '%干部%'
+   GROUP BY ZHIJI
+   ORDER BY ORDERBY DESC) a
+   WHERE ROWNUM<4]]></Query>
+</TableData>
+<TableData name="4在职干部上家雇主类别" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH 
+A AS(
+SELECT YGID,gzleixing
+  FROM ODM_HR_YGJLCX_WBGZLL_VW VW
+  WHERE ENDTIME = (
+                  SELECT MAX(ENDTIME)
+                    FROM ODM_HR_YGJLCX_WBGZLL_VW B
+                   WHERE B.YGID = VW.YGID
+))
+SELECT ROWNUM,C.* FROM (
+SELECT GZLEIXING, COUNT(T1.YGID) ORDERBY
+  FROM ODM_HR_RZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+  LEFT JOIN A
+    ON T1.YGID = A.YGID
+ WHERE ISLIZHI = '在职'
+${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   AND DQYGFENLEI LIKE '%干部%'
+   AND GZLEIXING IS NOT NULL
+ GROUP BY GZLEIXING
+ ORDER BY ORDERBY DESC) C
+ WHERE ROWNUM<4]]></Query>
+</TableData>
+<TableData name="4在职干部上家雇主行业" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH 
+A AS(
+SELECT YGID,HYLEIBIE
+  FROM ODM_HR_YGJLCX_WBGZLL_VW VW
+  WHERE ENDTIME = (
+                  SELECT MAX(ENDTIME)
+                    FROM ODM_HR_YGJLCX_WBGZLL_VW B
+                   WHERE B.YGID = VW.YGID
+))
+SELECT ROWNUM,C.* FROM (
+SELECT HYLEIBIE, COUNT(T1.YGID) ORDERBY
+  FROM ODM_HR_RZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+  LEFT JOIN A
+    ON T1.YGID = A.YGID
+ WHERE ISLIZHI = '在职'
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   AND DQYGFENLEI LIKE '%干部%'
+   AND HYLEIBIE IS NOT NULL
+ GROUP BY HYLEIBIE
+ ORDER BY ORDERBY DESC) C
+ WHERE ROWNUM<4]]></Query>
+</TableData>
+<TableData name="5干部在岗" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT DESCR,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')=(SUBSTR(('${datetime}'),1,4)-1||'12') then ygid end) 期初干部在岗人数,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') then ygid end) 期末干部在岗人数,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')=(SUBSTR(('${datetime}'),1,4)-1||'12') AND ishxgb='Y' then ygid end) 期初核心干部在岗人数,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') AND ishxgb='Y' then ygid end) 期末核心在岗人数
+
+  FROM ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR]]></Query>
+</TableData>
+<TableData name="1干部总数其他" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select '其他' AS QT,DESCR,COUNT(YGID) COUNT_QT
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND zhiwei  LIKE '%储备区域总%'
+  and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   GROUP BY DESCR
+   order by DESCR]]></Query>
+</TableData>
+<TableData name="1干部总数一把手" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select '一把手' AS ISYBS,DESCR,COUNT(YGID) COUNT_ISYBS
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部'  and ISYBS = 'Y' 
+  and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')
+     ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+ order by DESCR]]></Query>
+</TableData>
+<TableData name="2干部齐备率一把手在岗" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[ SELECT DESCR,gbsf,COUNT(*) YBS_NUM from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where  ZHIWEI IS NOT NULL AND ISYBS='Y'
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+  and to_char(datetime,'yyyy-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm')
+ GROUP BY DESCR,gbsf
+ order by DESCR]]></Query>
+</TableData>
+<TableData name="2干部齐备率一把手编制" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT XLATLONGNAME,COUNT(DISTINCT DESCR) YBS_BZ--HX_MGRHEAD_FLAG,--一把手
+ --T.*
+  FROM ODS_HR_PS_POSITION_DATA T
+  LEFT JOIN ODS_HR_PSXLATITEM T1
+ON HX_AWE_IDENTITY=T1.FIELDVALUE
+ WHERE HX_MGRHEAD_FLAG='Y'
+ --AND  DESCR='区域事业部总'
+ GROUP BY XLATLONGNAME]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[组发数据收集表]]></Title>
+<ServerPrinter/>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.fr-sheetbutton-container-active .fr-sheetbutton-middlepart').css('color', 'red');    
+$('.fr-sheetbutton-container').bind('click', function() {    
+    $('.fr-sheetbutton-container-active .fr-sheetbutton-middlepart').css('color', 'red');    
+    $('.fr-sheetbutton-container:not(.fr-sheetbutton-container-active) .fr-sheetbutton-middlepart').css('color', 'black');    
+});    ]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.PageSetup">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('PageSetup-Page_Setup')}]]></Text>
+<IconName>
+<![CDATA[pagesetup]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.PrintPreview">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('PrintP-Print_Preview')}]]></Text>
+<IconName>
+<![CDATA[preview]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.FlashPrint">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('FR-Engine_Utils_Flash_Print[Client]A')}]]></Text>
+<IconName>
+<![CDATA[flashprint]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.Print">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Print')}]]></Text>
+<IconName>
+<![CDATA[print]]></IconName>
+<PrintButtons/>
+</Widget>
+<Widget class="com.fr.report.web.button.Export">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Export')}]]></Text>
+<IconName>
+<![CDATA[export]]></IconName>
+<Buttons pdf="true" excelP="true" excelO="true" excelS="true" word="true" image="true" html="true"/>
+</Widget>
+<Widget class="com.fr.report.web.button.Email">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Email')}]]></Text>
+<IconName>
+<![CDATA[email]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+</ReportWebAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="干部总数页">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,0,864000,864000,864000,723900,864000,864000,864000,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,2743200,2743200,10080000,4724400,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1">
+<O t="DSColumn">
+<Attributes dsName="1干部总数人数" columnName="ISHXGB"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="1">
+<O t="DSColumn">
+<Attributes dsName="1干部总数人数" columnName="COUNT_ISBZ"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="2" cs="2" s="0">
+<O>
+<![CDATA[分类]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="2" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="2" s="0">
+<O>
+<![CDATA[在岗人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" rs="3" s="1">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="核心干部" + C2[!0;!0]A{B2 = "核心干部"} + "人"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="1">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="一把手" + C2[!0;!0]A{B2 = "一把手"} + "人"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="2">
+<O t="DSColumn">
+<Attributes dsName="1干部总数一把手" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="1干部总数一把手" columnName="COUNT_ISYBS"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="4" s="1">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="班子" + C2[!0;!0]A{B2 = "班子"} + "人"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="4" s="2">
+<O t="DSColumn">
+<Attributes dsName="1干部总数班子" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="4" s="3">
+<O t="DSColumn">
+<Attributes dsName="1干部总数班子" columnName="COUNT_ISBZ"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="5" s="1">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="其他" + C2[!0;!0]A{B2 = "其他"} + "人"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="5" s="2">
+<O>
+<![CDATA[储备区域总]]></O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="5" s="3">
+<O t="DSColumn">
+<Attributes dsName="1干部总数其他" columnName="COUNT_QT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="7" cs="2" s="0">
+<O>
+<![CDATA[分类]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="7" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="7" s="0">
+<O>
+<![CDATA[在岗人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="7" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="8" cs="2" s="1">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="其它干部" + C2[!0;!0]A{B2 = "其它干部"} + "人"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="8" s="2">
+<O t="DSColumn">
+<Attributes dsName="1干部总数其他干部" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="8" s="3">
+<O t="DSColumn">
+<Attributes dsName="1干部总数其他干部" columnName="COUNT_QTGB"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="8" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="13">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="15">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<Report class="com.fr.report.worksheet.WorkSheet" name="干部齐备率页">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,864000,864000,864000,864000,0,864000,864000,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,10080000,3456000,3456000,3456000,3456000,4191000,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="0">
+<O>
+<![CDATA[一把手岗位数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="0">
+<O>
+<![CDATA[一把手在岗数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="0">
+<O>
+<![CDATA[一把手合格数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="0">
+<O>
+<![CDATA[一把手齐备率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" s="0">
+<O>
+<![CDATA[一把手合格齐备率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="2干部齐备率一把手在岗" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="2干部齐备率一把手在岗" columnName="YBS_NUM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="2" s="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="2" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D3/C3]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="2" s="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="2干部齐备率一把手在岗" columnName="GBSF"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="B3"/>
+</C>
+<C c="2" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="2干部齐备率一把手编制" columnName="YBS_BZ"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[XLATLONGNAME]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="3"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="2干部齐备率一把手在岗" columnName="YBS_NUM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="3" s="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D4/C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="3" s="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="4" s="8">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="4" s="8">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="4" s="8">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(D3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="4" s="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="4" s="9">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D5/C5]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="4" s="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="5" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="5" s="0">
+<O>
+<![CDATA[考核班子数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="5" s="0">
+<O>
+<![CDATA[齐备班子数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="5" s="0">
+<O>
+<![CDATA[合格班子数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="5" s="0">
+<O>
+<![CDATA[班子齐备率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="5" s="0">
+<O>
+<![CDATA[班子合格齐备率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="19">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<Report class="com.fr.report.worksheet.WorkSheet" name="干部基础属性页">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,10080000,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="0">
+<O>
+<![CDATA[统计周期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="0">
+<O>
+<![CDATA[干部人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="0">
+<O>
+<![CDATA[主营人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="0">
+<O>
+<![CDATA[干部占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="2" s="1">
+<O>
+<![CDATA[当月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性人数" columnName="干部"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性人数" columnName="主营"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="2" s="10">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C3 / D3]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" s="11">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="4" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="4" s="0">
+<O>
+<![CDATA[干部人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="4" s="0">
+<O>
+<![CDATA[主营人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="4" s="0">
+<O>
+<![CDATA[干部占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="5" s="1">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性人数" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="5" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性人数" columnName="干部"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="5" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性人数" columnName="主营"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="5" s="10">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C6 / D6]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="6" s="11">
+<PrivilegeControl/>
+</C>
+<C c="1" r="7" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="7" s="0">
+<O>
+<![CDATA[干部平均司龄]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="7" s="0">
+<O>
+<![CDATA[核心干部平均司龄]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="8" s="1">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页平均司龄" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="8" s="12">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页平均司龄" columnName="干部平均司龄"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="8" s="12">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页平均司龄" columnName="核心干部平均司龄"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="9" s="13">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="10" rs="2" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="10" cs="6" s="0">
+<O>
+<![CDATA[干部司龄]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="11" s="0">
+<O>
+<![CDATA[0-0.5年]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="11" s="0">
+<O>
+<![CDATA[0.5-1年]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="11" s="0">
+<O>
+<![CDATA[1-3年]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="11" s="0">
+<O>
+<![CDATA[3-5年]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="11" s="0">
+<O>
+<![CDATA[5-10年]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="11" s="0">
+<O>
+<![CDATA[10年以上]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="12" s="1">
+<O>
+<![CDATA[干部]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="12" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB1"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="12" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="12" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="12" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB4"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="12" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB5"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="12" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB6"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="13" s="1">
+<O>
+<![CDATA[核心干部]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="13" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX1"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="13" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="13" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="13" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX4"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="13" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX5"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="13" s="3">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX6"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<Report class="com.fr.report.worksheet.WorkSheet" name="干部入职页">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,10080000,2743200,4114800,2743200,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="0">
+<O>
+<![CDATA[入职累计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="0">
+<O>
+<![CDATA[核心干部入职累计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="0">
+<O>
+<![CDATA[当月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="0">
+<O>
+<![CDATA[上月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="4干部入职页累计" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="4干部入职页累计" columnName="累计入职人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="4干部入职页累计" columnName="核心干部入职人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="4干部入职页累计" columnName="当月入职人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="4干部入职页累计" columnName="上月入职人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" s="8">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="14">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="14">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(D3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="3" s="14">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(E3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="14">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(F3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="5" cs="3" s="15">
+<O>
+<![CDATA[本年度入职且在职干部职级分布TOP3]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="6" s="0">
+<O>
+<![CDATA[职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="6" s="0">
+<O>
+<![CDATA[人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="6" s="0">
+<O>
+<![CDATA[占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="7" s="1">
+<O t="DSColumn">
+<Attributes dsName="4在职干部级别" columnName="ZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="7" s="3">
+<O t="DSColumn">
+<Attributes dsName="4在职干部级别" columnName="ORDERBY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="7" s="10">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C8 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="8" s="8">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="8" s="14">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C8)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="8" s="16">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C9 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="10" cs="3" s="15">
+<O>
+<![CDATA[本年度入职且在职干部上家雇主类别TOP3]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="11" s="0">
+<O>
+<![CDATA[雇主类别]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="11" s="0">
+<O>
+<![CDATA[人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="11" s="0">
+<O>
+<![CDATA[占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="12" s="1">
+<O t="DSColumn">
+<Attributes dsName="4在职干部上家雇主类别" columnName="GZLEIXING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="12" s="3">
+<O t="DSColumn">
+<Attributes dsName="4在职干部上家雇主类别" columnName="ORDERBY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="12" s="10">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C13 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="13" s="8">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="13" s="14">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C13)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="13" s="16">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C14 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="15" cs="3" s="15">
+<O>
+<![CDATA[本年度入职且在职干部上家雇主行业TOP3]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="16" s="0">
+<O>
+<![CDATA[雇主行业]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="16" s="0">
+<O>
+<![CDATA[人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="16" s="0">
+<O>
+<![CDATA[占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="17" s="1">
+<O t="DSColumn">
+<Attributes dsName="4在职干部上家雇主行业" columnName="HYLEIBIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="17" s="3">
+<O t="DSColumn">
+<Attributes dsName="4在职干部上家雇主行业" columnName="ORDERBY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="17" s="10">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C18 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="18" s="8">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="18" s="14">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C18)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="18" s="16">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C19 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<Report class="com.fr.report.worksheet.WorkSheet" name="干部离职页">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,1440000,723900,723900,723900,1440000,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,10080000,3162300,0,0,0,0,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="0">
+<O>
+<![CDATA[累计干部离职人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="1" s="0">
+<O>
+<![CDATA[累计干部离职率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" s="0">
+<O>
+<![CDATA[累计核心干部离职人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" s="0">
+<O>
+<![CDATA[累计核心干部离职率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="5干部离职页" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部离职页" columnName="累计干部离职人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗" columnName="期初干部在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗" columnName="期末干部在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗" columnName="期初核心干部在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗" columnName="期末核心在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="2" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(((D3 + E3) / 2) = 0, "", C3 / ((D3 + E3) / 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部离职页" columnName="累计核心干部离职人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="2" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(((F3 + G3) / 2) = 0, "", I3 / ((F3 + G3) / 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="2" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="2" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" s="2">
+<O>
+<![CDATA[总计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(D3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="3" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(E3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(F3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="3" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(G3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="3" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(((D4 + E4) / 2) = 0, "", C4 / ((D4 + E4) / 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="3" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(I3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="3" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(((F4 + G4) / 2) = 0, "", I4 / ((F4 + G4) / 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="3" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="4" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="5" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="5" s="0">
+<O>
+<![CDATA[期初干部在岗数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="5" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="5" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="5" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="5" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="5" s="0">
+<O>
+<![CDATA[期末干部在岗数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="5" s="0">
+<O>
+<![CDATA[干部离职率分母]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="5" s="17">
+<O>
+<![CDATA[期初核心干部在岗数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="5" s="17">
+<O>
+<![CDATA[期末核心干部在岗数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="5" s="17">
+<O>
+<![CDATA[核心干部离职率分母]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="6" s="2">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="6" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗" columnName="期初干部在岗人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="6" s="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="6" s="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="6" s="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="6" s="3">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="6" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗" columnName="期末干部在岗人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="6" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=(C7 + H7) / 2]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="6" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗" columnName="期初核心干部在岗人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="6" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗" columnName="期末核心在岗人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="6" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=(J7 + K7) / 2]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="7" s="2">
+<O>
+<![CDATA[总计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="7" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C7)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="7" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="7" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="7" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="7" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="7" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(H7)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="7" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=(C8 + H8) / 2]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="7" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(j7)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="7" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(k7)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="7" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=(J8 + K8) / 2]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="16">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1118482"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="datetime"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr format="yyyy-MM"/>
+<widgetValue>
+<O t="Date">
+<![CDATA[1521475200000]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="106" y="40" width="102" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[报表月度：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="80"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="25" y="40" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label1"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("HXXF_HR","SELECT REPLACE(PARENT_NAME,'-','_')  as PARENT_NAME FROM  ODM_HR_DW where tree_node='"+DWMC+"' ",1)]]></Attributes>
+</O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72" foreground="-4259840"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="205" y="6" width="755" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c_c_c_c_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[所选组织：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="158" y="6" width="63" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label9_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[组发报数据收集表]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="88" foreground="-4259832"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="27" y="6" width="131" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="Search_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查   询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-4194304"/>
+</initial>
+<over>
+<Background name="ColorBackground" color="-8585216"/>
+</over>
+<FRFont name="微软雅黑" style="0" size="80" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="500" y="28" width="60" height="25"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="datetime"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<Position position="0"/>
+<Design_Width design_width="960"/>
+<NameTagModified/>
+<WidgetNameTagMap>
+<NameTag name="datetime" tag="报表月度："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="960" height="80"/>
+</ParameterUI>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="SimSun" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0%]]></Format>
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="30">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="1" size="72"/>
+<Background name="ColorBackground" color="-6250336"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0%]]></Format>
+<FRFont name="SimSun" style="1" size="72"/>
+<Background name="ColorBackground" color="-6250336"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="ColorBackground" color="-6250336"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="ColorBackground" color="-6250336"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="1" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6250336"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="71dcd482-0861-42ad-a8e7-01c9ea8cce09"/>
+</WorkBook>

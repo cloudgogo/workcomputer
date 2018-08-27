@@ -1,0 +1,1016 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="ID"/>
+<O>
+<![CDATA[10000001]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT *
+  FROM SYSADM.PS_YGJLCX_VW
+ WHERE YGID = '${ID}']]></Query>
+</TableData>
+<TableData name="ds2" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="ID"/>
+<O>
+<![CDATA[10017641]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT EMPLOYEE_PHOTO
+FROM SYSADM.PS_EMPL_PHOTO
+WHERE EMPLID = '${ID}']]></Query>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[2400300,1440000,1440000,1440000,1440000,1440000,1440000,1440000,1296000,1296000,1296000,1296000,952500,876300,876300,1066800,876300,838200,1296000,1296000,1296000,1296000,1296000,723900,1296000,1296000,1296000,1296000,864000,864000,864000,864000,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[876300,1866900,1333500,1905000,2895600,2247900,1371600,1485900,2286000,2819400,2895600,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0" cs="12" s="0">
+<O>
+<![CDATA[华夏幸福员工简历]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" cs="2" s="1">
+<O>
+<![CDATA[姓名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="XINGMING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="1" s="1">
+<O>
+<![CDATA[性别]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="XINGBIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="1" cs="2" s="1">
+<O>
+<![CDATA[出生日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="CSDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="1" cs="2" rs="3" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="EMPLOYEE_PHOTO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="0" showAsImage="true"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="2" cs="2" s="1">
+<O>
+<![CDATA[民族]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="2" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="MINZU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="1">
+<O>
+<![CDATA[籍贯]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="2" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="JIGUAN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" cs="2" s="1">
+<O>
+<![CDATA[户口所在地]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="HUKOUSZD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="3" cs="2" s="1">
+<O>
+<![CDATA[政治面貌]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ZZMM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="3" s="1">
+<O>
+<![CDATA[参加工作时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="CJGZDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="3" cs="2" s="1">
+<O>
+<![CDATA[婚姻状况]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="3" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="HUNYINZK"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="4" cs="2" s="1">
+<O>
+<![CDATA[所在单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="4" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="DANWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="4" s="1">
+<O>
+<![CDATA[所在部门]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="4" cs="7" s="1">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="BUMEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="5" cs="2" s="1">
+<O>
+<![CDATA[入职日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="5" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="RZDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="5" s="1">
+<O>
+<![CDATA[岗位名称]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="5" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="GANGWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="5" cs="2" s="1">
+<O>
+<![CDATA[职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="5" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="5" s="1">
+<O>
+<![CDATA[任现职级时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="5" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="RXZHIJITIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="6" cs="2" s="1">
+<O>
+<![CDATA[主营/非主营]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="6" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ISZHUYING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="6" s="1">
+<O>
+<![CDATA[员工分类]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="6" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="YGFENLEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="6" cs="2" s="1">
+<O>
+<![CDATA[员工类别]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="6" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="YGLEIBIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="6" s="1">
+<O>
+<![CDATA[直接上级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="6" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ZJZG"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="7" cs="2" s="1">
+<O>
+<![CDATA[所属序列]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="7" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="SSXULIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="7" s="1">
+<O>
+<![CDATA[职能序列/\\n产新序列]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="7" cs="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ZHINENGXULIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="7" cs="2" s="1">
+<O>
+<![CDATA[是否常青藤]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="7" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ISCQT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="7" s="1">
+<O>
+<![CDATA[常青藤年度]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="7" s="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="CQTCDLYEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="8" rs="4" s="3">
+<O>
+<![CDATA[绩效晋升]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="8" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="8" cs="2" s="1">
+<O>
+<![CDATA[Q1绩效]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="8" cs="3" s="1">
+<O>
+<![CDATA[Q2绩效]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="8" cs="2" s="1">
+<O>
+<![CDATA[Q3绩效]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="8" cs="2" s="1">
+<O>
+<![CDATA[年度绩效]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="9" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="9" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="9" cs="3" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="9" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="9" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="10" cs="2" s="1">
+<O>
+<![CDATA[晋升日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="10" cs="2" s="1">
+<O>
+<![CDATA[晋升前职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="10" cs="3" s="1">
+<O>
+<![CDATA[晋升后职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="10" cs="2" s="1">
+<O>
+<![CDATA[晋升后职级时长]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="10" cs="2" s="1">
+<O>
+<![CDATA[晋升时所在单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="11" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="11" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="11" cs="3" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="11" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="11" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="12" rs="6" s="3">
+<O>
+<![CDATA[工作经历]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="12" cs="11" s="2">
+<O>
+<![CDATA[内部工作经历]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="13" cs="2" s="1">
+<O>
+<![CDATA[开始时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="13" cs="2" s="1">
+<O>
+<![CDATA[结束时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="13" cs="3" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="13" cs="2" s="1">
+<O>
+<![CDATA[职务]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="13" cs="2" s="1">
+<O>
+<![CDATA[职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="14" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="14" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="14" cs="3" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="14" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="14" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="15" cs="11" s="2">
+<O>
+<![CDATA[外部工作经历]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="16" cs="2" s="1">
+<O>
+<![CDATA[开始时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="16" cs="2" s="1">
+<O>
+<![CDATA[结束时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="16" cs="3" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="16" cs="2" s="1">
+<O>
+<![CDATA[任职部门]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="16" cs="2" s="1">
+<O>
+<![CDATA[最后职位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="17" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="17" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="17" cs="3" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="17" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="17" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="18" rs="6" s="3">
+<O>
+<![CDATA[内部培训经历]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="18" cs="11" s="2">
+<O>
+<![CDATA[参训信息]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="19" cs="3" s="1">
+<O>
+<![CDATA[学习项目名称]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="19" cs="2" s="1">
+<O>
+<![CDATA[学习项目类型]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="19" cs="2" s="1">
+<O>
+<![CDATA[开始时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="19" cs="2" s="1">
+<O>
+<![CDATA[结束时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="19" cs="2" s="1">
+<O>
+<![CDATA[参训时长]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="20" cs="3" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="20" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="20" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="20" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="20" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="21" cs="11" s="2">
+<O>
+<![CDATA[授课信息]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="22" cs="2" s="1">
+<O>
+<![CDATA[学习项目名称]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="22" cs="2" s="1">
+<O>
+<![CDATA[学习项目类型]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="22" s="1">
+<O>
+<![CDATA[授课/活动]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="22" cs="2" s="1">
+<O>
+<![CDATA[开始时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="22" cs="2" s="1">
+<O>
+<![CDATA[结束时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="22" s="1">
+<O>
+<![CDATA[授课时长]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="22" s="1">
+<O>
+<![CDATA[满意度]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="23" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="23" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="23" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="23" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="23" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="23" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="23" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="24" rs="2" s="3">
+<O>
+<![CDATA[教育经历]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="24" cs="2" s="1">
+<O>
+<![CDATA[开始日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="24" cs="2" s="1">
+<O>
+<![CDATA[结束日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="24" s="1">
+<O>
+<![CDATA[毕业院校]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="24" cs="2" s="1">
+<O>
+<![CDATA[专业]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="24" cs="2" s="1">
+<O>
+<![CDATA[学历]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="24" s="1">
+<O>
+<![CDATA[学位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="24" s="1">
+<O>
+<![CDATA[学习方式]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="25" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="25" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="25" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="25" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="25" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="25" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="26" rs="2" s="3">
+<O>
+<![CDATA[家庭成员]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="26" cs="2" s="1">
+<O>
+<![CDATA[与员工关系]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="26" cs="2" s="1">
+<O>
+<![CDATA[姓名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="26" s="1">
+<O>
+<![CDATA[出生日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="26" s="1">
+<O>
+<![CDATA[性别]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="26" cs="4" s="1">
+<O>
+<![CDATA[所在单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="26" s="1">
+<O>
+<![CDATA[职务]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="27" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="27" cs="2" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="27" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="27" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="27" cs="4" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="27" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="28" rs="4" s="3">
+<O>
+<![CDATA[备注]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="28" cs="11" rs="4" s="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style isVerticalText="1" textDirection="1" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+<TemplateID TemplateID="c6b0f905-2ce4-403f-a0bc-7e316d9dc70c"/>
+</WorkBook>

@@ -1,0 +1,656 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH TT AS 
+(SELECT 
+t1.name_id, --姓名拼音
+t2.fullname,  --姓名汉字
+t3.bumen,     --部门
+t3.zhiwu ,    --职务
+CASE WHEN t1.name_id='wangxiong' THEN '股份总部（不含公司领导及人力条线）' else t6.descr end descr,    --所属部门
+   t5.rloe,
+   t5.role_name,
+   t5.cadre,
+   t5.cqt,
+   t5.link, --链接
+t4.tree_node_num 
+ FROM HR_AUTHORITY t1 
+LEFT JOIN UDMUSER T2 ON T1.NAME_ID=T2.LOGINNAME 
+LEFT JOIN odm_hr_ygtz t3  on t2.eemployeeid=t3.ygid
+LEFT JOIN odm_hr_dw t4     on t4.tree_node=t3.bumenid 
+LEFT JOIN HR_AUTHORITY t5  on t1.rloe=t5.rloe
+LEFT JOIN odm_hr_dw t6 ON   t6.tree_node=t1.TREE_ID
+WHERE t1.RLOE_TYPE='1'
+
+AND   t5.RLOE_TYPE='2'
+AND  t5.rloe<>'GUANLI'
+AND T1.NAME_ID not in ('heyanfei1','liminghui','vbaoyamin','vtanglei','xiaojin','vdengchengzhen')
+ORDER BY    CASE  WHEN  tree_node_num is null then 9999999999 
+        else  TREE_NODE_NUM end asc,ZHIJI DESC
+        )
+
+SELECT ROWNUM,TT.*
+FROM TT 
+]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[组织权限]]></Title>
+<ServerPrinter/>
+<WebViewContent>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出Excel ]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<WebWriteContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.InsertConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/HR_AUTHORITY/HR_AUTHORITY_RENYUANCHAKAN.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[HR_AUTHORITY_RENYUANCHAKAN.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[用户权限查看]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="true" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="true" skipUnmodified="false">
+<O>
+<![CDATA[初始化]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=NOW()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[用户权限查看]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.write.Submit">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Utils-Submit')}]]></Text>
+<IconName>
+<![CDATA[submit]]></IconName>
+<Verify failVerifySubmit="false" value="true"/>
+<Sheet onlySubmitSelect="false"/>
+</Widget>
+<Widget class="com.fr.report.web.button.write.Verify">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Verify-Data_Verify')}]]></Text>
+<IconName>
+<![CDATA[verify]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SelectedColor/>
+<WebWrite SheetPosition="3"/>
+<RptLocation isShowAtLeft="true"/>
+<UnloadCheck/>
+<ShowWidgets/>
+<OtherAttr isAutoStash="false"/>
+</WebWriteContent>
+</ReportWebAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR F="0" T="1"/>
+<FR/>
+<HC/>
+<FC/>
+<UPFCR COLUMN="false" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[0,1295400,989280,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[0,1728000,2880000,11520000,8640000,5760000,0,8640000,3600000,3600000,4320000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="0" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="1">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="2">
+<O>
+<![CDATA[序号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="2">
+<O>
+<![CDATA[姓名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="2">
+<O>
+<![CDATA[所属部门]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="2">
+<O>
+<![CDATA[职务]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="2">
+<O>
+<![CDATA[组织权限]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" s="2">
+<O>
+<![CDATA[功能权限]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="1" s="2">
+<O>
+<![CDATA[功能权限]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" s="2">
+<O>
+<![CDATA[是否仅限干部]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" s="2">
+<O>
+<![CDATA[是否仅限常青藤]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="1" s="2">
+<O>
+<![CDATA[是否可点击姓名钻取]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="NAME_ID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ROWNUM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[row() % 2 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-986896"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="FULLNAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper">
+<Attr divideMode="1"/>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="A3"/>
+</C>
+<C c="3" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="BUMEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ZHIWU"/>
+<Complex/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="RLOE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="7">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ROLE_NAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript1">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="ROLE"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=G3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="name_1"/>
+<O>
+<![CDATA[功能权限]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[/*var url=FR.cjkEncode("/WebReport/ReportServer?reportlet=HXXF_HR/HR_AUTHORITY/HR_AUTHORITY_WIEW.cpt&op=view&ROLE_ID="+ROLE)
+window.parent.FS.tabPane.addItem({title:"功能权限",src:url})
+*/
+var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/HR_AUTHORITY/HR_AUTHORITY_WIEW.cpt&op=view&ROLE_ID='+ROLE)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('#iframe2').attr('_src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+window.parent.parent.parent.alldata.push([name_1,url]A);
+window.parent.parent.parent.$('.close').attr('_name',name_1);
+window.parent.parent.parent.$('.fangda').show();
+window.parent.parent.parent.$('.suoxiao').hide();
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '900px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+window.parent.parent.parent.$('.small').show();
+//_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+//$("#fr-btn-HR_LOG").find("button").trigger("click");
+//_g().parameterEl.getWidgetByName('YGID').setValue(null);]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="CADRE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="CQT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LINK"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<ReportWriteAttr>
+<SubmitVisitor class="com.fr.report.write.BuiltInSQLSubmiter">
+<Name>
+<![CDATA[人员]]></Name>
+<Attributes dsName="HXXF_HR"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_AUTHORITY"/>
+<ColumnConfig name="ID" isKey="true" skipUnmodified="false">
+<ColumnRow column="2" row="1"/>
+</ColumnConfig>
+<ColumnConfig name="TREE_ID" isKey="false" skipUnmodified="false">
+<ColumnRow column="4" row="1"/>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<ColumnRow column="3" row="1"/>
+</ColumnConfig>
+<ColumnConfig name="FUNCTION_MENU" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="RECURSION" isKey="false" skipUnmodified="false">
+<ColumnRow column="5" row="1"/>
+</ColumnConfig>
+<ColumnConfig name="RLOE" isKey="false" skipUnmodified="false">
+<ColumnRow column="7" row="1"/>
+</ColumnConfig>
+<ColumnConfig name="ROLE_NAME" isKey="false" skipUnmodified="false">
+<ColumnRow column="8" row="1"/>
+</ColumnConfig>
+<ColumnConfig name="RLOE_TYPE" isKey="true" skipUnmodified="false">
+<O>
+<![CDATA[1]]></O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</SubmitVisitor>
+</ReportWriteAttr>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<Listener event="afterinit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[setTimeout(function(){  
+//$('.parameter-container-collapseimg-up').trigger("click");  
+$('.parameter-container-collapseimg-up').remove();
+   $('.hScrollPane_draghandle').hide();   
+},1);  
+
+/*setTimeout(function() {  
+   $('.parameter-container-collapseimg-up').hide();
+   $('.hScrollPane_draghandle').hide(); 
+}, 10);  */]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label9__c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[用户权限查看]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="88" foreground="-4259832"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="7" y="5" width="100" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList/>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<Position position="0"/>
+<Design_Width design_width="960"/>
+<NameTagModified/>
+<WidgetNameTagMap/>
+</Layout>
+<DesignAttr width="960" height="28"/>
+</ParameterUI>
+<Background name="ColorBackground" color="-1"/>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4259840"/>
+<Border>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-16776961" underline="1"/>
+<Background name="NullBackground"/>
+<Border>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="1"/>
+<TemplateID TemplateID="0e52be36-48ab-413c-9a98-b7bc8287407a"/>
+</WorkBook>

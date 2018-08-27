@@ -1,0 +1,5845 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="1干部总数班子" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[2018-07]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.* from (
+select '一把手' AS ISBZ,DESCR,COUNT(YGID) COUNT_BZ
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部'  and ISBZ = 'Y' and ISHXGB = 'Y'
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+  ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+union all
+select '一把手' AS ISBZ,DESCR,COUNT(YGID) COUNT_BZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部'  and ISBZ = 'Y'  and ISHXGB = 'Y'
+  and to_char(datetime,'yyyy-mm')='${datetime}'
+     ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+ UNION ALL
+select '一把手' AS ISBZ,DESCR,COUNT(YGID) COUNT_BZ
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部'  and ISBZ = 'Y'  and ISHXGB = 'Y'
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+  ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+  AND  bumenid = t2.tree_node   
+ GROUP BY DESCR
+union all
+select '一把手' AS ISBZ,DESCR,COUNT(YGID) COUNT_BZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部'  and ISBZ = 'Y'  and ISHXGB = 'Y'
+  and to_char(datetime,'yyyy-mm')='${datetime}'
+     ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数 
+     AND  bumenid = t2.tree_node  
+ GROUP BY DESCR
+ 
+ ) a left join ODM_HR_DW b on a.descr = b.descr
+ ORDER BY TREE_NODE_NUM asc]]></Query>
+</TableData>
+<TableData name="1干部总数人数" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[2018-07]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT ISHXGB,max(COUNT_ISBZ) COUNT_ISBZ FROM (
+--核心干部
+select '核心干部' AS ISHXGB,count(ISBZ) COUNT_ISBZ
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where  ISHXGB = 'Y' 
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数
+     and '${datetime}'=to_char(sysdate, 'yyyy-mm') 
+ UNION
+ --一把手
+ select '一把手' AS ISYBS, count(ISYBS) COUNT_ISYB
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' and ISYBS = 'Y' AND  ISHXGB = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+     and '${datetime}'=to_char(sysdate, 'yyyy-mm') 
+UNION
+--班子
+select '班子' AS ISBZ, count(ISBZ) COUNT_ISBZ
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' and ISBZ = 'Y'  AND  ISHXGB = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+     and '${datetime}'=to_char(sysdate, 'yyyy-mm') 
+UNION
+--其他
+select '其他' AS ISBZ, count(ygid) COUNT_ISBZ
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND gbsf  LIKE '%储备区域总（产新集团）%' 
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数
+     and '${datetime}'=to_char(sysdate, 'yyyy-mm')     
+UNION
+--其他干部
+select '其它干部' AS ISBZ,count(ygid) COUNT_ISBZ
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND ISHXGB<>'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数
+     and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+union all
+select '核心干部' AS ISHXGB,count(ISBZ) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where  ISHXGB = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数
+     and to_char(datetime,'yyyy-mm')='${datetime}'
+ UNION
+ --一把手
+ select '一把手' AS ISYBS, count(ISYBS) COUNT_ISYB
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' and ISYBS = 'Y'  AND  ISHXGB = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+     and to_char(datetime,'yyyy-mm')='${datetime}'
+UNION
+--班子
+select '班子' AS ISBZ, count(ISBZ) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' and ISBZ = 'Y'  AND  ISHXGB = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+     and to_char(datetime,'yyyy-mm')='${datetime}'
+UNION
+--其他
+select '其他' AS ISBZ, count(ygid) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND gbsf  LIKE '%储备区域总（产新集团）%'  AND  ISHXGB = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数
+     and to_char(datetime,'yyyy-mm')='${datetime}'
+UNION
+--其他干部
+select '其它干部' AS ISBZ,count(ygid) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND ISHXGB<>'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数
+     and to_char(datetime,'yyyy-mm')='${datetime}'
+
+
+
+union all
+
+--核心干部
+select '核心干部' AS ISHXGB,count(ISBZ) COUNT_ISBZ
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where  ISHXGB = 'Y'
+    ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数  
+     and '${datetime}'=to_char(sysdate, 'yyyy-mm') 
+ UNION
+ --一把手
+ select '一把手' AS ISYBS, count(ISYBS) COUNT_ISYB
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' and ISYBS = 'Y'
+    ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数 
+     and '${datetime}'=to_char(sysdate, 'yyyy-mm') 
+UNION
+--班子
+select '班子' AS ISBZ, count(ISBZ) COUNT_ISBZ
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' and ISBZ = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数   
+     and '${datetime}'=to_char(sysdate, 'yyyy-mm') 
+UNION
+--其他
+select '其他' AS ISBZ, count(ygid) COUNT_ISBZ
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND gbsf  LIKE '%产业新城集团储备区域总%'
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+     and '${datetime}'=to_char(sysdate, 'yyyy-mm')     
+UNION
+--其他干部
+select '其它干部' AS ISBZ,count(ygid) COUNT_ISBZ
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND ISHXGB<>'Y'
+  ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数 
+     and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+union all
+select '核心干部' AS ISHXGB,count(ISBZ) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where  ISHXGB = 'Y'
+  ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数   
+     and to_char(datetime,'yyyy-mm')='${datetime}'
+ UNION
+ --一把手
+ select '一把手' AS ISYBS, count(ISYBS) COUNT_ISYB
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' and ISYBS = 'Y'
+  ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+     and to_char(datetime,'yyyy-mm')='${datetime}'
+UNION
+--班子
+select '班子' AS ISBZ, count(ISBZ) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' and ISBZ = 'Y'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数 
+     and to_char(datetime,'yyyy-mm')='${datetime}'
+UNION
+--其他
+select '其他' AS ISBZ, count(ygid) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND gbsf  LIKE '%产业新城集团储备区域总%'
+  ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+     and to_char(datetime,'yyyy-mm')='${datetime}'
+UNION
+--其他干部
+select '其它干部' AS ISBZ,count(ygid) COUNT_ISBZ
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND ISHXGB<>'Y'
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+     and to_char(datetime,'yyyy-mm')='${datetime}'
+)group by ISHXGB
+     ]]></Query>
+</TableData>
+<TableData name="1干部总数其他干部" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.* from (
+select '其它干部' AS QTGB,DESCR,COUNT(YGID) COUNT_QTGB
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND ISHXGB<>'Y'
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   GROUP BY DESCR
+union all
+   select '其它干部' AS QTGB,DESCR,COUNT(YGID) COUNT_QTGB
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND ISHXGB<>'Y'
+  and to_char(datetime,'yyyy-mm')='${datetime}'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   GROUP BY DESCR
+   UNION ALL
+ select '其它干部' AS QTGB,DESCR,COUNT(YGID) COUNT_QTGB
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND ISHXGB<>'Y'
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数 
+   AND  bumenid = t2.tree_node 
+   GROUP BY DESCR
+union all
+   select '其它干部' AS QTGB,DESCR,COUNT(YGID) COUNT_QTGB
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部' AND ISHXGB<>'Y'
+  and to_char(datetime,'yyyy-mm')='${datetime}'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND   TREE_NODE ='"+DWMC+"'" )}--参数
+   AND  bumenid = t2.tree_node  
+   GROUP BY DESCR
+   ) a left join ODM_HR_DW b on a.descr = b.descr
+ ORDER BY TREE_NODE_NUM asc
+]]></Query>
+</TableData>
+<TableData name="3干部基础属性人数" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[2018-06]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.* from (
+select DESCR,count(case when ygfenlei='干部' then YGID end) 干部 ,count(case when iszhuying='主营' then YGID end) 主营
+  from ODM_HR_YGTZ  T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   GROUP BY DESCR
+union all
+select DESCR,count(case when ygfenlei='干部' then YGID end) 干部 ,count(case when iszhuying='主营' then YGID end) 主营
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+  and to_char(datetime,'yyyy-mm')='${datetime}'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   GROUP BY DESCR
+UNION ALL
+
+select DESCR,count(case when ygfenlei='干部' then YGID end) 干部 ,count(case when iszhuying='主营' then YGID end) 主营
+  from ODM_HR_YGTZ  T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+AND  bumenid = t2.tree_node   
+   GROUP BY DESCR
+union all
+select DESCR,count(case when ygfenlei='干部' then YGID end) 干部 ,count(case when iszhuying='主营' then YGID end) 主营
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+  and to_char(datetime,'yyyy-mm')='${datetime}'
+  ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+AND  bumenid = t2.tree_node   
+   GROUP BY DESCR
+   ) a left join ODM_HR_DW b on a.descr = b.descr
+ ORDER BY TREE_NODE_NUM asc]]></Query>
+</TableData>
+<TableData name="3干部基础属性页平均司龄" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.* from (
+select DESCR,avg(case when ygfenlei='干部' then SILING end) 干部平均司龄,
+avg(case when ISHXGB = 'Y' then SILING end) 核心干部平均司龄
+  from ODM_HR_YGTZ  T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1 
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+   GROUP BY DESCR
+union all
+select DESCR,avg(case when ygfenlei='干部' then SILING end) 干部平均司龄,
+avg(case when ISHXGB = 'Y' then SILING end) 核心干部平均司龄
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1 
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   and to_char(datetime,'yyyy-mm')='${datetime}'
+   GROUP BY DESCR) a left join ODM_HR_DW b on a.descr = b.descr
+ ORDER BY TREE_NODE_NUM asc]]></Query>
+</TableData>
+<TableData name="3干部基础属性页司龄阶段" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select * from (
+select  
+  count(case when (0<=(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<= 0.5) then YGID end) gb1,
+  count(case when (0.5<(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<=1)  then YGID end) gb2,
+  count(case when (1<(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<=3)    then YGID end) gb3,
+  count(case when (3<(case when ygfenlei='干部' then SILING end)AND (case when ygfenlei='干部' then SILING end)<=5)     then YGID end) gb4,
+  count(case when (5<(case when ygfenlei='干部' then SILING end)AND (case when ygfenlei='干部' then SILING end)<=10)    then YGID end) gb5,
+  count(case when 10<(case when ygfenlei='干部' then SILING end) then YGID end) gb6,
+  
+  count(case when 0<=  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<= 0.5 then YGID end) hx1,
+  count(case when 0.5<(case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=1    then YGID end) hx2,
+  count(case when 1<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=3    then YGID end) hx3,
+  count(case when 3<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=5    then YGID end) hx4,
+  count(case when 5<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=10   then YGID end) hx5,
+  count(case when 10<(case when ISHXGB = 'Y' then SILING end) then YGID end) hx6
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+union all
+select  
+  count(case when (0<=(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<= 0.5) then YGID end) gb1,
+  count(case when (0.5<(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<=1)  then YGID end) gb2,
+  count(case when (1<(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<=3)    then YGID end) gb3,
+  count(case when (3<(case when ygfenlei='干部' then SILING end)AND (case when ygfenlei='干部' then SILING end)<=5)     then YGID end) gb4,
+  count(case when (5<(case when ygfenlei='干部' then SILING end)AND (case when ygfenlei='干部' then SILING end)<=10)    then YGID end) gb5,
+  count(case when 10<(case when ygfenlei='干部' then SILING end) then YGID end) gb6,
+  
+  count(case when 0<=  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<= 0.5 then YGID end) hx1,
+  count(case when 0.5<(case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=1    then YGID end) hx2,
+  count(case when 1<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=3    then YGID end) hx3,
+  count(case when 3<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=5    then YGID end) hx4,
+  count(case when 5<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=10   then YGID end) hx5,
+  count(case when 10<(case when ISHXGB = 'Y' then SILING end) then YGID end) hx6
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   and to_char(datetime,'yyyy-mm')='${datetime}'
+
+UNION ALL 
+
+select  
+  count(case when (0<=(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<= 0.5) then YGID end) gb1,
+  count(case when (0.5<(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<=1)  then YGID end) gb2,
+  count(case when (1<(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<=3)    then YGID end) gb3,
+  count(case when (3<(case when ygfenlei='干部' then SILING end)AND (case when ygfenlei='干部' then SILING end)<=5)     then YGID end) gb4,
+  count(case when (5<(case when ygfenlei='干部' then SILING end)AND (case when ygfenlei='干部' then SILING end)<=10)    then YGID end) gb5,
+  count(case when 10<(case when ygfenlei='干部' then SILING end) then YGID end) gb6,
+  
+  count(case when 0<=  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<= 0.5 then YGID end) hx1,
+  count(case when 0.5<(case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=1    then YGID end) hx2,
+  count(case when 1<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=3    then YGID end) hx3,
+  count(case when 3<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=5    then YGID end) hx4,
+  count(case when 5<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=10   then YGID end) hx5,
+  count(case when 10<(case when ISHXGB = 'Y' then SILING end) then YGID end) hx6
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+AND  bumenid = t2.tree_node
+   and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+union all
+select  
+  count(case when (0<=(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<= 0.5) then YGID end) gb1,
+  count(case when (0.5<(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<=1)  then YGID end) gb2,
+  count(case when (1<(case when ygfenlei='干部' then SILING end) AND (case when ygfenlei='干部' then SILING end)<=3)    then YGID end) gb3,
+  count(case when (3<(case when ygfenlei='干部' then SILING end)AND (case when ygfenlei='干部' then SILING end)<=5)     then YGID end) gb4,
+  count(case when (5<(case when ygfenlei='干部' then SILING end)AND (case when ygfenlei='干部' then SILING end)<=10)    then YGID end) gb5,
+  count(case when 10<(case when ygfenlei='干部' then SILING end) then YGID end) gb6,
+  
+  count(case when 0<=  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<= 0.5 then YGID end) hx1,
+  count(case when 0.5<(case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=1    then YGID end) hx2,
+  count(case when 1<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=3    then YGID end) hx3,
+  count(case when 3<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=5    then YGID end) hx4,
+  count(case when 5<  (case when ISHXGB = 'Y' then SILING end) AND (case when ISHXGB = 'Y' then SILING end)<=10   then YGID end) hx5,
+  count(case when 10<(case when ISHXGB = 'Y' then SILING end) then YGID end) hx6
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+AND  bumenid = t2.tree_node   
+   and to_char(datetime,'yyyy-mm')='${datetime}'
+   
+   )]]></Query>
+</TableData>
+<TableData name="4干部入职页累计" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.* from (
+select DESCR,
+       COUNT(CASE WHEN TO_char(RZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}' THEN ygid END ) 累计入职人数,
+       COUNT(CASE WHEN TO_char(RZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}' AND ishxgb='Y' THEN ygid END) 核心干部入职人数,
+       COUNT(case WHEN TO_char(RZDATE,'YYYY-mm')='${datetime}' then ygid end) 当月入职人数,
+       COUNT(case WHEN TO_char(RZDATE,'YYYY-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') then ygid end) 上月入职人数
+ from ODM_HR_RZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where  RZYGFENLEI='干部'
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+ 
+UNION ALL
+
+select DESCR,
+       COUNT(CASE WHEN TO_char(RZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}' THEN ygid END ) 累计入职人数,
+       COUNT(CASE WHEN TO_char(RZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}' AND ishxgb='Y' THEN ygid END) 核心干部入职人数,
+       COUNT(case WHEN TO_char(RZDATE,'YYYY-mm')='${datetime}' then ygid end) 当月入职人数,
+       COUNT(case WHEN TO_char(RZDATE,'YYYY-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') then ygid end) 上月入职人数
+ from ODM_HR_RZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where  RZYGFENLEI='干部'
+${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+AND  bumenid = t2.tree_node    
+ GROUP BY DESCR
+ ) a left join ODM_HR_DW b on a.descr = b.descr
+ ORDER BY TREE_NODE_NUM asc]]></Query>
+</TableData>
+<TableData name="5干部离职页" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select c.* from (
+select a.DESCR,max(累计干部离职人数),max(累计核心干部离职人数) from (
+select DESCR,
+       COUNT(CASE WHEN TO_char(LZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}'
+       AND YGFENLEI LIKE '%干部%' THEN ygid END) 累计干部离职人数,
+       COUNT(CASE WHEN TO_char(LZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}'
+       AND ishxgb='Y' THEN ygid  END) 累计核心干部离职人数
+        from ODM_HR_LZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1 
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+
+UNION ALL
+
+select DESCR,
+       COUNT(CASE WHEN TO_char(LZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}'
+       AND YGFENLEI LIKE '%干部%' THEN ygid END) 累计干部离职人数,
+       COUNT(CASE WHEN TO_char(LZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}'
+       AND ishxgb='Y' THEN ygid  END) 累计核心干部离职人数
+        from ODM_HR_LZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1 
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+AND  bumenid = t2.tree_node
+ GROUP BY DESCR
+ 
+ ) a group by DESCR )
+ c left join ODM_HR_DW b on c.descr = b.descr
+ ORDER BY TREE_NODE_NUM asc]]></Query>
+</TableData>
+<TableData name="4在职干部级别" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT ROWNUM, a.* FROM (
+ SELECT * FROM (
+SELECT ZHIJI,COUNT(YGID) ORDERBY from ODM_HR_RZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ WHERE 1=1
+${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+ AND TO_char(RZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}'
+   AND RZYGFENLEI='干部'
+   GROUP BY ZHIJI)
+   ORDER BY ORDERBY DESC
+   ) a
+   WHERE ROWNUM<4]]></Query>
+</TableData>
+<TableData name="4在职干部上家雇主类别" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH 
+A AS(
+SELECT YGID,gzleixing
+  FROM ODM_HR_YGJLCX_WBGZLL_VW VW
+  WHERE ENDTIME = (
+                  SELECT MAX(ENDTIME)
+                    FROM ODM_HR_YGJLCX_WBGZLL_VW B
+                   WHERE B.YGID = VW.YGID
+))
+SELECT  ROWNUM,C.* FROM (
+SELECT * FROM (
+SELECT GZLEIXING, COUNT(T1.YGID) ORDERBY
+  FROM ODM_HR_RZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+  LEFT JOIN A
+    ON T1.YGID = A.YGID
+ WHERE ISLIZHI = '在职'
+${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ AND TO_char(RZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}'
+   AND RZYGFENLEI='干部'
+   AND GZLEIXING IS NOT NULL
+ GROUP BY GZLEIXING
+)
+ ORDER BY ORDERBY DESC
+ ) C
+ WHERE ROWNUM<4]]></Query>
+</TableData>
+<TableData name="4在职干部上家雇主行业" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH 
+A AS(
+SELECT YGID,HYLEIBIE
+  FROM ODM_HR_YGJLCX_WBGZLL_VW VW
+  WHERE ENDTIME = (
+                  SELECT MAX(ENDTIME)
+                    FROM ODM_HR_YGJLCX_WBGZLL_VW B
+                   WHERE B.YGID = VW.YGID
+))
+SELECT ROWNUM,C.* FROM (
+SELECT * FROM (
+SELECT HYLEIBIE, COUNT(T1.YGID) ORDERBY
+  FROM ODM_HR_RZTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+  LEFT JOIN A
+    ON T1.YGID = A.YGID
+ WHERE ISLIZHI = '在职'
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+  AND TO_char(RZDATE,'YYYY-mm') BETWEEN SUBSTR(('${datetime}'),1,5)||'01'  AND  '${datetime}'
+   AND RZYGFENLEI='干部'
+   AND HYLEIBIE IS NOT NULL
+ GROUP BY HYLEIBIE
+ )
+ ORDER BY ORDERBY DESC
+ ) C
+ WHERE ROWNUM<4]]></Query>
+</TableData>
+<TableData name="5干部在岗期初" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.* from (
+ SELECT DESCR,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')=(SUBSTR(('${datetime}'),1,4)-1||'-12') and  YGFENLEI ='干部' then ygid end) 期初干部在岗人数,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')=(SUBSTR(('${datetime}'),1,4)-1||'-12') AND ishxgb='Y' then ygid end) 期初核心干部在岗人数,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') and  YGFENLEI ='干部' then ygid end) 期末干部在岗人数,
+COUNT(case WHEN TO_char(datetime,'YYYY-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') AND ishxgb='Y' then ygid end) 期末核心在岗人数
+  FROM ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+
+UNION ALL
+
+ SELECT DESCR,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')=(SUBSTR(('${datetime}'),1,4)-1||'-12') and  YGFENLEI ='干部' then ygid end) 期初干部在岗人数,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')=(SUBSTR(('${datetime}'),1,4)-1||'-12') AND ishxgb='Y' then ygid end) 期初核心干部在岗人数,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') and  YGFENLEI ='干部' then ygid end) 期末干部在岗人数,
+COUNT(case WHEN TO_char(datetime,'YYYY-mm')=to_char(add_months(to_date('${datetime}', 'yyyy-mm'),-1), 'yyyy-mm') AND ishxgb='Y' then ygid end) 期末核心在岗人数
+  FROM ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+AND  bumenid = t2.tree_node
+ GROUP BY DESCR
+
+ ) a left join ODM_HR_DW b on a.descr = b.descr
+ ORDER BY TREE_NODE_NUM asc]]></Query>
+</TableData>
+<TableData name="1干部总数其他" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[2018-07]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select '其他' AS QT,DESCR,COUNT(YGID) COUNT_QT
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+      LEFT JOIN ODM_HR_GBSF_MAPPING T3
+ON T1.GBSF_ID = T3.YGBSF_ID
+ where YGFENLEI = '干部' AND ISHXGB = 'Y' AND ISBZ <> 'Y' AND ISYBS <> 'Y'
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   GROUP BY DESCR
+union all
+select '其他' AS QT,DESCR,COUNT(YGID) COUNT_QT
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+  LEFT JOIN ODM_HR_GBSF_MAPPING T3
+ON T1.GBSF_ID = T3.YGBSF_ID
+ where YGFENLEI = '干部' AND ISHXGB = 'Y' AND ISBZ <> 'Y' AND ISYBS <> 'Y'
+  and to_char(datetime,'yyyy-mm')='${datetime}'
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+   GROUP BY DESCR]]></Query>
+</TableData>
+<TableData name="1干部总数一把手" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.* from (
+select '一把手' AS ISYBS,DESCR,COUNT(YGID) COUNT_ISYBS
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部'  and ISYBS = 'Y' and ISHXGB = 'Y'
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+  ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+union all
+select '一把手' AS ISYBS,DESCR,COUNT(YGID) COUNT_ISYBS
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部'  and ISYBS = 'Y'  and ISHXGB = 'Y'
+  and to_char(datetime,'yyyy-mm')='${datetime}'
+     ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+ UNION ALL
+select '一把手' AS ISYBS,DESCR,COUNT(YGID) COUNT_ISYBS
+  from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部'  and ISYBS = 'Y'  and ISHXGB = 'Y'
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm')
+  ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+  AND  bumenid = t2.tree_node   
+ GROUP BY DESCR
+union all
+select '一把手' AS ISYBS,DESCR,COUNT(YGID) COUNT_ISYBS
+  from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where YGFENLEI = '干部'  and ISYBS = 'Y'  and ISHXGB = 'Y'
+  and to_char(datetime,'yyyy-mm')='${datetime}'
+     ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数 
+     AND  bumenid = t2.tree_node  
+ GROUP BY DESCR
+ 
+ ) a left join ODM_HR_DW b on a.descr = b.descr
+ ORDER BY TREE_NODE_NUM asc]]></Query>
+</TableData>
+<TableData name="2干部齐备率一把手在岗" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[2018-06]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select * from (
+SELECT DESCR,t3.gbsf,COUNT(*) YBS_NUM from ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+  LEFT JOIN ODM_HR_GBSF_MAPPING T3
+ON T1.GBSF_ID = T3.YGBSF_ID
+ where  ZHIWEI IS NOT NULL AND ISYBS='Y'
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+  and '${datetime}'=to_char(sysdate, 'yyyy-mm') 
+  AND t3.gbsf<>'储备区域总（产新集团）'
+ GROUP BY DESCR,t3.gbsf
+ 
+union all
+
+SELECT DESCR,t3.gbsf,COUNT(*) YBS_NUM from ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+  LEFT JOIN ODM_HR_GBSF_MAPPING T3
+ON T1.GBSF_ID = T3.YGBSF_ID
+ where  ZHIWEI IS NOT NULL AND ISYBS='Y'
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+  and to_char(datetime,'yyyy-mm')='${datetime}'
+ AND t3.gbsf<>'储备区域总（产新集团）'
+ GROUP BY DESCR,t3.gbsf)a left join ODM_HR_DW b on a.descr = b.descr
+ ORDER BY TREE_NODE_NUM,gbsf asc]]></Query>
+</TableData>
+<TableData name="2干部齐备率一把手编制" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH T AS (
+SELECT POSITION_NBR,
+       MAX(EFFDT) EFFDT 
+       FROM ODS_HR_PS_POSITION_DATA ODS_HR_PS_POSITION_DATA 
+WHERE TO_CHAR(EFFDT,'YYYY-MM')<='${datetime}' 
+       GROUP BY POSITION_NBR
+  ),
+TT AS  (
+SELECT 
+T3.GBSF,TT.POSITION_NBR
+FROM T TT
+LEFT JOIN ODS_HR_PS_POSITION_DATA T
+ ON TT.POSITION_NBR=T.POSITION_NBR
+LEFT JOIN ODS_HR_PSXLATITEM T1
+ON HX_AWE_IDENTITY = T1.FIELDVALUE
+LEFT JOIN ODS_HR_PS_BUS_UNIT_TBL_HR T2
+ON T.BUSINESS_UNIT=T2.BUSINESS_UNIT
+LEFT JOIN ODM_HR_GBSF_MAPPING T3
+ON T3.YGBSF=T1.XLATLONGNAME
+WHERE TT.EFFDT=T.EFFDT
+ AND T3.GBSF IS NOT NULL
+ AND T2.DESCR NOT LIKE '%（失效）%'
+ AND T.EFF_STATUS='A'
+ AND T3.GBSF_ID<>'2170' 
+ AND HX_MGRHEAD_FLAG='Y'
+ GROUP BY TT.POSITION_NBR,T3.GBSF
+),
+--HX-HEAD下的全部人数
+HX_HEAD AS (
+SELECT COUNT(POSITION_NBR) YBS_BZ,GBSF,'HX_HEAD' AS DESCR
+FROM TT
+GROUP BY GBSF
+),
+QT AS (
+SELECT COUNT(DISTINCT TT.POSITION_NBR) YBS_BZ,T3.GBSF,T2.DESCR DESCR
+ FROM T TT
+ LEFT JOIN ODS_HR_PS_POSITION_DATA T
+ ON TT.POSITION_NBR=T.POSITION_NBR
+LEFT JOIN ODS_HR_PSXLATITEM T1
+ON HX_AWE_IDENTITY = T1.FIELDVALUE
+LEFT JOIN ODS_HR_PS_BUS_UNIT_TBL_HR T2
+ON T.BUSINESS_UNIT=T2.BUSINESS_UNIT
+LEFT JOIN ODM_HR_GBSF_MAPPING T3
+    ON T3.YGBSF=T1.XLATLONGNAME
+WHERE TT.EFFDT=T.EFFDT
+AND T3.GBSF IS NOT NULL
+AND T2.DESCR NOT LIKE '%（失效）%'
+AND T.EFF_STATUS='A'
+AND T3.GBSF_ID<>'2170'
+AND HX_MGRHEAD_FLAG='Y'
+GROUP BY T3.GBSF,T2.DESCR
+),
+QB AS (
+SELECT * FROM HX_HEAD 
+UNION ALL
+SELECT * FROM QT)
+SELECT * FROM QB 
+WHERE 1=1
+${if(DWMC='HX_HEAD'," AND DESCR='HX_HEAD'"," AND DESCR<>'HX_HEAD'")}
+
+
+]]></Query>
+</TableData>
+<TableData name="5干部在岗数期末" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="datetime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.* from (
+ SELECT DESCR,
+   COUNT(case WHEN '${datetime}'=TO_char(sysdate,'YYYY-mm') and  YGFENLEI ='干部' then ygid end) 期末干部在岗人数,
+COUNT(case WHEN '${datetime}'=TO_char(sysdate,'YYYY-mm') AND ishxgb='Y' then ygid end) 期末核心在岗人数
+  FROM ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+union all
+
+ SELECT DESCR,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')='${datetime}' and  YGFENLEI ='干部' then ygid end) 期末干部在岗人数,
+COUNT(case WHEN TO_char(datetime,'YYYY-mm')='${datetime}' AND ishxgb='Y' then ygid end) 期末核心在岗人数
+  FROM ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+ ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  PARENT_NODE ='"+DWMC+"'" )}--参数 
+ GROUP BY DESCR
+
+
+
+UNION ALL
+
+ SELECT DESCR,
+   COUNT(case WHEN '${datetime}'=TO_char(sysdate,'YYYY-mm') and  YGFENLEI ='干部' then ygid end) 期末干部在岗人数,
+COUNT(case WHEN '${datetime}'=TO_char(sysdate,'YYYY-mm') AND ishxgb='Y' then ygid end) 期末核心在岗人数
+  FROM ODM_HR_YGTZ T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+    ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+AND  bumenid = t2.tree_node
+ GROUP BY DESCR
+union all
+
+ SELECT DESCR,
+   COUNT(case WHEN TO_char(datetime,'YYYY-mm')='${datetime}' and  YGFENLEI ='干部' then ygid end) 期末干部在岗人数,
+COUNT(case WHEN TO_char(datetime,'YYYY-mm')='${datetime}' AND ishxgb='Y' then ygid end) 期末核心在岗人数
+  FROM ODM_HR_YGTZ_HIST T1
+  LEFT JOIN ODM_HR_DW T2
+    ON T1.TREE_NODE_ID LIKE '%' || T2.TREE_NODE || '%'
+ where 1=1
+   ${if(len(DWMC)=0," AND   PARENT_NODE ='HX_HEAD' ","AND  TREE_NODE ='"+DWMC+"'" )}--参数
+AND  bumenid = t2.tree_node
+ GROUP BY DESCR
+ ) a left join ODM_HR_DW b on a.descr = b.descr
+ ORDER BY TREE_NODE_NUM asc]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[组发月报数据]]></Title>
+<ServerPrinter/>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.fr-sheetbutton-container-active .fr-sheetbutton-middlepart').css('color', 'red');    
+$('.fr-sheetbutton-container').bind('click', function() {    
+    $('.fr-sheetbutton-container-active .fr-sheetbutton-middlepart').css('color', 'red');    
+    $('.fr-sheetbutton-container:not(.fr-sheetbutton-container-active) .fr-sheetbutton-middlepart').css('color', 'black');    
+});    ]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.InsertConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Group_collection.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[Group_collection.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[组织报表]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="true" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="true" skipUnmodified="false">
+<O>
+<![CDATA[初始化]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($DWMC)=0,"","部门;")+IF(LEN($datetime)=0,"","报表月度;")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($DWMC)=0,"",$DWMC+";")+IF(LEN($datetime)=0,"",$datetime+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=NOW()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[常用报表工具]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($DWMC)=0,"","部门:"+DWMC+";")+IF(LEN($datetime)=0,"","报表月度:"+datetime+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len(SQL("HXXF_HR","SELECT time from HR_LOG_RECORD where REGISTER_ID='"+REGISTER_ID+"'",1))==0]]></Formula>
+</Condition>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出Excel]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<Background name="ImageBackground" specifiedImageWidth="-1.0" specifiedImageHeight="-1.0" layout="1"/>
+</ReportWebAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="干部总数页">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,864000,864000,864000,864000,864000,864000,864000,0,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,2743200,2743200,10080000,4724400,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" cs="2" s="1">
+<O>
+<![CDATA[分类]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="1">
+<O>
+<![CDATA[在岗人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="2" rs="3" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="核心干部" + "\n" + SUM(SUM(E3),SUM(E4),SUM(E5)) + "人"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="2" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="一把手" + "\n" + SUM(E3) + "人"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="1干部总数一把手" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="1干部总数一把手" columnName="COUNT_ISYBS"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[y]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+//window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '900px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="0" r="3" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="班子" + "\n" + SUM(E4) + "人"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="1干部总数班子" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="1干部总数班子" columnName="COUNT_BZ"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$DWMC]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D4]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[b]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+//window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '900px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand dir="0"/>
+</C>
+<C c="0" r="4" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="4" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="其他" + "\n" + SUM(E5) + "人"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="4" s="3">
+<O t="DSColumn">
+<Attributes dsName="1干部总数其他" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="4" s="4">
+<O t="DSColumn">
+<Attributes dsName="1干部总数其他" columnName="COUNT_QT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[q]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D5]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+//window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '900px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="0" r="5" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="5" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="5" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="5" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="5" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="6" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="6" cs="2" s="1">
+<O>
+<![CDATA[分类]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="6" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="6" s="1">
+<O>
+<![CDATA[在岗人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="7" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="7" cs="2" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="其它干部" + "\n" + SUM(E8) + "人"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="7" s="3">
+<O t="DSColumn">
+<Attributes dsName="1干部总数其他干部" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="7" s="4">
+<O t="DSColumn">
+<Attributes dsName="1干部总数其他干部" columnName="COUNT_QTGB"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D8]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[z]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+//window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '900px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand dir="0"/>
+</C>
+<C c="3" r="8">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="14">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<LayerReportAttr isPageQuery="true" countPerPage="50"/>
+<PrivilegeControl/>
+</Report>
+<Report class="com.fr.report.worksheet.WorkSheet" name="干部齐备率页">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,864000,864000,864000,864000,0,864000,864000,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,10080000,3456000,3456000,0,3456000,0,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="1">
+<O>
+<![CDATA[一把手岗位数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="1">
+<O>
+<![CDATA[一把手在岗数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="1">
+<O>
+<![CDATA[一把手合格数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="1">
+<O>
+<![CDATA[一把手齐备率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" s="1">
+<O>
+<![CDATA[一把手合格齐备率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="2干部齐备率一把手在岗" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dw1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=replace(B4,",","','")]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(DWMC='100000',B3,"")]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Ganbu_bianzhi.cpt&dw='+dw1+'&temp='+tem+'&descr='+descr1+'&datetime='+datetime1)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="3" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="2干部齐备率一把手在岗" columnName="YBS_NUM"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[y]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_complete.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="4" r="2" s="6">
+<O>
+<![CDATA[-]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="2" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D3/C3]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="2" s="6">
+<O>
+<![CDATA[-]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="3" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="2干部齐备率一把手在岗" columnName="GBSF"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$)=0]]></Formula>
+</Condition>
+</Highlight>
+</HighlightList>
+<Expand dir="0" leftParentDefault="false" left="B3"/>
+</C>
+<C c="2" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="2干部齐备率一把手编制" columnName="YBS_BZ"/>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[GBSF]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="3"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(DWMC='HX_HEAD',"HX_HEAD",B3)]]></Attributes>
+</O>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dw1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B4]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(DWMC='100000',B3,"")]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Ganbu_bianzhi.cpt&dw='+dw1+'&temp='+tem+'&descr='+descr1+'&datetime='+datetime1)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand dir="0"/>
+</C>
+<C c="3" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="2干部齐备率一把手在岗" columnName="YBS_NUM"/>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[GBSF]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="3"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="gb1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(B4)=0,1,B4)]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[y]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_complete.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&gbsf='+gbsf1+'&gb='+gb1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand dir="0"/>
+</C>
+<C c="4" r="3" s="6">
+<O>
+<![CDATA[-]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(C4)=0,"-",D4/C4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="3" s="6">
+<O>
+<![CDATA[-]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="4" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="4" s="9">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="4" s="9">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="4" s="9">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(D3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="4" s="9">
+<O>
+<![CDATA[-]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="4" s="10">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D5/C5]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="4" s="9">
+<O>
+<![CDATA[-]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="5" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="5" s="1">
+<O>
+<![CDATA[考核班子数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="5" s="1">
+<O>
+<![CDATA[齐备班子数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="5" s="1">
+<O>
+<![CDATA[合格班子数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="5" s="1">
+<O>
+<![CDATA[班子齐备率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="5" s="1">
+<O>
+<![CDATA[班子合格齐备率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="19">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<Report class="com.fr.report.worksheet.WorkSheet" name="干部基础属性页">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,10080000,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="1" s="1">
+<O>
+<![CDATA[统计周期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="1">
+<O>
+<![CDATA[干部人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="1">
+<O>
+<![CDATA[主营人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="1">
+<O>
+<![CDATA[干部占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="0">
+<PrivilegeControl/>
+</C>
+<C c="6" r="1" s="0">
+<PrivilegeControl/>
+</C>
+<C c="7" r="1" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="2" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="2" s="2">
+<O>
+<![CDATA[当月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C6)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="3" r="2" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(D6)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="2" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C3 / D3]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="2" s="0">
+<PrivilegeControl/>
+</C>
+<C c="6" r="2" s="0">
+<PrivilegeControl/>
+</C>
+<C c="7" r="2" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="3" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="3" s="11">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="3" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="0">
+<PrivilegeControl/>
+</C>
+<C c="6" r="3" s="0">
+<PrivilegeControl/>
+</C>
+<C c="7" r="3" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="4" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="4" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="4" s="1">
+<O>
+<![CDATA[干部人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="4" s="1">
+<O>
+<![CDATA[主营人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="4" s="1">
+<O>
+<![CDATA[干部占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="4" s="0">
+<PrivilegeControl/>
+</C>
+<C c="6" r="4" s="0">
+<PrivilegeControl/>
+</C>
+<C c="7" r="4" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="5" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="5" s="2">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性人数" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="5" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性人数" columnName="干部"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B6]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="3" r="5" s="6">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性人数" columnName="主营"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$)=0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="4" r="5" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C6 / D6]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="5" s="0">
+<PrivilegeControl/>
+</C>
+<C c="6" r="5" s="0">
+<PrivilegeControl/>
+</C>
+<C c="7" r="5" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="6" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="6" s="11">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="6" s="0">
+<PrivilegeControl/>
+</C>
+<C c="3" r="6" s="0">
+<PrivilegeControl/>
+</C>
+<C c="4" r="6" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="6" s="0">
+<PrivilegeControl/>
+</C>
+<C c="6" r="6" s="0">
+<PrivilegeControl/>
+</C>
+<C c="7" r="6" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="7" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="7" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="7" s="1">
+<O>
+<![CDATA[干部平均司龄]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="7" s="1">
+<O>
+<![CDATA[核心干部平均司龄]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="7" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="7" s="0">
+<PrivilegeControl/>
+</C>
+<C c="6" r="7" s="0">
+<PrivilegeControl/>
+</C>
+<C c="7" r="7" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="8" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="8" s="2">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页平均司龄" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页平均司龄" columnName="干部平均司龄"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页平均司龄" columnName="核心干部平均司龄"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$)=0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="4" r="8" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="8" s="0">
+<PrivilegeControl/>
+</C>
+<C c="6" r="8" s="0">
+<PrivilegeControl/>
+</C>
+<C c="7" r="8" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="9" s="14">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="3" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="4" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="6" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="7" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="10" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="10" rs="2" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="10" cs="6" s="1">
+<O>
+<![CDATA[干部司龄]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="11" s="0">
+<PrivilegeControl/>
+</C>
+<C c="2" r="11" s="1">
+<O>
+<![CDATA[0-0.5年]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="11" s="1">
+<O>
+<![CDATA[0.5-1年]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="11" s="1">
+<O>
+<![CDATA[1-3年]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="11" s="1">
+<O>
+<![CDATA[3-5年]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="11" s="1">
+<O>
+<![CDATA[5-10年]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="11" s="1">
+<O>
+<![CDATA[10年以上]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="12" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="12" s="2">
+<O>
+<![CDATA[干部]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="12" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB1"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[1]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="3" r="12" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="4" r="12" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[3]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="5" r="12" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB4"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[4]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="6" r="12" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB5"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[5]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="7" r="12" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="GB6"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[6]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="0" r="13" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="13" s="2">
+<O>
+<![CDATA[核心干部]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="13" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX1"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[1]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[h]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="3" r="13" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[h]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="4" r="13" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[3]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[h]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="5" r="13" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX4"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[4]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[h]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="6" r="13" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX5"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[5]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[h]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="7" r="13" s="4">
+<O t="DSColumn">
+<Attributes dsName="3干部基础属性页司龄阶段" columnName="HX6"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="siling1"/>
+<O>
+<![CDATA[6]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="gbsf1"/>
+<O>
+<![CDATA[h]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Cadre_total.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&siling='+siling1+'&gbsf='+gbsf1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<Report class="com.fr.report.worksheet.WorkSheet" name="干部入职页">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,864000,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,10080000,2743200,4229100,2743200,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="1" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="1">
+<O>
+<![CDATA[入职累计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="1">
+<O>
+<![CDATA[核心干部入职累计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="1">
+<O>
+<![CDATA[当月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="1">
+<O>
+<![CDATA[上月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="4干部入职页累计" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="4干部入职页累计" columnName="累计入职人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="lei1"/>
+<O>
+<![CDATA[r]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Rz_people.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&lei='+lei1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="3" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="4干部入职页累计" columnName="核心干部入职人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="lei1"/>
+<O>
+<![CDATA[h]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Rz_people.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&lei='+lei1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="4" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="4干部入职页累计" columnName="当月入职人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="lei1"/>
+<O>
+<![CDATA[d]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Rz_people.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&lei='+lei1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="5" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="4干部入职页累计" columnName="上月入职人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="lei1"/>
+<O>
+<![CDATA[s]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Rz_people.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&lei='+lei1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="0" r="3" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="3" s="9">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="15">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="15">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(D3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="3" s="15">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(E3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="15">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(F3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="4" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="4" s="0">
+<PrivilegeControl/>
+</C>
+<C c="2" r="4" s="0">
+<PrivilegeControl/>
+</C>
+<C c="3" r="4" s="0">
+<PrivilegeControl/>
+</C>
+<C c="4" r="4" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="4" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="5" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="5" cs="3" s="2">
+<O>
+<![CDATA[本年度入职且在职干部职级分布TOP3]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="5" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="5" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="6" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="6" s="1">
+<O>
+<![CDATA[职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="6" s="1">
+<O>
+<![CDATA[人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="6" s="1">
+<O>
+<![CDATA[占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="6" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="6" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="7" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="7" s="2">
+<O t="DSColumn">
+<Attributes dsName="4在职干部级别" columnName="ZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="7" s="4">
+<O t="DSColumn">
+<Attributes dsName="4在职干部级别" columnName="ORDERBY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="zhiji1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B8]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="lei1"/>
+<O>
+<![CDATA[g]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Rz_people.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&zhiji='+zhiji1+'&lei='+lei1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand dir="0"/>
+</C>
+<C c="3" r="7" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C8 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="7" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="7" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="8" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="8" s="9">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="8" s="15">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C8)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="8" s="16">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C9 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="8" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="8" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="2" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="3" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="4" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="9" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="10" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="10" cs="3" s="2">
+<O>
+<![CDATA[本年度入职且在职干部上家雇主类别TOP3]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="10" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="10" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="11" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="11" s="1">
+<O>
+<![CDATA[雇主类别]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="11" s="1">
+<O>
+<![CDATA[人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="11" s="1">
+<O>
+<![CDATA[占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="11" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="11" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="12" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="12" s="2">
+<O t="DSColumn">
+<Attributes dsName="4在职干部上家雇主类别" columnName="GZLEIXING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="12" s="4">
+<O t="DSColumn">
+<Attributes dsName="4在职干部上家雇主类别" columnName="ORDERBY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="gzleixing1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B13]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="lei1"/>
+<O>
+<![CDATA[l]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Shang_guzhu.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&gzleixing='+gzleixing1+'&lei='+lei1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand dir="0"/>
+</C>
+<C c="3" r="12" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C13 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="12" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="12" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="13" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="13" s="9">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="13" s="15">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C13)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="13" s="16">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C14 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="13" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="13" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="14" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="14" s="0">
+<PrivilegeControl/>
+</C>
+<C c="2" r="14" s="0">
+<PrivilegeControl/>
+</C>
+<C c="3" r="14" s="0">
+<PrivilegeControl/>
+</C>
+<C c="4" r="14" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="14" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="15" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="15" cs="3" s="2">
+<O>
+<![CDATA[本年度入职且在职干部上家雇主行业TOP3]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="15" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="15" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="16" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="16" s="1">
+<O>
+<![CDATA[雇主行业]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="16" s="1">
+<O>
+<![CDATA[人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="16" s="1">
+<O>
+<![CDATA[占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="16" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="16" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="17" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="17" s="2">
+<O t="DSColumn">
+<Attributes dsName="4在职干部上家雇主行业" columnName="HYLEIBIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="17" s="4">
+<O t="DSColumn">
+<Attributes dsName="4在职干部上家雇主行业" columnName="ORDERBY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="hyleibie1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B18]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="lei1"/>
+<O>
+<![CDATA[h]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Shang_guzhu.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&hyleibie='+hyleibie1+'&lei='+lei1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand dir="0"/>
+</C>
+<C c="3" r="17" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C18 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="17" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="17" s="0">
+<PrivilegeControl/>
+</C>
+<C c="0" r="18" s="0">
+<PrivilegeControl/>
+</C>
+<C c="1" r="18" s="9">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="18" s="15">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C18)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="18" s="16">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C19 / C4]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="18" s="0">
+<PrivilegeControl/>
+</C>
+<C c="5" r="18" s="0">
+<PrivilegeControl/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<Report class="com.fr.report.worksheet.WorkSheet" name="干部离职页">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,1440000,864000,864000,723900,1440000,864000,864000,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,10080000,3162300,0,0,0,0,2743200,3162300,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="1">
+<O>
+<![CDATA[累计干部离职人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="1" s="1">
+<O>
+<![CDATA[累计干部离职率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" s="1">
+<O>
+<![CDATA[累计核心干部离职人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" s="1">
+<O>
+<![CDATA[累计核心干部离职率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部离职页" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="5干部离职页" columnName="MAX(累计干部离职人数)"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="lei1"/>
+<O>
+<![CDATA[g]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Lz_people.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&lei='+lei1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="3" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗期初" columnName="期初干部在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗数期末" columnName="期末干部在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗期初" columnName="期初核心干部在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗数期末" columnName="期末核心在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="2" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(((D3 + E3) / 2) = 0, "", C3 / ((D3 + E3) / 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="5干部离职页" columnName="MAX(累计核心干部离职人数)"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$dwmc]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="datetime1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$datetime]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="descr1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="lei1"/>
+<O>
+<![CDATA[h]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Lz_people.cpt&dwmc='+dwmc1+'&datetime='+datetime1+'&descr='+descr1+'&lei='+lei1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+//window.parent.parent.parent.alldata.push([name_1,url]A);
+//window.parent.parent.parent.$('.close').attr('_name',name_1)
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '960px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+/*_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);*/]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="9" r="2" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(((F3 + G3)) = 0, "", I3 / ((F3 + G3)))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[LEN($$$)=0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="10" r="2" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="2" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="3" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="3" s="3">
+<O>
+<![CDATA[总计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="3" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" s="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="3" s="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="3" s="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="3" s="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="3" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(I8 = 0, "", C4 / I8)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="3" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(I3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="3" s="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(L8 = 0, "", I4 / L8)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[LEN($$$)=0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="10" r="3" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="3" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="4" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="4" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="5" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="5" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="5" s="1">
+<O>
+<![CDATA[期初干部在岗数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="5" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="5" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="5" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="5" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="5" s="1">
+<O>
+<![CDATA[期末干部在岗数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="5" s="1">
+<O>
+<![CDATA[干部离职率分母]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="5" s="17">
+<O>
+<![CDATA[期初核心干部在岗数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="5" s="17">
+<O>
+<![CDATA[期末核心干部在岗数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="5" s="17">
+<O>
+<![CDATA[核心干部离职率分母]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="6" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="6" s="3">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗数期末" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="6" s="6">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗期初" columnName="期初干部在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=B7]]></Attributes>
+</O>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="6" s="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="6" s="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="6" s="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="6" s="6">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="6" s="6">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗数期末" columnName="期末干部在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="6"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="6" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=(C7 + H7) / 2]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="6" s="6">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗期初" columnName="期初核心干部在岗人数"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$=0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="10" r="6" s="6">
+<O t="DSColumn">
+<Attributes dsName="5干部在岗数期末" columnName="期末核心在岗人数"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[DESCR]]></CNAME>
+<Compare op="0">
+<ColumnRow column="1" row="6"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="6" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=(J7 + K7)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="7" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="7" s="3">
+<O>
+<![CDATA[总计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="7" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(C7)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="7" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="7" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="7" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="7" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="7" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(H7)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="7" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=(C8 + H8) / 2]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="7" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(j7)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$=0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="10" r="7" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(k7)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="7" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=(J8 + K8)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="16">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1118482"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="datetime"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr format="yyyy-MM"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="106" y="33" width="102" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[报表月度：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="80"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="25" y="33" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="ZZ"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("HXXF_HR","SELECT REPLACE(PARENT_NAME,'<','>')  as PARENT_NAME FROM  ODM_HR_DW where tree_node='"+DWMC+"' ",1)]]></Attributes>
+</O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72" foreground="-4259840"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="205" y="6" width="755" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c_c_c_c_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[所选组织：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="149" y="6" width="63" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label9_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[组织/干部月报]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="88" foreground="-4259832"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="27" y="6" width="114" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<Listener event="click">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/Group_collection.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[Group_collection.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[组织报表]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="true" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="true" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(33)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($DWMC)=0,"","部门;")+IF(LEN($datetime)=0,"","报表月度;")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($DWMC)=0,"",$DWMC+";")+IF(LEN($datetime)=0,"",$datetime+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ENTER_NUM]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=NOW()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[常用报表工具]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($DWMC)=0,"","部门:"+DWMC+";")+IF(LEN($datetime)=0,"","报表月度:"+datetime+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<WidgetName name="Search_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查   询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-4194304"/>
+</initial>
+<over>
+<Background name="ColorBackground" color="-8585216"/>
+</over>
+<FRFont name="微软雅黑" style="0" size="80" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="500" y="30" width="60" height="25"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="datetime"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<Position position="0"/>
+<Design_Width design_width="960"/>
+<NameTagModified/>
+<WidgetNameTagMap>
+<NameTag name="datetime" tag="报表月度："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="960" height="60"/>
+</ParameterUI>
+</ReportParameterAttr>
+<StyleList>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Top style="1" color="-16777216"/>
+<Bottom style="1" color="-16777216"/>
+<Left style="1" color="-16777216"/>
+<Right style="1" color="-16777216"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-16776961" underline="1"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="30">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72"/>
+<Background name="ColorBackground" color="-6250336"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0%]]></Format>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<Background name="ColorBackground" color="-6250336"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-6250336"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-6250336"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6250336"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="157e2249-5a0d-49c1-a552-ba8a1fe91c63"/>
+</WorkBook>

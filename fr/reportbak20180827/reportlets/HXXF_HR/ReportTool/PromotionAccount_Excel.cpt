@@ -1,0 +1,1789 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="晋升台账" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="ISBZ"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="iskjjs"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="CQT_ID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="ISYBS"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="JSDateEnd"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="JSCISHU"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="ygclass"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="ISHXGB"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="zhinengxulie"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="iszhuying"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="cqtyear"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="name"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="rank"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="JSDATEStart"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT ROWNUM,T.* 
+FROM (
+SELECT *
+FROM
+(SELECT *
+FROM
+(
+SELECT 
+DISTINCT YGID, 
+DANWEI,
+XINGMING, 
+XINGBIE,
+to_char(CSDATE,'yyyy-mm-dd') as CSDATE, 
+to_char(RZDATE,'yyyy-mm-dd') as RZDATE, 
+to_char(JSDATE,'yyyy-mm-dd') as JSDATE, 
+JSYEAR, 
+JSBZHIJI, 
+JSAZHIJI, 
+JSSZBUMEN, 
+ISKUAJIJS, 
+JSCISHU, 
+ISZHUYING, 
+BUMEN,
+ZHINENGXULIE,
+ZHIWEI, 
+ZHIWU, 
+ZHIJI,
+YGFENLEI, 
+ISCQT, 
+CQTCDLYEAR, 
+to_char(CJGZDATE,'yyyy-mm-dd') as CJGZDATE, 
+JSSZDANWEI, 
+ISCDL, 
+NAMEPINYIN, 
+BUMENID,
+JSSNDJX,
+DW.TREE_NODE_NUM,
+T1.GBSF,
+case when ZHIWEI is null then ' '
+ 	when ZHIWEI is not null and ISHXGB = 'Y' then '是'
+ 	when ZHIWEI is not null and ISHXGB <> 'Y' then '否' end  as ISHXGB,
+case when ZHIWEI is null then ' '
+ 	when ZHIWEI is not null and ISBZ = 'Y' then '是'
+ 	when ZHIWEI is not null and ISBZ <> 'Y' then '否' end  as ISBZ,
+case when ZHIWEI is null then ' '
+ 	when ZHIWEI is not null and ISYBS = 'Y' then '是'
+ 	when ZHIWEI is not null and ISYBS <> 'Y' then '否' end  as ISYBS
+FROM ODM_HR_JSTZ T
+LEFT JOIN ODM_HR_DW DW
+ON DW.TREE_NODE= BUMENID
+LEFT JOIN ODM_HR_GBSF_MAPPING T1
+ON T.GBSF_ID = T1.YGBSF_ID
+WHERE 
+ZHIJI NOT LIKE '99%'
+${if(CQT_ID>0,"AND ISCQT='是'","")}
+${switch(iszhuying,'',"",'1',"and ISzhuying like '主营%'",'2',"and ISzhuying like '非主营%'",'1,2',"")}
+
+${if(len(JSDATEStart)=0,""," and JSDATE >=to_date('"+JSDATEStart+"','yyyy-mm-dd')")}
+${if(len(JSDateEnd)=0,""," and JSDATE <=to_date('"+JSDateEnd+"','yyyy-mm-dd')")}
+
+${if(len(name)=0,"","and (xingming like'%"+name+"%' or namepinyin like'%"+name+"%')")}
+${if(len(JSCISHU) == 0,"","AND JSCISHU IN ('"+JSCISHU+"')")}
+${if(len(iskjjs) == 0,"","AND ISKUAJIJS IN ('"+iskjjs+"')")}
+${if(len(ygclass) == 0,"","AND ("+ygclass+")")}
+${if(len(rank) == 0,"AND JSAZHIJI != '99'","AND JSAZHIJI IN ('"+rank+"')")}
+${if(len(zhinengxulie) == 0,"","AND ZHINENGXULIE IN ('"+zhinengxulie+"')")}
+${if(len(cqtyear) == 0,"","AND ISCQT='是' AND CQTCDLYEAR IN ('"+cqtyear+"')")}
+${if(len(DWMC)=0,""," and TREE_NODE_ID LIKE'%"+DWMC+",%'")}
+${if(len(ISHXGB)==0," AND 1=1 ",if(ISHXGB="Y"," AND  ZHIWEI is not null and ISHXGB = 'Y' ",if(ISHXGB="N","AND  ZHIWEI IS NOT NULL and ISHXGB <> 'Y' "," AND ZHIWEI IS NOT NULL AND (ISHXGB IN ('Y','N',' ') OR ISHXGB IS NULL)")))}
+
+${if(len(ISBZ)==0,"and 1=1",if(ISBZ="Y"," AND  ZHIWEI is not null and ISBZ = 'Y' ",if(ISBZ="N","AND  ZHIWEI is not null and ISBZ <> 'Y' ","AND ZHIWEI IS NOT NULL AND (ISBZ IN ('Y','N',' ') OR ISBZ IS NULL) ")))}
+
+${if(len(ISYBS)==0,"and 1=1",if(ISYBS="Y"," AND  ZHIWEI is not null and ISYBS = 'Y' ",if(ISYBS="N","AND  ZHIWEI is not null and ISYBS <> 'Y' ","AND ZHIWEI IS NOT NULL AND (ISYBS IN ('Y','N',' ') OR ISYBS IS NULL)")))}
+
+)
+ORDER BY  TREE_NODE_NUM asc,JSDATE DESC,JSYEAR DESC,JSAZHIJI DESC,YGID asc
+)
+UNION ALL
+SELECT *
+FROM
+(SELECT *
+FROM
+(
+SELECT 
+DISTINCT YGID, 
+DANWEI,
+XINGMING, 
+XINGBIE,
+to_char(CSDATE,'yyyy-mm-dd') as CSDATE, 
+to_char(RZDATE,'yyyy-mm-dd') as RZDATE, 
+to_char(JSDATE,'yyyy-mm-dd') as JSDATE, 
+JSYEAR, 
+JSBZHIJI, 
+JSAZHIJI, 
+JSSZBUMEN, 
+ISKUAJIJS, 
+JSCISHU, 
+ISZHUYING, 
+BUMEN,
+ZHINENGXULIE,
+ZHIWEI, 
+ZHIWU, 
+ZHIJI,
+YGFENLEI, 
+ISCQT, 
+CQTCDLYEAR, 
+to_char(CJGZDATE,'yyyy-mm-dd') as CJGZDATE, 
+JSSZDANWEI, 
+ISCDL, 
+NAMEPINYIN, 
+BUMENID,
+JSSNDJX,
+DW.TREE_NODE_NUM,
+T1.GBSF,
+case when ZHIWEI is null then ' '
+ 	when ZHIWEI is not null and ISHXGB = 'Y' then '是'
+ 	when ZHIWEI is not null and ISHXGB <> 'Y' then '否' end  as ISHXGB,
+case when ZHIWEI is null then ' '
+ 	when ZHIWEI is not null and ISBZ = 'Y' then '是'
+ 	when ZHIWEI is not null and ISBZ <> 'Y' then '否' end  as ISBZ,
+case when ZHIWEI is null then ' '
+ 	when ZHIWEI is not null and ISYBS = 'Y' then '是'
+ 	when ZHIWEI is not null and ISYBS <> 'Y' then '否' end  as ISYBS
+FROM ODM_HR_JSTZ T
+LEFT JOIN ODM_HR_DW DW
+ON DW.TREE_NODE= BUMENID
+LEFT JOIN ODM_HR_GBSF_MAPPING T1
+ON T.GBSF_ID = T1.YGBSF_ID
+WHERE 
+ZHIJI  LIKE '99%'
+${if(CQT_ID>0,"AND ISCQT='是'","")}
+${switch(iszhuying,'',"",'1',"and ISzhuying like '主营%'",'2',"and ISzhuying like '非主营%'",'1,2',"")}
+
+${if(len(JSDATEStart)=0,""," and JSDATE >=to_date('"+JSDATEStart+"','yyyy-mm-dd')")}
+
+${if(len(JSDateEnd)=0,""," and JSDATE <=to_date('"+JSDateEnd+"','yyyy-mm-dd')")}
+
+
+${if(len(name)=0,"","and (xingming like'%"+name+"%' or namepinyin like'%"+name+"%')")}
+${if(len(JSCISHU) == 0,"","AND JSCISHU IN ('"+JSCISHU+"')")}
+${if(len(iskjjs) == 0,"","AND ISKUAJIJS IN ('"+iskjjs+"')")}
+${if(len(ygclass) == 0,"","AND ("+ygclass+")")}
+${if(len(rank) == 0,"AND JSAZHIJI != '99'","AND JSAZHIJI IN ('"+rank+"')")}
+${if(len(zhinengxulie) == 0,"","AND ZHINENGXULIE IN ('"+zhinengxulie+"')")}
+${if(len(cqtyear) == 0,"","AND ISCQT='是' AND CQTCDLYEAR IN ('"+cqtyear+"')")}
+${if(len(DWMC)=0,""," and TREE_NODE_ID LIKE '%"+DWMC+",%'")}
+${if(len(ISHXGB)==0," AND 1=1 ",if(ISHXGB="Y"," AND  ZHIWEI is not null and ISHXGB = 'Y' ",if(ISHXGB="N","AND  ZHIWEI IS NOT NULL and ISHXGB <> 'Y' "," AND ZHIWEI IS NOT NULL AND (ISHXGB IN ('Y','N',' ') OR ISHXGB IS NULL)")))}
+
+${if(len(ISBZ)==0,"and 1=1",if(ISBZ="Y"," AND  ZHIWEI is not null and ISBZ = 'Y' ",if(ISBZ="N","AND  ZHIWEI is not null and ISBZ <> 'Y' ","AND ZHIWEI IS NOT NULL AND (ISBZ IN ('Y','N',' ') OR ISBZ IS NULL) ")))}
+
+${if(len(ISYBS)==0,"and 1=1",if(ISYBS="Y"," AND  ZHIWEI is not null and ISYBS = 'Y' ",if(ISYBS="N","AND  ZHIWEI is not null and ISYBS <> 'Y' ","AND ZHIWEI IS NOT NULL AND (ISYBS IN ('Y','N',' ') OR ISYBS IS NULL)")))}
+
+)
+ORDER BY TREE_NODE_NUM asc,JSDATE DESC,JSYEAR DESC,JSAZHIJI DESC,YGID asc)
+) T
+]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[晋升报表]]></Title>
+<ServerPrinter/>
+<WebPageContent>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.page.First">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-First')}]]></Text>
+<IconName>
+<![CDATA[first]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Previous">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Previous')}]]></Text>
+<IconName>
+<![CDATA[previous]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.PageNavi">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Next">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Next')}]]></Text>
+<IconName>
+<![CDATA[next]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Last">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Last')}]]></Text>
+<IconName>
+<![CDATA[last]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出Excel]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出Excel]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="Excel"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[= "晋升报表_"+$username+"_"+CONCATENATE(YEAR(NOW()),RIGHT(MONTH(NOW())+100,2),RIGHT(DAY(NOW())+100,2),HOUR(NOW()),MINUTE(NOW()))]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="JSDateStart"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=CONCATENATE(YEAR($RZDATEStart),"-",RIGHT(MONTH($RZDATEStart)+100,2),"-",RIGHT(DAY($RZDATEStart)+100,2))]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="JSDateEnd"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=CONCATENATE(YEAR($JSDateEnd),"-",RIGHT(MONTH($RZDATESJSDateEnd)+100,2),"-",RIGHT(DAY($JSDateEnd)+100,2))]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$DWMC]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[$("#fr-btn-HR_DOW").find("button").trigger("click");
+var NAME1=contentPane.parameterEl.getWidgetByName("NAME").getValue();
+//var JSDateStart1=contentPane.parameterEl.getWidgetByName("JSDateStart").getValue();
+//var JSDateEnd1=contentPane.parameterEl.getWidgetByName("JSDateEnd").getValue();
+var JSCISHU1=contentPane.parameterEl.getWidgetByName("JSCISHU").getValue();
+var rank1=contentPane.parameterEl.getWidgetByName("rank").getValue();
+var iskjjs1=contentPane.parameterEl.getWidgetByName("iskjjs").getValue();
+var iszhuying1=contentPane.parameterEl.getWidgetByName("iszhuying").getText();
+
+var ygclass1=contentPane.parameterEl.getWidgetByName("ygclass").getValue();
+var zhinengxulie1=contentPane.parameterEl.getWidgetByName("zhinengxulie").getValue();
+var cqtyear1=contentPane.parameterEl.getWidgetByName("cqtyear").getValue();
+var DWMC1=contentPane.parameterEl.getWidgetByName("DWMC").getValue();
+var url = FR.cjkEncode("/WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/PromotionAccount_Excel.cpt&op=view&NAME="+NAME1+"&JSDateStart="+JSDateStart1+"&JSDateEnd="+JSDateEnd1+"&JSCISHU="+JSCISHU1+"&rank="+rank1+"&iskjjs="+iskjjs1+"&iszhuying="+iszhuying1+"&ygclass="+ygclass1+"&zhinengxulie="+zhinengxulie1+"&cqtyear="+cqtyear1++"&DWMC="+DWMC1+"&format=excel&extype=simple&__filename__="+Excel+"" );
+window.open(url);
+]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<WebPage isPage="false" isShowAsImage="false" isAutoScale="false" isTDHeavy="false"/>
+</WebPageContent>
+</ReportWebAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR F="0" T="1"/>
+<FR/>
+<HC F="0" T="1"/>
+<FC/>
+<UPFCR COLUMN="true" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[0,1295400,1152000,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[1728000,2592000,2592000,5184000,8640000,2743200,2743200,2880000,2743200,2160000,2880000,2743200,2743200,4320000,11520000,3276600,2880000,5760000,2743200,2160000,4320000,4320000,2160000,2743200,3600000,3600000,3600000,2743200,2743200,2743200,4320000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=ROWCOUNT("晋升台账")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="0">
+<O>
+<![CDATA[序号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="1">
+<O>
+<![CDATA[姓名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="1">
+<O>
+<![CDATA[系统用户名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="1">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="1">
+<O>
+<![CDATA[当前部门]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="1">
+<O>
+<![CDATA[性别]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" s="1">
+<O>
+<![CDATA[出生日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="1" s="1">
+<O>
+<![CDATA[参加工作时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" s="1">
+<O>
+<![CDATA[入职时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" s="1">
+<O>
+<![CDATA[晋升年度]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="1" s="1">
+<O>
+<![CDATA[晋升日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="1" s="1">
+<O>
+<![CDATA[晋升前职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="1" s="1">
+<O>
+<![CDATA[晋升后职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="1" s="1">
+<O>
+<![CDATA[晋升时所在单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="1" s="1">
+<O>
+<![CDATA[晋升时所在部门]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="1" s="1">
+<O>
+<![CDATA[晋升上年度绩效]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="1" s="1">
+<O>
+<![CDATA[是否跨级晋升]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="1" s="1">
+<O>
+<![CDATA[晋升次数（2014年7月后）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="18" r="1" s="1">
+<O>
+<![CDATA[主营/非主营]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="19" r="1" s="1">
+<O>
+<![CDATA[职能序列]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="1" s="1">
+<O>
+<![CDATA[职位（干部）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="21" r="1" s="1">
+<O>
+<![CDATA[当前职务]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="1" s="1">
+<O>
+<![CDATA[当前职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="1" s="1">
+<O>
+<![CDATA[员工分类]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="1" s="2">
+<O>
+<![CDATA[干部身份]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="25" r="1" s="2">
+<O>
+<![CDATA[是否核心干部]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="26" r="1" s="2">
+<O>
+<![CDATA[是否一把手]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="27" r="1" s="2">
+<O>
+<![CDATA[是否班子]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="28" r="1" s="1">
+<O>
+<![CDATA[是否常青藤]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="29" r="1" s="1">
+<O>
+<![CDATA[是否产动力]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="30" r="1" s="1">
+<O>
+<![CDATA[常青藤/产动力年度]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ROWNUM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[row() % 2 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-986896"/>
+</HighlightAction>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[&A3 % 50 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.PageHighlightAction">
+<P i="1"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="1" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="XINGMING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper">
+<Attr divideMode="1"/>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="YGID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="DANWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper">
+<Attr divideMode="1"/>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="BUMEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="XINGBIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="CSDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="CJGZDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="RZDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="JSYEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="JSDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="JSBZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="JSAZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="JSSZDANWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="JSSZBUMEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="JSSNDJX"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ISKUAJIJS"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="JSCISHU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ISZHUYING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ZHINENGXULIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ZHIWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ZHIWU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="22" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="YGFENLEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="GBSF"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ISHXGB"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ISYBS"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ISBZ"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ISCQT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="ISCDL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="30" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="晋升台账" columnName="CQTCDLYEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting>
+<PaperSize width="1584000000" height="144000000"/>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<LayerReportAttr isPageQuery="true" countPerPage="50"/>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1118482"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="REGISTER_ENTER_NUM"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue/>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="503" y="2" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="YGID"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue/>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="403" y="0" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.FreeButton">
+<Listener event="click">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/PromotionAccount.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[PromotionAccount.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[晋升报表]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="false" skipUnmodified="false"/>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($NAME)=0,"","姓名;")+IF(LEN($JSDateStart)=0,"","晋升时间:")+IF(LEN($JSDateEnd)=0,"","
+晋升时间2:")+IF(LEN($JSCISHU)=0,"","晋升次数(2014年7月后):")+IF(LEN($rank)=0,"","晋升后职级;")+IF(LEN
+($iskjjs)=0,"","是否跨级晋升;")+IF(LEN($iszhuying)=0,"","主营/非主营;")+IF(LEN($ygclass)=0,"","员工分类;")+IF(LEN($zhinengxulie)=0,"","职能序列;")+IF(LEN($cqtyear)=0,"","常青藤年度;")+IF(LEN($DWMC)=0,"","部门;")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($NAME)=0,"",$NAME+";")+IF(LEN($JSDateStart)=0,"",$JSDateStart+";")+IF(LEN($JJSDateEnd)=0,"",$JSDateEnd+";")+IF(LEN($JSCISHU)=0,"",$JSCISHU+";")+IF(LEN
+($rank)=0,"",$rank+";")+IF(LEN($iskjjs)=0,"",$iskjjs+";")+IF(LEN($iszhuying)=0,"",
+$iszhuying+";")+IF(LEN($ygclass)=0,"",$ygclass+";")+IF(LEN($zhinengxulie)=0,"",$zhinengxulie+";")+IF(LEN($cqtyear)=0,"",$cqtyear+";")+IF(LEN($DWMC)=0,"",$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工ID]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[$YGID]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[1]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[常用报表工具]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($NAME)=0,"","姓名:"+$NAME+";")+IF(LEN($JSDateStart)=0,"","晋升时间:"+$JSDateStart+";")+IF(LEN($JSDateEnd)=0,"","
+晋升时间2:"+$JSDateEnd+";")+IF(LEN($JSCISHU)=0,"","晋升次数(2014年7月后):"+$JSCISHU+";")+IF(LEN($rank)=0,"","晋升后职级:"+$rank+";")+IF(LEN
+($iskjjs)=0,"","是否跨级晋升:"+$iskjjs+";")+IF(LEN($iszhuying)=0,"","主营/非主营:"+$iszhuying+";")+IF(LEN($ygclass)=0,"","员工分类:"+$ygclass+";")+IF(LEN($zhinengxulie)=0,"","职能序列:"+$zhinengxulie+";")+IF(LEN($cqtyear)=0,"","常青藤年度:"+$cqtyear+";")+IF(LEN($DWMC)=0,"","部门:"+$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$YGID]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<WidgetName name="HR_LOG"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[button0]]></Text>
+</InnerWidget>
+<BoundsAttr x="202" y="0" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="REGISTER_ID"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="301" y="0" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.CheckBoxGroup">
+<Listener event="statechange">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var b=this.options.form.getWidgetByName("ygclass").getValue();
+
+if (b!="YGFENLEI  LIke '%干部%'','YGFENLEI  LIKE '%团队负责人%'','YGFENLEI  LIKE '%员工%'")
+{var c=this.options.form.getWidgetByName("ygclass12")
+	c.setValue(false);c.setText(false);}
+else{
+	var c=this.options.form.getWidgetByName("ygclass12")
+	c.setValue(true);c.setText(true);
+}]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="ygclass"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="YGFENLEI  LIke &apos;%干部%&apos;" value="干部"/>
+<Dict key="YGFENLEI  LIKE &apos;%团队负责人%&apos;" value="团队负责人"/>
+<Dict key="YGFENLEI  LIKE &apos;%员工%&apos;" value="员工"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+<RAAttr isArray="false" delimiter=" OR "/>
+</InnerWidget>
+<BoundsAttr x="356" y="55" width="201" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.CheckBoxGroup">
+<WidgetName name="iskjjs"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="是" value="是"/>
+<Dict key="否" value="否"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+<RAAttr isArray="false" delimiter="&apos;,&apos;"/>
+</InnerWidget>
+<BoundsAttr x="997" y="54" width="90" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.CheckBox">
+<Listener event="statechange">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="b"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=replace(value("Embedded1",3),",","','")]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var a=this.options.form.getWidgetByName("ygclass12").getValue();
+
+if(a==true){
+	this.options.form.getWidgetByName("ygclass").setValue("YGFENLEI  LIke '%干部%' OR YGFENLEI  LIKE '%团队负责人%' OR YGFENLEI  LIKE '%员工%'")
+	
+}
+else{
+	var c=this.options.form.getWidgetByName("ygclass");
+
+	c.setValue();c.setText();
+}
+]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="ygclass12"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[全选]]></Text>
+<widgetValue>
+<O t="B">
+<![CDATA[false]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="305" y="54" width="52" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.CheckBoxGroup">
+<WidgetName name="iszhuying"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="主营"/>
+<Dict key="2" value="非主营"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+<RAAttr isArray="false" delimiter="&apos;,&apos;"/>
+</InnerWidget>
+<BoundsAttr x="108" y="54" width="122" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label2_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[—]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="321" y="29" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="JSDateEnd"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr returnDate="true"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=today()]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="352" y="29" width="94" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="JSDateStart"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr returnDate="true"/>
+<widgetValue>
+<O t="Date">
+<![CDATA[1483200000000]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="241" y="29" width="91" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[晋升时间：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="179" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="JSCISHU"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="1"/>
+<Dict key="2" value="2"/>
+<Dict key="3" value="3"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="627" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label9_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[晋升报表]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="88" foreground="-4259832"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="27" y="6" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[姓名：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="27" y="29" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="name"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<fontSize>
+<![CDATA[11]]></fontSize>
+<TextAttr/>
+<watermark>
+<![CDATA[请输入姓名或拼音]]></watermark>
+<widgetValue/>
+</InnerWidget>
+<BoundsAttr x="65" y="29" width="94" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelygclass_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[晋升次数（2014年7月后）：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="466" y="29" width="162" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="zhinengxulie"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="00-经" value="00-经"/>
+<Dict key="01-研" value="01-研"/>
+<Dict key="02-产" value="02-产"/>
+<Dict key="03-销" value="03-销"/>
+<Dict key="04-人" value="04-人"/>
+<Dict key="05-财" value="05-财"/>
+<Dict key="06-运" value="06-运"/>
+<Dict key="07-拓" value="07-拓"/>
+<Dict key="08-企" value="08-企"/>
+<Dict key="09-政" value="09-政"/>
+<Dict key="10-服" value="10-服"/>
+<Dict key="11-品" value="11-品"/>
+<Dict key="12-投" value="12-投"/>
+<Dict key="13-战" value="13-战"/>
+<Dict key="14-营" value="14-营"/>
+<Dict key="15-行" value="15-行"/>
+<Dict key="16-其他" value="16-其他"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="627" y="54" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="rank"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="01级" value="01级"/>
+<Dict key="02级" value="02级"/>
+<Dict key="03级" value="03级"/>
+<Dict key="04级" value="04级"/>
+<Dict key="05级" value="05级"/>
+<Dict key="06级" value="06级"/>
+<Dict key="07级" value="07级"/>
+<Dict key="08级" value="08级"/>
+<Dict key="09级" value="09级"/>
+<Dict key="10级" value="10级"/>
+<Dict key="11级" value="11级"/>
+<Dict key="12级" value="12级"/>
+<Dict key="13级" value="13级"/>
+<Dict key="15级" value="15级"/>
+<Dict key="14级" value="14级"/>
+<Dict key="16级" value="16级"/>
+<Dict key="17级" value="17级"/>
+<Dict key="18级" value="18级"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="805" y="29" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="cqtyear"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="2011" value="2011"/>
+<Dict key="2012" value="2012"/>
+<Dict key="2013" value="2013"/>
+<Dict key="2014" value="2014"/>
+<Dict key="2015" value="2015"/>
+<Dict key="2016" value="2016"/>
+<Dict key="2017" value="2017"/>
+<Dict key="2018" value="2018"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="805" y="54" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labeliszhuying"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[主营/非主营：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="28" y="54" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<Listener event="click">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var totalNum=_g().parameterEl.getWidgetByName('REGISTER_ENTER_NUM').getValue();
+if(totalNum ==null || totalNum==""){
+	totalNum=1;
+}else{
+	totalNum+=1;
+}
+_g().parameterEl.getWidgetByName('REGISTER_ENTER_NUM').setValue(totalNum);]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="click">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/ReportTool/FPromotionAccount.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[PromotionAccount.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[晋升报表]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(33)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false"/>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($NAME)=0,"","姓名;")+IF(LEN($JSDateStart)=0,"","晋升时间:")+IF(LEN($JSDateEnd)=0,"","
+晋升时间2:")+IF(LEN($JSCISHU)=0,"","晋升次数(2014年7月后):")+IF(LEN($rank)=0,"","晋升后职级;")+IF(LEN
+($iskjjs)=0,"","是否跨级晋升;")+IF(LEN($iszhuying)=0,"","主营/非主营;")+IF(LEN($ygclass)=0,"","员工分类;")+IF(LEN($zhinengxulie)=0,"","职能序列;")+IF(LEN($cqtyear)=0,"","常青藤年度;")+IF(LEN($DWMC)=0,"","部门;")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($NAME)=0,"",$NAME+";")+IF(LEN($JSDateStart)=0,"",$JSDateStart+";")+IF(LEN($JJSDateEnd)=0,"",$JSDateEnd+";")+IF(LEN($JSCISHU)=0,"",$JSCISHU+";")+IF(LEN
+($rank)=0,"",$rank+";")+IF(LEN($iskjjs)=0,"",$iskjjs+";")+IF(LEN($iszhuying)=0,"",
+$iszhuying+";")+IF(LEN($ygclass)=0,"",$ygclass+";")+IF(LEN($zhinengxulie)=0,"",$zhinengxulie+";")+IF(LEN($cqtyear)=0,"",$cqtyear+";")+IF(LEN($DWMC)=0,"",$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ENTER_NUM]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[常用报表工具]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($NAME)=0,"","姓名:"+$NAME+";")+IF(LEN($JSDateStart)=0,"","晋升时间:"+$JSDateStart+";")+IF(LEN($JSDateEnd)=0,"","
+晋升时间2:"+$JSDateEnd+";")+IF(LEN($JSCISHU)=0,"","晋升次数(2014年7月后):"+$JSCISHU+";")+IF(LEN($rank)=0,"","晋升后职级:"+$rank+";")+IF(LEN
+($iskjjs)=0,"","是否跨级晋升:"+$iskjjs+";")+IF(LEN($iszhuying)=0,"","主营/非主营:"+$iszhuying+";")+IF(LEN($ygclass)=0,"","员工分类:"+$ygclass+";")+IF(LEN($zhinengxulie)=0,"","职能序列:"+$zhinengxulie+";")+IF(LEN($cqtyear)=0,"","常青藤年度:"+$cqtyear+";")+IF(LEN($DWMC)=0,"","部门:"+$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$YGID]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<WidgetName name="Search"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查  询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-4259832"/>
+</initial>
+<over>
+<Background name="ColorBackground" color="-8585216"/>
+</over>
+<FRFont name="微软雅黑" style="0" size="80" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="910" y="27" width="60" height="25"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labeliskjjs"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[是否跨级晋升：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="910" y="54" width="88" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelygclass"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[员工分类：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="243" y="54" width="63" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelzhinengxulie"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[职能序列：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="566" y="54" width="63" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelrank"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[晋升后职级：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="731" y="29" width="75" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelcqtyear"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[常青藤年度：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="732" y="54" width="75" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="HR_LOG"/>
+<Widget widgetName="name"/>
+<Widget widgetName="JSDateStart"/>
+<Widget widgetName="JSDateEnd"/>
+<Widget widgetName="JSCISHU"/>
+<Widget widgetName="rank"/>
+<Widget widgetName="iszhuying"/>
+<Widget widgetName="ygclass12"/>
+<Widget widgetName="zhinengxulie"/>
+<Widget widgetName="cqtyear"/>
+<Widget widgetName="iskjjs"/>
+<Widget widgetName="ygclass"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<Position position="0"/>
+<Design_Width design_width="1097"/>
+<NameTagModified/>
+<WidgetNameTagMap>
+<NameTag name="JSCISHU" tag="晋升次数（2014年7月后）："/>
+<NameTag name="iskjjs" tag="是否跨级晋升："/>
+<NameTag name="zhinengxulie" tag="职能序列："/>
+<NameTag name="cqtyear" tag="常青藤年度："/>
+<NameTag name="iszhuying" tag="主营/非主营："/>
+<NameTag name="JSDateStart" tag="晋升时间："/>
+<NameTag name="name" tag="姓名："/>
+<NameTag name="rank" tag="晋升后职级："/>
+<NameTag name="ygclass12" tag="员工分类："/>
+<NameTag name="JSDateEnd" tag="—"/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="1097" height="82"/>
+</ParameterUI>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4259832"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4259832"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="b073c5fa-f2ac-4e1f-bcd2-f6960b7180e6"/>
+</WorkBook>

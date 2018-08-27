@@ -1,0 +1,1903 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="照片" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="id"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT EMPLOYEE_PHOTO
+FROM SYSADM.PS_EMPL_PHOTO
+WHERE 1=1
+${if(len(id)=0,"and 1=0","and EMPLID ='"+id+"'")}]]></Query>
+</TableData>
+<TableData name="基本信息" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="id"/>
+<O>
+<![CDATA[10001612]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select
+DANWEI,
+XINGMING,
+YGID,
+XINGBIE,
+CSDATE,
+TRUNC((SYSDATE - CSDATE) / 365) AS NIANLING,
+CJGZDATE,
+YGLEIBIE,
+ISZHUYING,
+YGFENLEI,
+--BUMEN,
+CASE WHEN  instr(BUMEN,'_')>0 THEN REPLACE(REPLACE(BUMEN,DANWEI||'_',''),'_',' ')  ELSE BUMEN END AS BUMEN,
+ZHIWEI,
+ZHIJI,
+ZHINENGXULIE,
+ISCQT,
+ISCDL,
+CQTCDLYEAR,
+YOUXIANG,
+XXXTID,
+MINZU,
+JIGUAN,
+ZZMM,
+ZHIWU,
+NAMEPINYIN,
+CASE WHEN SILING<0.1 THEN 0.1 ELSE ROUND(SILING,1)  END    AS SILING,
+SSXULIE,
+RZDATE,
+BUMENID,
+HUKOUSZD,
+HUNYINZK,
+GANGWEI,
+RXZHIJITIME,
+ZJZG,
+COUNTRY,
+CASE WHEN XRZHIJITIME<0.1 THEN 0.1 ELSE ROUND(XRZHIJITIME,1)  END   AS XRZHIJITIME,
+CASE WHEN XRZHIWEITIME<0.1 THEN 0.1 ELSE ROUND(XRZHIWEITIME,1)  END AS XRZHIWEITIME
+from SYSADM.PS_YGJLCX_VW
+where 1=1
+${if(len(id)=0,"and 1=0","and YGID ='"+id+"'")}]]></Query>
+</TableData>
+<TableData name="教育背景" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="id"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select *
+from SYSADM.PS_YGJLCX_JYJL_VW
+where 1=1
+${if(len(id)=0,"and 1=0","and YGID='"+id+"'")}]]></Query>
+</TableData>
+<TableData name="华夏幸福工作经历" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="id"/>
+<O>
+<![CDATA[10001612]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH
+TT AS
+(
+
+SELECT A.EMPLID YGID
+  ,
+  --员工ID                   
+  A.EFFDT EFFDT
+  ,
+  --操作时间
+  B.ACTION_DESCR
+  ,
+  --操作
+  (
+    SELECT DESCR254
+    FROM SYSADM.HR_VW_DEPT_TBL X
+      ,SYSADM.ODS_HR_JOB_VW JOBA
+    WHERE X.SETID = JOBA.SETID_DEPT
+      AND X.DEPTID = JOBA.DEPTID
+      AND X.EFFDT = --A.EFFDT
+      (
+        SELECT MAX(M.EFFDT)
+        FROM SYSADM.HR_VW_DEPT_TBL M
+        WHERE M.SETID = X.SETID
+          AND M.DEPTID = X.DEPTID
+          AND M.EFFDT <= A.EFFDT
+        )
+      AND JOBA.EMPLID = A.EMPLID
+      AND JOBA.EFFDT = A.EFFDT
+      AND JOBA.EFFSEQ = (
+        SELECT MAX(JOB2.EFFSEQ)
+        FROM  SYSADM.ODS_HR_JOB_VW JOB2
+        WHERE JOB2.EMPLID = JOBA.EMPLID
+          AND JOB2.EMPL_RCD = JOBA.EMPL_RCD
+          AND JOB2.EFFDT = JOBA.EFFDT
+        )
+      AND JOBA.EMPL_RCD = '0'
+    ) BUMEN
+  ,
+  --所属部门
+  (
+    SELECT DESCR
+    FROM SYSADM.HR_VW_HX_EMPL_CLASS A
+      ,SYSADM.ODS_HR_JOB_VW JOBD
+    WHERE A.EFF_STATUS = 'A'
+      AND A.SETID = (
+        SELECT SETID
+        FROM SYSADM.HR_VW_SET_CNTRL_REC SC
+        WHERE SC.SETCNTRLVALUE = JOBD.BUSINESS_UNIT
+          AND SC.RECNAME = 'HX_EMPL_CLASS'
+        )
+      AND A.HX_EMPL_CLASS = JOBD.HX_EMPL_CLASS
+      AND A.EFFDT = (
+        SELECT MAX(B.EFFDT)
+        FROM SYSADM.HR_VW_HX_EMPL_CLASS B
+        WHERE B.EFF_STATUS = 'A'
+          AND B.SETID = A.SETID
+          AND B.HX_EMPL_CLASS = A.HX_EMPL_CLASS
+          AND B.EFFDT <= TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD')
+        )
+      AND JOBD.EMPLID = A.EMPLID
+      AND JOBD.EFFDT = A.EFFDT
+      AND JOBD.EFFSEQ = (
+        SELECT MAX(JOB5.EFFSEQ)
+        FROM SYSADM.ODS_HR_JOB_VW JOB5
+        WHERE JOB5.EMPLID = JOBD.EMPLID
+          AND JOB5.EMPL_RCD = JOBD.EMPL_RCD
+          AND JOB5.EFFDT = JOBD.EFFDT
+        )
+      AND JOBD.EMPL_RCD = '0'
+    ) YGFENLEI
+  ,
+  --员工分类
+  (
+    SELECT DESCR
+    FROM SYSADM.HR_VW_POSITION_DATA Y
+      ,SYSADM.ODS_HR_JOB_VW JOBB
+    WHERE Y.EFF_STATUS = 'A'
+      AND Y.POSITION_NBR = JOBB.POSITION_NBR
+      AND Y.EFFDT = --A.EFFDT
+      (
+        SELECT MAX(N.EFFDT)
+        FROM SYSADM.HR_VW_POSITION_DATA N
+        WHERE N.POSITION_NBR = Y.POSITION_NBR
+          AND N.EFFDT <= A.EFFDT
+        )
+      AND JOBB.EMPLID = A.EMPLID
+      AND JOBB.EFFDT = A.EFFDT
+      AND JOBB.EFFSEQ = (
+        SELECT MAX(JOB3.EFFSEQ)
+        FROM SYSADM.ODS_HR_JOB_VW JOB3
+        WHERE JOB3.EMPLID = JOBB.EMPLID
+          AND JOB3.EMPL_RCD = JOBB.EMPL_RCD
+          AND JOB3.EFFDT = JOBB.EFFDT
+        )
+      AND JOBB.EMPL_RCD = '0'
+    ) ZHIWEI
+  ,
+  --职位干部
+  (
+    SELECT DESCR
+    FROM SYSADM.HR_VW_JOBCODE_TBL Z
+      ,SYSADM.ODS_HR_JOB_VW JOBC
+    WHERE Z.EFF_STATUS = 'A'
+      AND Z.SETID = (
+        SELECT HR_VW_SET_CNTRL_GROUP.SETID
+        FROM SYSADM.HR_VW_REC_GROUP_REC
+          ,SYSADM.HR_VW_SET_CNTRL_GROUP
+        WHERE HR_VW_REC_GROUP_REC.RECNAME = 'JOBCODE_TBL'
+          AND HR_VW_REC_GROUP_REC.REC_GROUP_ID = HR_VW_SET_CNTRL_GROUP.REC_GROUP_ID
+          AND HR_VW_SET_CNTRL_GROUP.SETCNTRLVALUE = JOBC.BUSINESS_UNIT
+        )
+      AND Z.JOBCODE = JOBC.JOBCODE
+      AND Z.EFFDT = --A.EFFDT
+      (
+        SELECT MAX(P.EFFDT)
+        FROM SYSADM.HR_VW_JOBCODE_TBL P
+        WHERE P.SETID = Z.SETID
+          AND P.JOBCODE = Z.JOBCODE
+          AND P.EFFDT <= A.EFFDT
+        )
+      AND JOBC.EMPLID = A.EMPLID
+      AND JOBC.EFFDT = A.EFFDT
+      AND JOBC.EFFSEQ = (
+        SELECT MAX(JOB4.EFFSEQ)
+        FROM SYSADM.ODS_HR_JOB_VW JOB4
+        WHERE JOB4.EMPLID = JOBC.EMPLID
+          AND JOB4.EMPL_RCD = JOBC.EMPL_RCD
+          AND JOB4.EFFDT = JOBC.EFFDT
+        )
+      AND JOBC.EMPL_RCD = '0'
+    ) ZHIWU
+  ,
+  --职务
+  A.HX_MAN_LVL_DESCR ZHIJI --现职级
+FROM SYSADM.ODM_HR_PS_OCT_EXWK_OTH A
+  ,SYSADM.HR_VW_ACTION_TBL B
+WHERE A.EMPLID = '${id}'
+  AND A.ACTION = B.ACTION
+  AND B.EFF_STATUS = 'A'
+--ORDER BY A.EFFDT DESC
+
+UNION
+
+SELECT A.EMPLID YGID
+  ,
+  --员工ID 
+  (SELECT X.EFFDT
+    FROM SYSADM.HR_VW_DEPT_TBL X
+      ,SYSADM.ODS_HR_JOB_VW JOBA
+    WHERE X.SETID = JOBA.SETID_DEPT
+      AND X.DEPTID = JOBA.DEPTID
+      AND X.EFFDT = --A.EFFDT
+      (
+        SELECT MAX(M.EFFDT)
+        FROM SYSADM.HR_VW_DEPT_TBL M
+        WHERE M.SETID = X.SETID
+          AND M.DEPTID = X.DEPTID
+          AND M.EFFDT <= SYSDATE
+        )
+      AND JOBA.EMPLID = A.EMPLID
+      AND JOBA.EFFDT = A.EFFDT
+      AND JOBA.EFFSEQ = (
+        SELECT MAX(JOB2.EFFSEQ)
+        FROM  SYSADM.ODS_HR_JOB_VW JOB2
+        WHERE JOB2.EMPLID = JOBA.EMPLID
+          AND JOB2.EMPL_RCD = JOBA.EMPL_RCD
+          AND JOB2.EFFDT = JOBA.EFFDT
+        )
+      AND JOBA.EMPL_RCD = '0')                  
+ EFFDT
+  ,
+  --操作时间
+  B.ACTION_DESCR
+  ,
+  --操作
+  (
+    SELECT DESCR254
+    FROM SYSADM.HR_VW_DEPT_TBL X
+      ,SYSADM.ODS_HR_JOB_VW JOBA
+    WHERE X.SETID = JOBA.SETID_DEPT
+      AND X.DEPTID = JOBA.DEPTID
+      AND X.EFFDT = --A.EFFDT
+      (
+        SELECT MAX(M.EFFDT)
+        FROM SYSADM.HR_VW_DEPT_TBL M
+        WHERE M.SETID = X.SETID
+          AND M.DEPTID = X.DEPTID
+          AND M.EFFDT <= SYSDATE
+        )
+      AND JOBA.EMPLID = A.EMPLID
+      AND JOBA.EFFDT = A.EFFDT
+      AND JOBA.EFFSEQ = (
+        SELECT MAX(JOB2.EFFSEQ)
+        FROM  SYSADM.ODS_HR_JOB_VW JOB2
+        WHERE JOB2.EMPLID = JOBA.EMPLID
+          AND JOB2.EMPL_RCD = JOBA.EMPL_RCD
+          AND JOB2.EFFDT = JOBA.EFFDT
+        )
+      AND JOBA.EMPL_RCD = '0'
+    ) BUMEN
+  ,
+  --所属部门
+  (
+    SELECT DESCR
+    FROM SYSADM.HR_VW_HX_EMPL_CLASS A
+      ,SYSADM.ODS_HR_JOB_VW JOBD
+    WHERE A.EFF_STATUS = 'A'
+      AND A.SETID = (
+        SELECT SETID
+        FROM SYSADM.HR_VW_SET_CNTRL_REC SC
+        WHERE SC.SETCNTRLVALUE = JOBD.BUSINESS_UNIT
+          AND SC.RECNAME = 'HX_EMPL_CLASS'
+        )
+      AND A.HX_EMPL_CLASS = JOBD.HX_EMPL_CLASS
+      AND A.EFFDT = (
+        SELECT MAX(B.EFFDT)
+        FROM SYSADM.HR_VW_HX_EMPL_CLASS B
+        WHERE B.EFF_STATUS = 'A'
+          AND B.SETID = A.SETID
+          AND B.HX_EMPL_CLASS = A.HX_EMPL_CLASS
+          AND B.EFFDT <= TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'), 'YYYY-MM-DD')
+        )
+      AND JOBD.EMPLID = A.EMPLID
+      AND JOBD.EFFDT = A.EFFDT
+      AND JOBD.EFFSEQ = (
+        SELECT MAX(JOB5.EFFSEQ)
+        FROM SYSADM.ODS_HR_JOB_VW JOB5
+        WHERE JOB5.EMPLID = JOBD.EMPLID
+          AND JOB5.EMPL_RCD = JOBD.EMPL_RCD
+          AND JOB5.EFFDT = JOBD.EFFDT
+        )
+      AND JOBD.EMPL_RCD = '0'
+    ) YGFENLEI
+  ,
+  --员工分类
+  (
+    SELECT DESCR
+    FROM SYSADM.HR_VW_POSITION_DATA Y
+      ,SYSADM.ODS_HR_JOB_VW JOBB
+    WHERE Y.EFF_STATUS = 'A'
+      AND Y.POSITION_NBR = JOBB.POSITION_NBR
+      AND Y.EFFDT = --A.EFFDT
+      (
+        SELECT MAX(N.EFFDT)
+        FROM SYSADM.HR_VW_POSITION_DATA N
+        WHERE N.POSITION_NBR = Y.POSITION_NBR
+          AND N.EFFDT <= A.EFFDT
+        )
+      AND JOBB.EMPLID = A.EMPLID
+      AND JOBB.EFFDT = A.EFFDT
+      AND JOBB.EFFSEQ = (
+        SELECT MAX(JOB3.EFFSEQ)
+        FROM SYSADM.ODS_HR_JOB_VW JOB3
+        WHERE JOB3.EMPLID = JOBB.EMPLID
+          AND JOB3.EMPL_RCD = JOBB.EMPL_RCD
+          AND JOB3.EFFDT = JOBB.EFFDT
+        )
+      AND JOBB.EMPL_RCD = '0'
+    ) ZHIWEI
+  ,
+  --职位干部
+  (
+    SELECT DESCR
+    FROM SYSADM.HR_VW_JOBCODE_TBL Z
+      ,SYSADM.ODS_HR_JOB_VW JOBC
+    WHERE Z.EFF_STATUS = 'A'
+      AND Z.SETID = (
+        SELECT HR_VW_SET_CNTRL_GROUP.SETID
+        FROM SYSADM.HR_VW_REC_GROUP_REC
+          ,SYSADM.HR_VW_SET_CNTRL_GROUP
+        WHERE HR_VW_REC_GROUP_REC.RECNAME = 'JOBCODE_TBL'
+          AND HR_VW_REC_GROUP_REC.REC_GROUP_ID = HR_VW_SET_CNTRL_GROUP.REC_GROUP_ID
+          AND HR_VW_SET_CNTRL_GROUP.SETCNTRLVALUE = JOBC.BUSINESS_UNIT
+        )
+      AND Z.JOBCODE = JOBC.JOBCODE
+      AND Z.EFFDT = --A.EFFDT
+      (
+        SELECT MAX(P.EFFDT)
+        FROM SYSADM.HR_VW_JOBCODE_TBL P
+        WHERE P.SETID = Z.SETID
+          AND P.JOBCODE = Z.JOBCODE
+          AND P.EFFDT <= A.EFFDT
+        )
+      AND JOBC.EMPLID = A.EMPLID
+      AND JOBC.EFFDT = A.EFFDT
+      AND JOBC.EFFSEQ = (
+        SELECT MAX(JOB4.EFFSEQ)
+        FROM SYSADM.ODS_HR_JOB_VW JOB4
+        WHERE JOB4.EMPLID = JOBC.EMPLID
+          AND JOB4.EMPL_RCD = JOBC.EMPL_RCD
+          AND JOB4.EFFDT = JOBC.EFFDT
+        )
+      AND JOBC.EMPL_RCD = '0'
+    ) ZHIWU
+  ,
+  --职务
+  A.HX_MAN_LVL_DESCR ZHIJI --现职级
+FROM SYSADM.ODM_HR_PS_OCT_EXWK_OTH A
+  ,SYSADM.HR_VW_ACTION_TBL B
+WHERE A.EMPLID = '${id}'
+  AND A.ACTION = B.ACTION
+  AND B.EFF_STATUS = 'A'
+  AND A.EFFDT = (
+   SELECT MAX(JOB2.EFFDT)
+        FROM  SYSADM.ODS_HR_JOB_VW JOB2
+        WHERE JOB2.EMPLID = A.EMPLID
+          --AND JOB2.EMPL_RCD = A.EMPL_RCD
+         -- AND JOB2.EFFSEQ = A.EFFSEQ
+  )
+  AND EXISTS (SELECT 1
+                FROM SYSADM.HR_VW_DEPT_TBL X
+                     ,SYSADM.ODS_HR_JOB_VW JOBA
+        WHERE X.SETID = JOBA.SETID_DEPT
+      AND X.DEPTID = JOBA.DEPTID
+      AND X.EFFDT = --A.EFFDT
+      (
+        SELECT MAX(M.EFFDT)
+        FROM SYSADM.HR_VW_DEPT_TBL M
+        WHERE M.SETID = X.SETID
+          AND M.DEPTID = X.DEPTID
+          AND M.EFFDT <= SYSDATE
+        )
+      AND JOBA.EMPLID = A.EMPLID
+      AND JOBA.EFFDT = (
+     SELECT MAX(JOB2.EFFDT)
+        FROM  SYSADM.ODS_HR_JOB_VW JOB2
+        WHERE JOB2.EMPLID = JOBA.EMPLID
+          AND JOB2.EMPL_RCD = JOBA.EMPL_RCD
+          AND JOB2.EFFDT <= TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'),'YYYY-MM-DD')
+    )
+      AND JOBA.EFFSEQ = (
+        SELECT MAX(JOB2.EFFSEQ)
+        FROM  SYSADM.ODS_HR_JOB_VW JOB2
+        WHERE JOB2.EMPLID = JOBA.EMPLID
+          AND JOB2.EMPL_RCD = JOBA.EMPL_RCD
+          AND JOB2.EFFDT = JOBA.EFFDT
+        )
+      AND JOBA.EMPL_RCD = '0'
+      AND JOBA.EFFDT < X.EFFDT    
+        )
+
+
+),
+
+AA AS
+(
+SELECT YGID,
+       MIN(EFFDT) EFFDT,    
+       BUMEN,
+       YGFENLEI,
+CASE WHEN TT.ZHIWEI = '' or TT.ZHIWEI IS NULL
+     THEN TT.ZHIWU
+     ELSE TT.ZHIWEI
+   END AS ZHIWU,
+       ZHIJI
+  FROM TT
+ GROUP BY YGID,   
+          BUMEN,
+          YGFENLEI,
+CASE WHEN TT.ZHIWEI = '' or TT.ZHIWEI IS NULL
+     THEN TT.ZHIWU
+     ELSE TT.ZHIWEI
+      END ,
+       ZHIJI
+ 
+ UNION 
+
+ SELECT YGID,
+        EFFDT,
+       BUMEN,
+       YGFENLEI,
+CASE WHEN TT.ZHIWEI = '' or TT.ZHIWEI IS NULL
+     THEN TT.ZHIWU
+     ELSE TT.ZHIWEI
+   END ZHIWU,
+       ZHIJI
+  FROM TT
+WHERE ACTION_DESCR IN ('雇用','重新雇用','辞职','辞退','实习期结束')
+
+)
+
+/*SELECT AA.YGID,
+       AA.EFFDT,
+       TT.ACTION_DESCR,
+       AA.BUMEN,
+       AA.YGFENLEI,
+       AA.ZHIWU,
+       AA.ZHIJI
+  FROM AA
+  LEFT JOIN TT
+    ON AA.YGID = TT.YGID
+   AND AA.EFFDT = TT.EFFDT
+    ORDER BY EFFDT DESC*/
+    SELECT
+       AA.YGID,
+     MIN( AA.EFFDT) AS EFFDT,
+    --  TT.ACTION_DESCR,
+       AA.BUMEN,
+       AA.YGFENLEI,
+       AA.ZHIWU
+      -- AA.ZHIJI
+  FROM AA
+  LEFT JOIN TT
+    ON AA.YGID = TT.YGID
+   AND AA.EFFDT = TT.EFFDT
+   GROUP BY AA.YGID, AA.BUMEN,AA.YGFENLEI,AA.ZHIWU
+    ORDER BY EFFDT DESC]]></Query>
+</TableData>
+<TableData name="过往工作经历" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="id"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select 
+*
+from
+SYSADM.PS_YGJLCX_WBGZLL_VW
+where 1=1
+${if(len(id)=0,"and 1=0","and YGID ='"+id+"'")}]]></Query>
+</TableData>
+<TableData name="业绩情况" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="id"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT A.YEAR,LASTJX
+  FROM
+(
+SELECT EXTRACT(YEAR FROM SYSDATE) - 2 AS YEAR
+  FROM DUAL
+  UNION ALL  
+SELECT EXTRACT(YEAR FROM SYSDATE) - 1
+  FROM DUAL
+  UNION ALL  
+SELECT EXTRACT(YEAR FROM SYSDATE)
+  FROM DUAL ) A
+LEFT JOIN 
+(
+SELECT EXTRACT(YEAR FROM SYSDATE) - 2 AS JXYEAR,
+      CASE WHEN Q4_LASTJX IS NULL OR Q4_LASTJX = ' '
+           THEN ''
+           ELSE Q4_LASTJX
+       END AS LASTJX
+  FROM ODM_HR_JXTZ
+ WHERE YGID = '${id}'
+   AND JXYEAR = EXTRACT(YEAR FROM SYSDATE) - 2 
+
+
+UNION ALL 
+
+SELECT EXTRACT(YEAR FROM SYSDATE) - 1 AS JXYEAR,
+      CASE WHEN Q4_LASTJX IS NULL OR Q4_LASTJX = ' '
+           THEN ''
+           ELSE Q4_LASTJX
+       END AS LASTJX
+  FROM ODM_HR_JXTZ
+ WHERE YGID = '${id}'
+   AND JXYEAR = EXTRACT(YEAR FROM SYSDATE) - 1
+
+UNION ALL
+
+SELECT JXYEAR,
+       CASE WHEN Q4 IS NULL OR Q4 = ' '
+            THEN 
+              CASE WHEN Q1 IS NULL THEN '' ELSE Q1 || ';' END ||
+                CASE WHEN Q2 IS NULL THEN '' ELSE  Q2 || ';' END ||
+                  CASE WHEN Q3 IS NULL THEN '' ELSE Q3 END
+            ELSE Q4
+        END AS LASTJX
+  FROM
+(SELECT EXTRACT(YEAR FROM SYSDATE) AS JXYEAR,
+       CASE WHEN Q1_LASTJX IS NULL OR Q1_LASTJX = ' '
+            THEN ''
+            ELSE 'Q1:' ||  Q1_LASTJX
+        END AS Q1,
+        CASE WHEN Q2_LASTJX IS NULL OR Q2_LASTJX = ' '
+            THEN ''
+            ELSE 'Q2:' ||  Q2_LASTJX
+        END AS Q2,
+       CASE WHEN Q3_LASTJX IS NULL OR Q3_LASTJX = ' '
+            THEN ''
+            ELSE 'Q3:' ||  Q3_LASTJX
+        END AS Q3,
+       CASE WHEN Q4_LASTJX IS NULL OR Q4_LASTJX = ' '
+            THEN ''
+            ELSE 'Q4:' ||  Q4_LASTJX
+        END AS Q4  
+  FROM ODM_HR_JXTZ
+ WHERE YGID = '${id}'
+   AND JXYEAR = EXTRACT(YEAR FROM SYSDATE)
+   )
+   ) T
+   ON A.YEAR  = T.JXYEAR
+  ]]></Query>
+</TableData>
+<TableData name="晋升/降级记录" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="id"/>
+<O>
+<![CDATA[10001612]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select 
+*
+from
+SYSADM.HR_VW_YGJLCX_JSXX_VW
+where 1=1
+${if(len(id)=0,"and 1=0","and YGID ='"+id+"'")}
+order by jsdate desc
+
+]]></Query>
+</TableData>
+<TableData name="奖惩记录" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="id"/>
+<O>
+<![CDATA[10000141]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT DISCIPLINE_DT,DESCRLONG
+  FROM SYSADM.HR_VW_DISCIPLIN_ACTN
+ WHERE 1=1
+ ${if(len(id)=0,"and 1=0","and EMPLID ='"+id+"'")}]]></Query>
+</TableData>
+<TableData name="现任职位年限" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="id"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[ SELECT        
+         ROUND(ABS(SYSDATE
+             -
+                  MIN(EFFDT)
+                   ) / 365 ,
+             1) AS XRZHIWEIYEAR
+     FROM SYSADM.ODS_HR_JOB_VW
+    WHERE EMPLID = '${id}'
+      AND POSITION_NBR = (
+       SELECT  POSITION_NBR
+   FROM SYSADM.ODS_HR_JOB_VW JOB3
+   WHERE EMPLID = '${id}'
+   AND JOB3.EMPL_RCD = '0'
+   AND JOB3.EFFDT = (SELECT MAX(JOB1.EFFDT)
+                        FROM SYSADM.ODS_HR_JOB_VW JOB1
+                       WHERE JOB3.EMPLID = JOB1.EMPLID
+                         AND JOB3.EMPL_RCD = JOB1.EMPL_RCD
+                         AND JOB1.EFFDT <= TO_DATE(TO_CHAR(SYSDATE, 'YYYY-MM-DD'),'YYYY-MM-DD'))
+   AND JOB3.EFFSEQ = (SELECT MAX(JOB2.EFFSEQ)
+                         FROM SYSADM.ODS_HR_JOB_VW JOB2
+                        WHERE JOB2.EMPLID = JOB3.EMPLID
+                          AND JOB2.EMPL_RCD = JOB3.EMPL_RCD
+                          AND JOB2.EFFDT = JOB3.EFFDT)
+   AND JOB3.HR_STATUS = 'A' 
+      )]]></Query>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[1371600,1152000,1008000,1008000,1008000,1008000,1008000,1008000,1008000,1008000,1008000,1008000,1008000,1152000,1008000,1008000,1152000,1008000,1008000,1152000,1008000,1008000,1152000,1008000,1008000,1152000,1008000,1152000,1008000,1152000,1008000,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[266700,2448000,2880000,2880000,2448000,2880000,2448000,2880000,2880000,2448000,0,0,2448000,2448000,2448000,2448000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0" cs="9" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(基本信息.select("YGFENLEI")<>"干部","员工","干部") + "档案"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" cs="9" s="1">
+<O>
+<![CDATA[基本信息]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="2" cs="2" s="2">
+<O>
+<![CDATA[姓名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="2" cs="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="XINGMING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" cs="4" rs="6" s="4">
+<O t="DSColumn">
+<Attributes dsName="照片" columnName="EMPLOYEE_PHOTO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="0" showAsImage="true"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="3" cs="2" s="2">
+<O>
+<![CDATA[性别]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="3" cs="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="XINGBIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="4" cs="2" s="2">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="4" cs="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="DANWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="5" cs="2" s="2">
+<O>
+<![CDATA[部门]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="5" cs="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="BUMEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="6" cs="2" s="2">
+<O>
+<![CDATA[岗位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="6" cs="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="GANGWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="7" cs="2" s="2">
+<O>
+<![CDATA[职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="7" cs="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="ZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="8" cs="2" s="2">
+<O>
+<![CDATA[国籍]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="8" cs="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="COUNTRY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="8" cs="2" s="2">
+<O>
+<![CDATA[籍贯]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="8" cs="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="JIGUAN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="9" cs="2" s="2">
+<O>
+<![CDATA[出生日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="9" cs="3" s="5">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="CSDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="9" cs="2" s="2">
+<O>
+<![CDATA[年龄]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="9" cs="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="NIANLING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="9">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="10" cs="2" s="2">
+<O>
+<![CDATA[入职日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="10" cs="3" s="5">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="RZDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="10" cs="2" s="2">
+<O>
+<![CDATA[司龄]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="10" cs="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="SILING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="10">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="11" cs="2" s="2">
+<O>
+<![CDATA[现任职位年限]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="11" cs="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现任职位年限" columnName="XRZHIWEIYEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[基本信息.select("YGFENLEI") <> "干部"]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="6" r="11" cs="2" s="2">
+<O>
+<![CDATA[现任职级年限]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="11" cs="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="XRZHIJITIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="11">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="12" cs="2" s="2">
+<O>
+<![CDATA[是否常青藤]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="12" cs="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="ISCQT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="12" cs="2" s="2">
+<O>
+<![CDATA[常青藤年份]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="12" cs="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="基本信息" columnName="CQTCDLYEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ObjectCondition">
+<Compare op="0">
+<O>
+<![CDATA[ ]]></O>
+</Compare>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[IF(D13='否',"",$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="1" r="13" cs="9" s="1">
+<O>
+<![CDATA[教育背景]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="14" s="7">
+<O>
+<![CDATA[序号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="14" s="7">
+<O>
+<![CDATA[开始日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="14" s="7">
+<O>
+<![CDATA[结束日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="14" cs="2" s="7">
+<O>
+<![CDATA[毕业院校]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="14" cs="2" s="7">
+<O>
+<![CDATA[专业]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="14" cs="2" s="7">
+<O>
+<![CDATA[学历]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="15" s="8">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=seq(1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D16"/>
+</C>
+<C c="2" r="15" s="8">
+<O t="DSColumn">
+<Attributes dsName="教育背景" columnName="STARTTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="15" s="8">
+<O t="DSColumn">
+<Attributes dsName="教育背景" columnName="ENDTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="15" cs="2" s="8">
+<O t="DSColumn">
+<Attributes dsName="教育背景" columnName="XUEXIAO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="15" cs="2" s="8">
+<O t="DSColumn">
+<Attributes dsName="教育背景" columnName="ZHUANYE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="15" cs="2" s="8">
+<O t="DSColumn">
+<Attributes dsName="教育背景" columnName="XUELI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="16" cs="9" s="1">
+<O>
+<![CDATA[华夏幸福工作经历]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="17" s="7">
+<O>
+<![CDATA[序号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="17" s="7">
+<O>
+<![CDATA[开始日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="17" s="7">
+<O>
+<![CDATA[结束日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="17" cs="3" s="7">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="17" cs="3" s="7">
+<O>
+<![CDATA[职位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="18" s="8">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=seq(2)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D19"/>
+</C>
+<C c="2" r="18" s="8">
+<O t="DSColumn">
+<Attributes dsName="华夏幸福工作经历" columnName="EFFDT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="18" s="8">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=C19[C19:-1]A - 1]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ObjectCondition">
+<Compare op="0">
+<O>
+<![CDATA[-1]]></O>
+</Compare>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[至今]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="4" r="18" cs="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="华夏幸福工作经历" columnName="BUMEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[replace($$$,'_', ' ' )]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.ObjectCondition">
+<Compare op="10">
+<O>
+<![CDATA[华夏幸福_历史离职员工（2014-7-1前离职）]]></O>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.ObjectCondition">
+<Compare op="10">
+<O>
+<![CDATA[数据转换]]></O>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[华夏幸福]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="7" r="18" cs="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="华夏幸福工作经历" columnName="ZHIWU"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.ObjectCondition">
+<Compare op="10">
+<O>
+<![CDATA[历史离职员工（2014-7-1前离职）]]></O>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.ObjectCondition">
+<Compare op="10">
+<O>
+<![CDATA[数据转换]]></O>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="1" r="19" cs="9" s="1">
+<O>
+<![CDATA[过往工作经历]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="20" s="7">
+<O>
+<![CDATA[序号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="20" s="7">
+<O>
+<![CDATA[开始日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="20" s="7">
+<O>
+<![CDATA[结束日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="20" cs="2" s="7">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="20" cs="2" s="7">
+<O>
+<![CDATA[职位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="20" cs="2" s="7">
+<O>
+<![CDATA[最后行政级别]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="21" s="8">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(C22) = 0, "", seq(3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D22"/>
+</C>
+<C c="2" r="21" s="8">
+<O t="DSColumn">
+<Attributes dsName="过往工作经历" columnName="STARTTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="21" s="8">
+<O t="DSColumn">
+<Attributes dsName="过往工作经历" columnName="ENDTIME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="21" cs="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="过往工作经历" columnName="DANWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="21" cs="2" s="8">
+<O t="DSColumn">
+<Attributes dsName="过往工作经历" columnName="FINZHIWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="21" cs="2" s="8">
+<O t="DSColumn">
+<Attributes dsName="过往工作经历" columnName="XZJIBIE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len(C22) <> 0]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="1" r="22" cs="9" s="1">
+<O>
+<![CDATA[业绩情况]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="23" cs="2" rs="2" s="7">
+<O>
+<![CDATA[组织绩效/\\n个人绩效]]></O>
+<PrivilegeControl/>
+<CellGUIAttr showAsDefault="true"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="3" r="23" cs="2" s="7">
+<O t="DSColumn">
+<Attributes dsName="业绩情况" columnName="YEAR"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[YEAR]]></CNAME>
+<Compare op="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=year(now()) - 2]]></Attributes>
+</O>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="23" cs="2" s="7">
+<O t="DSColumn">
+<Attributes dsName="业绩情况" columnName="YEAR"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[YEAR]]></CNAME>
+<Compare op="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=year(now()) - 1]]></Attributes>
+</O>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="23" cs="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="业绩情况" columnName="YEAR"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[YEAR]]></CNAME>
+<Compare op="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=year(now())]]></Attributes>
+</O>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="24" cs="2" s="8">
+<O t="DSColumn">
+<Attributes dsName="业绩情况" columnName="LASTJX"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[YEAR]]></CNAME>
+<Compare op="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=year(now()) - 2]]></Attributes>
+</O>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$)==0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="5" r="24" cs="2" s="8">
+<O t="DSColumn">
+<Attributes dsName="业绩情况" columnName="LASTJX"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[YEAR]]></CNAME>
+<Compare op="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=year(now()) - 1]]></Attributes>
+</O>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$)==0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="7" r="24" cs="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="业绩情况" columnName="LASTJX"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[YEAR]]></CNAME>
+<Compare op="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=year(now())]]></Attributes>
+</O>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$)==0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="1" r="25" cs="9" s="1">
+<O>
+<![CDATA[晋升/降级记录]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="26" cs="2" s="9">
+<O t="DSColumn">
+<Attributes dsName="晋升/降级记录" columnName="JSDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="26" cs="7" s="10">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="由" + K27 + "晋升至" + L27]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len(L27) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="10" r="26">
+<O t="DSColumn">
+<Attributes dsName="晋升/降级记录" columnName="JSBZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="11" r="26">
+<O t="DSColumn">
+<Attributes dsName="晋升/降级记录" columnName="JSAZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="1" r="27" cs="9" s="1">
+<O>
+<![CDATA[奖惩记录]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="28" cs="2" s="9">
+<O t="DSColumn">
+<Attributes dsName="奖惩记录" columnName="DISCIPLINE_DT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="28" cs="7" s="11">
+<O t="DSColumn">
+<Attributes dsName="奖惩记录" columnName="DESCRLONG"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="29" cs="9" s="1">
+<O>
+<![CDATA[其他信息]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="30" cs="9" s="12">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="32" cs="9" s="13">
+<O>
+<![CDATA[*2014年7月前的华夏幸福工作经历暂无线上记录]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings isHorizontalCenterOnPage="true" headerHeight="0" footerHeight="0">
+<PaperSetting>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="112"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="96" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="80"/>
+<Background name="ColorBackground" color="-2500135"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="4">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0#]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-16777216"/>
+<Bottom style="1" color="-16777216"/>
+<Left style="1" color="-16777216"/>
+<Right style="1" color="-16777216"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+<TemplateID TemplateID="981ea430-b16a-4606-9993-68fa1e9f4790"/>
+</WorkBook>

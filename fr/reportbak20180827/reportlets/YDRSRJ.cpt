@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with tree as (
+select * 
+  from (
+  SELECT T1.TREE_NODE,
+         T1.DESCR,
+         t2.parent_node,
+         T2.TREE_NODE AS TREE_NODE2,
+         T2.DESCR AS DESCR2,
+         T2.TREE_NODE_NUM,
+         T2.PARENT_NODES
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE  
+     and t2.parent_node in (select tree_node from odm_hr_dw where parent_node='HX_HEAD')
+   union all
+   SELECT t2.tREE_NODE,
+          T2.DESCR,
+          t2.parent_node,
+          T2.TREE_NODE AS TREE_NODE2,
+          T2.DESCR AS DESCR2,
+          T2.TREE_NODE_NUM,
+          T2.PARENT_NODES
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE  and t2.parent_node ='HX_HEAD'
+   union all 
+   select 'HX_HEAD' as TREE_NODE,'华夏幸福' as DESCR,parent_node,tree_node,descr,TREE_NODE_NUM,PARENT_NODES from odm_hr_dw where parent_node is null
+   )
+   order by TREE_NODE_NUM
+)
+ 
+SELECT tree_node,descr,tree_node2,descr2,
+COUNT(CASE WHEN T2.ISZHUYING='主营' THEN YGID END) ZHUYING,--总人数主营
+COUNT(CASE WHEN T2.CQTCDLYEAR='2017' THEN YGID END) CQT2017,
+COUNT(CASE WHEN T2.CQTCDLYEAR='2018' THEN YGID END) CAT2018,
+COUNT(CASE WHEN T2.BUMEN LIKE '%财务管理中心%' THEN YGID END) CW
+FROM ODM_HR_YGTZ t2 LEFT JOIN 
+TREE T1 
+ON T2.TREE_NODE_id like '%'||t1.tree_node2||'%'
+--where to_char(datetime,'yyyy-mm')='2018-03'
+GROUP BY tree_node,descr,T1.tree_node2,descr2,TREE_NODE_NUM
+order by t1.TREE_NODE_NUM
+
+--SELECT * FROM ODM_HR_YGTZ
+]]></Query>
+</TableData>
+<TableData name="ds2" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH ODM_HR_DW1 AS(
+SELECT * FROM (
+    SELECT T1.TREE_NODE,
+         T1.DESCR,
+         T2.TREE_NODE     AS TREE_NODE2,
+         T2.DESCR         AS DESCR2,
+         T2.TREE_NODE_NUM,
+         T2.PARENT_NODES,
+         T2.PARENT_NAME
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE
+   AND T1.TREE_NODE IN('10001100001','100000','10041105853','10003100439') AND T2.TREE_NODE<>'10001100076'
+   UNION ALL
+   SELECT TREE_NODE,DESCR,TREE_NODE AS TREE_NODE2,DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+    FROM ODM_HR_DW  WHERE PARENT_NODE ='HX_HEAD'
+   UNION ALL
+   SELECT '10001100001' AS TREE_NODE,'股份总部' AS DESCR,TREE_NODE AS TREE_NODE2,'人力资源中心-'||DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+   FROM ODM_HR_DW WHERE PARENT_NODE='10001100076'
+   UNION ALL
+   SELECT 'HX_HEAD' AS TREE_NODE,'华夏幸福' AS DESCR,'HX_HEAD' AS TREE_NODE2,'总计（全公司）' AS DESCR2,
+   1 AS TREE_NODE_NUM,'HX_HEAD' AS PARENT_NODES,'华夏幸福' AS PARENT_NAME
+   FROM dual 
+   ) ORDER BY TREE_NODE_NUM)
+   
+SELECT TO_CHAR(SYSDATE,'YYYY-MM-DD') AS CREATE_TIME, --时间
+       T1.TREE_NODE,                 --一级单位id
+       T1.DESCR,                     --一级单位名称
+       T1.TREE_NODE2,                --二级单位id
+       T1.DESCR2,                    --二级单位名称
+       T1.PARENT_NODES,              --全称id
+       T1.PARENT_NAME,                --全称
+       T1.TREE_NODE_NUM,              --排序
+      COUNT(CASE WHEN ISZHUYING='主营' THEN YGID END) ZHUYING,--总人数主营
+COUNT(CASE WHEN CQTCDLYEAR='2017' THEN YGID END) CQT2017,
+COUNT(CASE WHEN CQTCDLYEAR='2018' THEN YGID END) CAT2018,
+COUNT(CASE WHEN BUMEN LIKE '%财务管理中心%' THEN YGID END) CW
+FROM ODM_HR_YGTZ T LEFT JOIN ODM_HR_DW1 T1
+ON T.TREE_NODE_ID LIKE '%' || T1.TREE_NODE2 || '%' --WHERE TREE_NODE2='10001105500'
+GROUP BY T1.TREE_NODE,T1.DESCR,T1.TREE_NODE2,T1.DESCR2,T1.PARENT_NODES,T1.PARENT_NAME,T1.TREE_NODE_NUM
+order by t1.TREE_NODE_NUM]]></Query>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[864000,864000,864000,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[7200000,7200000,4320000,4320000,4320000,4320000,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0" rs="3" s="0">
+<O>
+<![CDATA[一级单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0" rs="3" s="0">
+<O>
+<![CDATA[二级单位/总部职能]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="0" cs="4" s="0">
+<O>
+<![CDATA[2018-05主营人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" rs="2" s="0">
+<O>
+<![CDATA[主营人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" rs="2" s="0">
+<O>
+<![CDATA[2017常青藤及产动力]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" rs="2" s="0">
+<O>
+<![CDATA[2018常青藤及产动力]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" rs="2" s="0">
+<O>
+<![CDATA[财务]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="3" s="1">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = "医疗事业部"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = "华夏新城建设发展有限公司"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="1" r="3" s="1">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="DESCR2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="3" s="1">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="ZHUYING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="3" s="1">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="CQT2017"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="3" s="1">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="CAT2018"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="3" s="1">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="CW"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting>
+<PaperSize width="57600000" height="57600000"/>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+</ReportSettings>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Top style="1" color="-16777216"/>
+<Bottom style="1" color="-16777216"/>
+<Left style="1" color="-16777216"/>
+<Right style="1" color="-16777216"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+<TemplateID/>
+</WorkBook>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[华夏幸福]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select T.TREE_NODE Setid_node,       /*(case when A.HX_PARENT_DEPTID <> ' ' then  A.HX_PARENT_SETID else T.setid end) || (case 
+            when A.HX_PARENT_DEPTID = ' ' and T.PARENT_NODE_NAME = ' ' 
+                then 'HX_HEAD' 
+            WHEN A.HX_PARENT_DEPTID <> ' ' 
+                THEN A.HX_PARENT_DEPTID 
+            ELSE T.PARENT_NODE_NAME 
+        END) PARENT_SEtid_NODE, 
+        */
+       T.PARENT_NODE_NAME PARENT_SETID_NODE,
+       d.DESCR,
+       T.TREE_NODE_NUM
+  from SYSADM.HR_VW_PSTREENODE T, SYSADM.HR_VW_BUS_UNIT_TBL_HR D
+ where T.TREE_NAME = 'HX_BU_TREE1'
+   AND T.EFFDT = (SELECT MAX(EFFDT)
+                    FROM SYSADM.HR_VW_PSTREENODE T1
+                   WHERE T1.SETID = T.SETID
+                     AND T1.TREE_NAME = T.TREE_NAME)
+   --AND A.SETID=T.SETID
+   AND D.BUSINESS_UNIT = t.tree_node
+   
+   --SELECT * FROM PSTREENODE WHERE tree_name='HX_BU_TREE1'
+
+union
+select T.setid || T.TREE_NODE Setid_node, 
+       (case when A.HX_PARENT_DEPTID <> ' ' then  A.HX_PARENT_SETID else T.setid end) || (case 
+            when A.HX_PARENT_DEPTID = ' ' and T.PARENT_NODE_NAME = ' ' 
+                then '' 
+            WHEN A.HX_PARENT_DEPTID <> ' ' 
+                THEN A.HX_PARENT_DEPTID 
+            ELSE T.PARENT_NODE_NAME 
+        END) PARENT_SEtid_NODE, 
+        
+       A.DESCR,
+       T.TREE_NODE_NUM
+  from SYSADM.HR_VW_PSTREENODE T, SYSADM.HR_VW_DEPT_TBL A, SYSADM.HR_VW_BUS_UNIT_TBL_HR D
+ where T.TREE_NAME = 'DEPT_SECURITY'
+   AND T.EFFDT = (SELECT MAX(EFFDT)
+                    FROM SYSADM.HR_VW_PSTREENODE T1
+                   WHERE T1.SETID = T.SETID
+                     AND T1.TREE_NAME = T.TREE_NAME)
+   AND A.SETID=T.SETID
+   AND A.DEPTID = T.TREE_NODE
+   AND A.EFFDT = (select max(effdt) 
+                    from SYSADM.HR_VW_DEPT_TBL C 
+                   WHERE C.setid=A.setid 
+                     and c.DEPTID=A.DEPTID 
+                     and C.EFFDT <= TO_DATE(TO_CHAR(SYSDATE,'YYYY-MM-DD'),'YYYY-MM-DD'))
+   --AND A.EFF_STATUS = 'A'
+   AND A.SETID=D.BUSINESS_UNIT AND  d.BUSINESS_UNIT NOT 
+   IN ('1','2','TOD','八分','10006','10045','20001','20002','20004','20003','20005','20006')  order by tree_node_num asc]]></Query>
+</TableData>
+<TableData name="Tree1" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[SETID_NODE]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[PARENT_NODE_NAME]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[ds1]]></originalTableDataName>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,723900,723900,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[10858500,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0" rs="30">
+<PrivilegeControl/>
+<Widget class="com.fr.form.ui.TreeEditor">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr selectLeafOnly="true"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="true"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="SETID_NODE" viName="DESCR"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[Tree1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue/>
+</Widget>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList/>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="60d63a4b-7b72-4fbe-90c9-18755d63b5b1"/>
+</WorkBook>

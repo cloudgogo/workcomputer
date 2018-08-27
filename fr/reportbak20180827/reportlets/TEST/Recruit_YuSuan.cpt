@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="组织树" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT * FROM ODM_HR_DW
+ORDER BY TREE_NODE_NUM]]></Query>
+</TableData>
+<TableData name="Tree1" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[1]]></markFields>
+<parentmarkFields>
+<![CDATA[2]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[TREE_NODE]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[PARENT_NODE]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[组织树]]></originalTableDataName>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<ServerPrinter/>
+<WebWriteContent>
+<ToolBars/>
+<SelectedColor/>
+<WebWrite SheetPosition="3"/>
+<RptLocation isShowAtLeft="true"/>
+<UnloadCheck/>
+<ShowWidgets/>
+<OtherAttr isAutoStash="false"/>
+</WebWriteContent>
+</ReportWebAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[495300,18935700,723900,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[8839200,64800000,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1">
+<PrivilegeControl/>
+<Widget class="com.fr.form.ui.TreeEditor">
+<Listener event="click">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var GSID = this.getValue();
+//alert(GSID);
+var url = "/WebReport/ReportServer?reportlet=TEST/Recruit_YuSuan_tb.cpt&op=write&__showtoolbar__=false";    
+FR.doHyperlinkByPost(url,{GSID:GSID},'REPORT');]]></Content>
+</JavaScript>
+</Listener>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr selectLeafOnly="false"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="true"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="TREE_NODE" viName="DESCR"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[Tree1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue/>
+</Widget>
+<Expand/>
+</C>
+<C c="1" r="1">
+<PrivilegeControl/>
+<Widget class="com.fr.form.ui.IframeEditor">
+<WidgetName name="REPORT"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Iframe src="${servletURL}?reportlet=TEST/Recruit_YuSuan_tb.cpt&amp;op=view&amp;__showtoolbar__=false" overflowx="true" overflowy="true"/>
+<Parameters/>
+</Widget>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+</ReportAttrSet>
+<ReportWriteAttr>
+<SubmitVisitor class="com.fr.report.write.BuiltInSQLSubmiter">
+<Name>
+<![CDATA[内置SQL1]]></Name>
+<Attributes dsName=""/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name=""/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<UpdateAttr updateStatus="true"/>
+</DMLConfig>
+</SubmitVisitor>
+</ReportWriteAttr>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList/>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="1"/>
+<TemplateID TemplateID="95983df3-4a5d-4c7f-bdf7-3e228b8bfd47"/>
+</WorkBook>

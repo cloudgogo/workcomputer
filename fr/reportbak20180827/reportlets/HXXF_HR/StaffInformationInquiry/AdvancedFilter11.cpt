@@ -1,0 +1,3049 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="个人信息" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="jiaoyjl"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="p_px"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="CQT_ID"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="yuangfl"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="zhuyfzy"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="proe"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SQL("HXXF_HR","SELECT RLOE FROM HR_AUTHORITY WHERE  RLOE_TYPE='1'AND NAME_ID LIKE '"+$username+"%'",1,1)]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="TREE_ID_R"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="'%"+replace(VALUE("TREE_ID_R",1),",","%' OR PARENT_NODES like '%")+"%'"]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="gongzjl"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="CHANGQT_CHANDLND"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="zhij"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="name"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="CurrentTime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="xuel"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="zhinxl"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="gangw"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+SELECT  T.*,rownum
+from(
+SELECT   *
+FROM (
+SELECT 
+distinct
+T.YGID,
+T.zhiji,
+T.xingming,
+T.gangwei,
+T.bumen,
+T.RZDATE,
+T.YGFENLEI,
+DW.TREE_NODE_NUM
+
+FROM ODM_HR_YGJLCX_SEARCH T
+LEFT JOIN ODM_HR_DW DW
+ON DW.TREE_NODE= T.BUMENID  
+WHERE 1=1
+${if(proe='GFZBZN',"AND ( PARENT_NODES like "+TREE_ID_R+")","and 1=1")}
+${if(len(gongzjl)=0 || CurrentTime='2',"","AND T.WBLASTSEACOL LIKE '%"+gongzjl+"%'")}
+${if(len(gongzjl)=0,"","AND T.WBSEACOL like'%"+gongzjl+"%'")}
+${if(len(name)=0,"","and T.namepinyin like'%"+name+"%'")}
+${switch(zhuyfzy,'',"",'1',"and T.ISzhuying like '主营%'",'2',"and T.ISzhuying like '非主营%'",'1,2',"")}
+${if(len(yuangfl)=0,"","and T.YGfenlei in('"+yuangfl+"')")}
+${if(len(zhij)=0,"","and T.zhiji in('"+zhij+"')")}
+${if(len(zhinxl)=0,"","and T.zhinengxulie in('"+zhinxl+"')")}
+${if(len(gangw)=0,"","and T.gangwei like'%"+gangw+"%'")}
+${if(len(gongzjl)=0,"","AND T.WBSEACOL like'%"+gongzjl+"%'")}
+${if(len(jiaoyjl)=0,""," AND T.JYSEACOL like'%"+jiaoyjl+"%'")}
+${if(len(xuel)=0,"","and T.XUELIFENLEI in('"+xuel+"')")}
+${if(len(DWMC)=0,""," and T.TREE_NODE_ID LIKE '%"+DWMC+"%'")}
+${if(len(CHANGQT_CHANDLND)=0,"","AND ISCQT='是' and CQTCDLYEAR in  ('"+CHANGQT_CHANDLND+"')")}
+and T.zhiji NOT LIKE '99%'
+${if(CQT_ID>0,"AND ISCQT='是'","")}
+${switch(p_px,0,' order by DW.TREE_NODE_NUM asc,T.zhiji DESC,T.RZDATE ASC,T.YGID asc',
+           1,' order by T.zhiji asc,DW.TREE_NODE_NUM asc,T.RZDATE ASC,T.YGID asc',
+           2,'order by T.zhiji desc,DW.TREE_NODE_NUM asc,T.RZDATE ASC,T.YGID asc')
+}
+
+)
+
+UNION ALL
+
+SELECT *
+FROM (SELECT distinct
+T.YGID,
+T.zhiji,
+T.xingming,
+T.gangwei,
+T.bumen,
+T.RZDATE,
+T.YGFENLEI,
+DW.TREE_NODE_NUM
+FROM ODM_HR_YGJLCX_SEARCH T
+LEFT JOIN ODM_HR_DW DW
+ON DW.TREE_NODE= T.BUMENID
+WHERE 1=1
+${if(proe='GFZBZN',"AND ( PARENT_NODES like "+TREE_ID_R+") and 1=2","and 1=1")}
+${if(len(gongzjl)=0 || CurrentTime='2',"","AND T.WBLASTSEACOL LIKE '%"+gongzjl+"%'")}
+${if(len(gongzjl)=0,"","AND T.WBSEACOL like'%"+gongzjl+"%'")}
+${if(len(name)=0,"","and T.namepinyin like'%"+name+"%'")}
+${switch(zhuyfzy,'',"",'1',"and T.ISzhuying like '主营%'",'2',"and T.ISzhuying like '非主营%'",'1,2',"")}
+${if(len(yuangfl)=0,"","and T.YGfenlei in('"+yuangfl+"')")}
+${if(len(zhij)=0,"","and T.zhiji in('"+zhij+"')")}
+${if(len(zhinxl)=0,"","and T.zhinengxulie in('"+zhinxl+"')")}
+${if(len(gangw)=0,"","and T.gangwei like'%"+gangw+"%'")}
+
+${if(len(jiaoyjl)=0,""," AND T.JYSEACOL like'%"+jiaoyjl+"%'")}
+
+${if(len(DWMC)=0,""," and T.TREE_NODE_ID LIKE '%"+DWMC+"%'")}
+
+${if(len(xuel)=0,"","and T.XUELIFENLEI in('"+xuel+"')")}
+${if(len(CHANGQT_CHANDLND)=0,"","AND ISCQT='是' and CQTCDLYEAR in  ('"+CHANGQT_CHANDLND+"')")}
+and T.zhiji  LIKE '99%'
+${if(CQT_ID>0,"AND ISCQT='是'","")}
+${switch(p_px, 0,' order by DW.TREE_NODE_NUM asc,T.zhiji DESC,T.RZDATE ASC,T.YGID asc',
+           1,' order by T.zhiji asc,DW.TREE_NODE_NUM asc,T.RZDATE ASC,T.YGID asc',
+           2,'order by T.zhiji desc,DW.TREE_NODE_NUM asc,T.RZDATE ASC,T.YGID asc')
+}
+
+)
+
+)T
+
+
+]]></Query>
+</TableData>
+<TableData name="个人信息_bak" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="jiaoyjl"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="zhengzmm"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="yuangfl"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="zhuyfzy"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="gongzjl"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="yearsOld"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="xingb"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="zhij"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="name"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="CurrentTime"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="xuel"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="zhinxl"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="gangw"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT *
+FROM (
+SELECT 
+DISTINCT T.YGID,
+T.zhiji,
+T.xingming,
+T.gangwei,
+T.bumen,
+DW.TREE_NODE_NUM
+FROM ODM_HR_YGJLCX_SEARCH T
+LEFT JOIN ODM_HR_DW DW
+ON DW.TREE_NODE= T.BUMENID
+WHERE 1=1
+${if(len(gongzjl)=0 || CurrentTime='2',"","AND T.WBLASTSEACOL LIKE '%"+gongzjl+"%'")}
+${if(len(gongzjl)=0,"","AND T.WBSEACOL like'%"+gongzjl+"%'")}
+${if(len(name)=0,"","and T.namepinyin like'%"+name+"%'")}
+${if(len(yearsOld)>0,"and( ","")}
+${if(len(yearsOld)>0,yearsOld,"")}
+${if(len(yearsOld)>0,")","")}
+${if(len(xingb)=0,"","and T.xingbie in('"+xingb+"')")}
+${if(len(zhengzmm)=0,"","and T.zzmm in('"+zhengzmm+"')")}
+${switch(zhuyfzy,'',"",'1',"and T.ISzhuying like '主营%'",'2',"and T.ISzhuying like '非主营%'",'1,2',"")}
+${if(len(yuangfl)=0,"","and T.YGfenlei in('"+yuangfl+"')")}
+${if(len(zhij)=0,"","and T.zhiji in('"+zhij+"')")}
+${if(len(zhinxl)=0,"","and T.zhinengxulie in('"+zhinxl+"')")}
+${if(len(gangw)=0,"","and T.gangwei like'%"+gangw+"%'")}
+${if(len(gongzjl)=0,"","AND T.WBSEACOL like'%"+gongzjl+"%'")}
+${if(len(jiaoyjl)=0,""," AND T.JYSEACOL like'%"+jiaoyjl+"%'")}
+${if(len(xuel)=0,"","and T.XUELIFENLEI in('"+xuel+"')")}
+${if(len(DWMC)=0 ||DWMC='HX_HEAD' ,""," and T.BUMENID LIKE '%"+DWMC+"%'")}
+and T.zhiji NOT LIKE '99%'
+ORDER BY DW.TREE_NODE_NUM asc,T.zhiji DESC)
+UNION ALL
+SELECT *
+FROM (SELECT 
+DISTINCT T.YGID,
+T.zhiji,
+T.xingming,
+T.gangwei,
+T.bumen,
+DW.TREE_NODE_NUM
+FROM ODM_HR_YGJLCX_SEARCH T
+LEFT JOIN ODM_HR_DW DW
+ON DW.TREE_NODE= T.BUMENID
+WHERE 1=1
+${if(len(gongzjl)=0 || CurrentTime='2',"","AND T.WBLASTSEACOL LIKE '%"+gongzjl+"%'")}
+${if(len(gongzjl)=0,"","AND T.WBSEACOL like'%"+gongzjl+"%'")}
+${if(len(name)=0,"","and T.namepinyin like'%"+name+"%'")}
+${if(len(yearsOld)>0,"and( ","")}
+${if(len(yearsOld)>0,yearsOld,"")}
+${if(len(yearsOld)>0,")","")}
+${if(len(xingb)=0,"","and T.xingbie in('"+xingb+"')")}
+${if(len(zhengzmm)=0,"","and T.zzmm in('"+zhengzmm+"')")}
+${switch(zhuyfzy,'',"",'1',"and T.ISzhuying like '主营%'",'2',"and T.ISzhuying like '非主营%'",'1,2',"")}
+${if(len(yuangfl)=0,"","and T.YGfenlei in('"+yuangfl+"')")}
+${if(len(zhij)=0,"","and T.zhiji in('"+zhij+"')")}
+${if(len(zhinxl)=0,"","and T.zhinengxulie in('"+zhinxl+"')")}
+${if(len(gangw)=0,"","and T.gangwei like'%"+gangw+"%'")}
+
+${if(len(jiaoyjl)=0,""," AND T.JYSEACOL like'%"+jiaoyjl+"%'")}
+
+${if(len(DWMC)=0 ||DWMC='HX_HEAD' ,""," and T.BUMENID LIKE '%"+DWMC+"%'")}
+
+${if(len(xuel)=0,"","and T.XUELIFENLEI in('"+xuel+"')")}
+
+and T.zhiji  LIKE '99%'
+ORDER BY DW.TREE_NODE_NUM asc,T.zhiji DESC)]]></Query>
+</TableData>
+<TableData name="常青藤年度-数据字典" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT *
+FROM DIM_HR_CQT]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<ServerPrinter/>
+<WebPageContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[  var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//获取A1单元格的值    
+if(!isNaN(totalnumber)){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});
+	
+} 
+//$(".fr-combo-selected").hide();]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[AdvancedFilter.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[初始化]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false"/>
+<ColumnConfig name="ISDOWNLOADJL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="FILENAME_ID" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len(SQL("HXXF_HR","SELECT time from HR_LOG_RECORD where REGISTER_ID='"+REGISTER_ID+"'",1))==0]]></Formula>
+</Condition>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.page.First">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-First')}]]></Text>
+<IconName>
+<![CDATA[first]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Previous">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Previous')}]]></Text>
+<IconName>
+<![CDATA[previous]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.PageNavi">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Next">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Next')}]]></Text>
+<IconName>
+<![CDATA[next]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Last">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Last')}]]></Text>
+<IconName>
+<![CDATA[last]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出Excel]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="Excel"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="员工信息查询_"+$username+"_"+CONCATENATE(YEAR(NOW()),RIGHT(MONTH(NOW())+100,2),RIGHT(DAY(NOW())+100,2),HOUR(NOW()),MINUTE(NOW()))]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$DWMC]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="username"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[$("#fr-btn-HR_DOW").find("button").trigger("click");
+var name1=contentPane.parameterEl.getWidgetByName("name").getValue();
+var zhij1=contentPane.parameterEl.getWidgetByName("zhij").getValue();
+var zhinxl1=contentPane.parameterEl.getWidgetByName("zhinxl").getValue();
+
+var xuel1=contentPane.parameterEl.getWidgetByName("xuel").getValue();
+var zhuyfzy1=contentPane.parameterEl.getWidgetByName("zhuyfzy").getValue();
+var yuangfl1=contentPane.parameterEl.getWidgetByName("yuangfl").getText();
+var gongzjl1=contentPane.parameterEl.getWidgetByName("gongzjl").getValue();
+var CurrentTime1=contentPane.parameterEl.getWidgetByName("CurrentTime").getValue();
+var jiaoyjl1=contentPane.parameterEl.getWidgetByName("jiaoyjl").getValue();
+var gangw1=contentPane.parameterEl.getWidgetByName("gangw").getValue();
+        
+var url = FR.cjkEncode("/WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter_Excel.cpt&op=view&name="+name1+"&zhij="+zhij1+"&zhinxl="+zhinxl1+"&xuel="+xuel1+"&zhuyfzy="+zhuyfzy1+"&yuangfl="+yuangfl1+"&gongzjl="+gongzjl1+"&gongzjl="+gongzjl1+"&CurrentTime="+CurrentTime1+"&jiaoyjl="+jiaoyjl1+"&gangw="+gangw1+"&DWMC="+DWMC1+"&username="+username+"&format=excel&extype=simple&__filename__="+Excel+"" );
+//alert(url);
+window.open(url);]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<WebPage isPage="false" isShowAsImage="false" isAutoScale="false" isTDHeavy="false"/>
+</WebPageContent>
+<WebWriteContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[  var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//获取A1单元格的值    
+if(!isNaN(totalnumber)){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});
+	
+} 
+$(".fr-combo-selected").hide();]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[contentPane.on("cellselect", function(td)   
+{       
+$('.dirty').removeClass('dirty');  
+}  
+);  ]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter.cpt&op=write]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[AdvancedFilter.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[初始化]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="ISDOWNLOADJL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="FILENAME_ID" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len(SQL("HXXF_HR","SELECT time from HR_LOG_RECORD where REGISTER_ID='"+REGISTER_ID+"'",1))==0]]></Formula>
+</Condition>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[12]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出Excel]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="Excel"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="员工信息查询_"+$username+"_"+CONCATENATE(YEAR(NOW()),RIGHT(MONTH(NOW())+100,2),RIGHT(DAY(NOW())+100,2),HOUR(NOW()),MINUTE(NOW()))]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$DWMC]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[$("#fr-btn-HR_DOW").find("button").trigger("click");
+var name1=contentPane.parameterEl.getWidgetByName("name").getValue();
+var zhij1=contentPane.parameterEl.getWidgetByName("zhij").getValue();
+var zhinxl1=contentPane.parameterEl.getWidgetByName("zhinxl").getValue();
+
+var xuel1=contentPane.parameterEl.getWidgetByName("xuel").getValue();
+var zhuyfzy1=contentPane.parameterEl.getWidgetByName("zhuyfzy").getValue();
+var yuangfl1=contentPane.parameterEl.getWidgetByName("yuangfl").getText();
+var gongzjl1=contentPane.parameterEl.getWidgetByName("gongzjl").getValue();
+var CurrentTime1=contentPane.parameterEl.getWidgetByName("CurrentTime").getValue();
+var jiaoyjl1=contentPane.parameterEl.getWidgetByName("jiaoyjl").getValue();
+var gangw1=contentPane.parameterEl.getWidgetByName("gangw").getValue();
+        
+var url = FR.cjkEncode("/WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter_Excel.cpt&op=view&name="+name1+"&zhij="+zhij1+"&zhinxl="+zhinxl1+"&xuel="+xuel1+"&zhuyfzy="+zhuyfzy1+"&yuangfl="+yuangfl1+"&gongzjl="+gongzjl1+"&gongzjl="+gongzjl1+"&CurrentTime="+CurrentTime1+"&jiaoyjl="+jiaoyjl1+"&gangw="+gangw1+"&DWMC="+DWMC1+"&format=excel&extype=simple&__filename__="+Excel+"" );
+//alert(url);
+window.open(url);]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SelectedColor/>
+<WebWrite SheetPosition="3"/>
+<RptLocation isShowAtLeft="true"/>
+<UnloadCheck check="false"/>
+<ShowWidgets/>
+<OtherAttr isAutoStash="false"/>
+</WebWriteContent>
+</ReportWebAttr>
+<ElementCaseMobileAttr>
+<ElementCaseMobileAttrProvider horizontal="1" vertical="0" zoom="true" refresh="false" isUseHTML="false"/>
+</ElementCaseMobileAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR F="0" T="1"/>
+<FR/>
+<HC F="1" T="2"/>
+<FC/>
+<UPFCR COLUMN="true" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[0,864000,864000,0,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[0,1371600,1728000,13068300,4320000,0,7200000,2160000,0,0,2160000,0,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=ROWCOUNT("个人信息")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="<input name='checkbox1' type='checkbox' value='checkbox'/>"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript1">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[console.log($("input[name='checkbox1']A:checked").length);
+if($("input[name='checkbox1']A:checked").length==0){
+$("input[name='checkbox']A").removeAttr('checked');
+_g().parameterEl.getWidgetByName('TT').setValue('');
+}else{
+	$("input[name='checkbox']A").attr("checked","true"); 
+	var chk_value =[]A;//定义一个数组  
+      $('input[name="checkbox"]A:checked').each(function(){//遍历每一个名字为interest的复选框，其中选中的执行函数  
+      chk_value.push($(this).val());//将选中的值添加到数组chk_value中  
+      });
+      console.log(chk_value);
+	_g().parameterEl.getWidgetByName('TT').setValue(chk_value);
+		
+}
+]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<CellGUIAttr showAsHTML="true"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="2" r="1" s="1">
+<O>
+<![CDATA[序号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="2">
+<O>
+<![CDATA[所在部门]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="2">
+<O>
+<![CDATA[姓名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="2">
+<O>
+<![CDATA[ID]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" s="2">
+<O>
+<![CDATA[岗位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="1" s="2">
+<O>
+<![CDATA[职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" cs="2" s="1">
+<O>
+<![CDATA[操作]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="1" s="2">
+<O>
+<![CDATA[员工档案]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2">
+<O t="DSColumn">
+<Attributes dsName="个人信息" columnName="YGID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="<input name='checkbox' id='"+A3+"' type='checkbox' value='" + A3 + "' />"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript1">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="mm"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=ROW() - 1]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var id = "r-"+mm+"-0"
+var id1 = $('#'+id).find("input").val();
+var status = $('#'+id).find("input").attr('checked');
+if($('input[name=checkbox]A:checked').length==$('input[name=checkbox]A').length){
+	$("input[name='checkbox1']A").attr("checked","true");
+}else{
+	$("input[name='checkbox1']A").removeAttr("checked");
+}
+var id2 = id1+","
+var tt1=_g().parameterEl.getWidgetByName('TT').getValue();
+if(status!="checked"){
+	var tt3 = tt1.trim().replace(id2,'');
+	var tt4 = tt3.trim().replace(id1,'');
+	
+	if(tt4[0]A==","){
+		tt4 = tt4.substr(1);
+	}else if(tt4[tt4.length-1]A==","){
+		tt4 = tt4.substr(0,tt4.length-1);
+		}
+	_g().parameterEl.getWidgetByName('TT').setValue(tt4);
+	
+}else{
+	
+	var tt2=tt1+','+id1
+	if(tt1==""){
+	_g().parameterEl.getWidgetByName('TT').setValue(id1);
+
+	}else{
+	_g().parameterEl.getWidgetByName('TT').setValue(tt2);
+}
+}
+]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<CellGUIAttr showAsHTML="true"/>
+<CellPageAttr/>
+<Expand leftParentDefault="false" left="C3"/>
+</C>
+<C c="2" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="个人信息" columnName="ROWNUM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[row() % 2 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-986896"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="3" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="个人信息" columnName="BUMEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper">
+<Attr divideMode="1"/>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="个人信息" columnName="XINGMING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript1">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="id1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=F3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="name_1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=E3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="tem"/>
+<O>
+<![CDATA[2]]></O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var url = FR.cjkEncode('/WebReport/ReportServer?formlet=HXXF_HR/StaffInformationInquiry/Form1.frm&id='+id1+'&temp='+tem)
+window.parent.parent.parent.$('#iframe2').attr('src',url);
+window.parent.parent.parent.$('#iframe2').attr('_src',url);
+window.parent.parent.parent.$('.smallIframe').show();
+window.parent.parent.parent.$('.model').show();
+window.parent.parent.parent.alldata.push([name_1,url]A);
+window.parent.parent.parent.$('.close').attr('_name',name_1);
+window.parent.parent.parent.$('.fangda').show();
+window.parent.parent.parent.$('.suoxiao').hide();
+window.parent.parent.parent.$('.smallIframe').css({
+			width: '900px',
+			height: '600px',
+			left:'50%',
+			top:'50%',
+			marginLeft:'-450px',
+			marginTop:'-300px'
+		});
+window.parent.parent.parent.isSmall = true;
+window.parent.parent.parent.$('.small').show();
+_g().parameterEl.getWidgetByName('YGID').setValue(id1);
+$("#fr-btn-HR_LOG").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="个人信息" columnName="YGID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="个人信息" columnName="GANGWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="个人信息" columnName="ZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="7">
+<O>
+<![CDATA[查看]]></O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript2">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="id1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=F3]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[window.parent.parent.parent.$('#iframe2').attr('src','http://10.2.95.62:8080/WebReport/ReportServer?formlet=HXXF_HR%2FStaffInformationInquiry%2FForm1.frm&id='+id1);
+window.parent.parent.parent.$('.smallIframe').show();
+
+]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand leftParentDefault="false" left="F3" upParentDefault="false"/>
+</C>
+<C c="9" r="2" s="8">
+<O>
+<![CDATA[下载]]></O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="JavaScript1">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="Widget1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="员工简历_" + D3 + "_" + E3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="Widget"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=F3]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[_g().parameterEl.getWidgetByName('YGID').setValue(Widget);
+_g().parameterEl.getWidgetByName('XZ_TYPE').setValue("2");
+$("#fr-btn-HR_DOWI").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);
+_g().parameterEl.getWidgetByName('XZ_TYPE').setValue(null);
+/*var Widget = this.options.form.getWidgetByName("tt").getValue();
+alert("value:Widget="+Widget)
+var Widget1 = this.options.form.getWidgetByName("tt").getText();
+alert("text:Widget1="+Widget1);*/
+var url = FR.cjkEncode("/WebReport/ReportServer?op=_custom_export_&cmd=word&_cpt_=WordDownload.cpt&_filename_="+Widget1+"&id="+Widget);
+window.parent.parent.parent.isSmall = true;
+
+window.open(url);]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="10" r="2" s="8">
+<O>
+<![CDATA[下载]]></O>
+<PrivilegeControl/>
+<NameJavaScriptGroup>
+<NameJavaScript name="word">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="Widget"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=F3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="Widget1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(L3 <> "干部", "员工", "干部") + "档案-" + D3 + "-" + E3]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[_g().parameterEl.getWidgetByName('YGID').setValue(Widget);
+_g().parameterEl.getWidgetByName('XZ_TYPE').setValue("3");
+$("#fr-btn-HR_DOWI").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);
+_g().parameterEl.getWidgetByName('XZ_TYPE').setValue(null);
+
+var url = FR.cjkEncode("/WebReport/ReportServer?op=_custom_export_&cmd=word&_cpt_=WordDownload_Cadre.cpt&_filename_="+Widget1+"&id="+Widget);
+//window.parent.parent.parent.isSmall = true;
+window.open(url);]]></Content>
+</JavaScript>
+</NameJavaScript>
+<NameJavaScript name="pdf">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="Widget"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=F3]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="Widget1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(L3 <> "干部", "员工", "干部") + "档案-" + D3 + "-" + E3]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[_g().parameterEl.getWidgetByName('YGID').setValue(Widget);
+_g().parameterEl.getWidgetByName('XZ_TYPE').setValue("4");
+$("#fr-btn-HR_DOWI").find("button").trigger("click");
+_g().parameterEl.getWidgetByName('YGID').setValue(null);
+_g().parameterEl.getWidgetByName('XZ_TYPE').setValue(null);
+
+var url = FR.cjkEncode("/WebReport/ReportServer?reportlet=WordDownload_Cadre.cpt&id="+Widget+"&format=pdf&extype=simple&__filename__="+Widget1+"")
+window.open(url);]]></Content>
+</JavaScript>
+</NameJavaScript>
+</NameJavaScriptGroup>
+<Expand/>
+</C>
+<C c="11" r="2">
+<O t="DSColumn">
+<Attributes dsName="个人信息" columnName="YGFENLEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="3" cs="10" s="9">
+<O>
+<![CDATA[没有符合您查询条件的数据]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[ROW() <> 2]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="6" r="5">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<FrozenColumnRow columnrow="C3"/>
+<PaperSetting>
+<PaperSize width="115200000" height="115200000"/>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<LayerReportAttr isPageQuery="true" countPerPage="50"/>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<Listener event="afterinit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="CADRE"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=StringFind('"'+VALUE("CADRE",1)+'"',"是")]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[/*var timer = setInterval(function(){
+	if($('.fr-trigger-btn-up')[0]A){
+		$('.fr-trigger-btn-up').css('background','rgb(160,160,160)');
+	
+		clearInterval(timer);
+		}
+	},100);
+*/
+if (CADRE>0){
+this.options.form.getWidgetByName("yuangfl").setValue("干部")
+
+this.options.form.getWidgetByName("yuangfl").setEnable(false)
+this.options.form.getWidgetByName("yuangf12").setEnable(false)
+
+}
+
+]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1118482"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="GANBU_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("HXXF_HR","SELECT REPLACE(PARENT_NAME,'<','>')  as PARENT_NAME FROM  ODM_HR_DW where tree_node='"+DWMC+"' ",1)]]></Attributes>
+</O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72" foreground="-4259840"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="194" y="11" width="597" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[常青藤年度：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="582" y="32" width="79" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="CHANGQT_CHANDLND"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="HX_YEAR" viName="HX_YEAR"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[常青藤年度-数据字典]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="651" y="32" width="99" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<Listener event="afteredit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[_g().parameterCommit();]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="P_PX"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<DirectEdit>
+<![CDATA[false]]></DirectEdit>
+<noRepeat>
+<![CDATA[false]]></noRepeat>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="0" value="默认"/>
+<Dict key="2" value="职级降序"/>
+<Dict key="1" value="职级升序"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[0]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="628" y="96" width="122" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[排序规则：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="563" y="96" width="65" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="XZ_TYPE"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue/>
+</InnerWidget>
+<BoundsAttr x="425" y="236" width="157" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.FreeButton">
+<Listener event="click">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="GN"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="干部档案-"+$GANBU]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[/*var Widget = this.options.form.getWidgetByName("tt"); //在参数界面获取控件的方法，先获取表单，再通过控件名称来获取控件   
+var id = Widget.getValue(); //获取控件实际值   
+alert(id);*/
+
+
+function post(URL, PARAMS) { var temp_form = document.createElement("form");      
+            temp_form .action = URL;      
+            temp_form .target = "_blank";
+            temp_form .method = "post";      
+            temp_form .style.display = "none"; for (var x in PARAMS) { var opt = document.createElement("textarea");      
+                opt.name = x;      
+                opt.value = PARAMS[x]A;      
+                temp_form .appendChild(opt);      
+            }      
+            document.body.appendChild(temp_form);  
+             console.log("temp_form="+temp_form);     
+            temp_form.submit();     
+        } 
+
+var Widget = this.options.form.getWidgetByName("tt").getValue();
+var aa = this.options.form.getWidgetByName("tt")
+//alert(Widget)
+var a = Widget.replace(/,/g,"','");
+//alert(a)
+var sql1 = "select BUMEN||'-'||xingming AS xingming from odm_hr_ygtz where ygid in ('"+a+"')  ORDER BY INSTR('"+Widget+"',ygid) ";
+//alert("sql1:"+sql1)
+var sl = FR.remoteEvaluate('sql("HXXF_HR","'+sql1+'",1)');
+
+var Widget1 = this.options.form.getWidgetByName("tt").getText();
+//alert("Widget1="+Widget1)
+console.log("Widget1="+Widget1);
+if(Widget1.indexOf(',')>-1){
+
+var url = FR.cjkEncode("/WebReport/ReportServer")
+var fileName = FR.cjkEncode(sl);
+var zipName= FR.cjkEncode(GN);
+console.log("GN="+zipName);
+//alert("url1:"+url);
+//window.open(url);
+FR.doHyperlinkByPost(url,{op:"_custom_export_",cmd:"word",_cpt_:"WordDownload_Cadre.cpt",_filename_:fileName,id:Widget,_type_:"zip",_zipname_:GN});
+
+console.log("history=history");
+
+}else if(Widget1.length==0){
+
+	FR.Msg.alert("<font color=white size=3 face='microsoft yahei'>提示</font>","<font color=black size=3 face='microsoft yahei'>请选择要下载的人员！</font>");  
+$('#popup_title').css('background','#c00000');  
+$('.fr-core-btn-style-blue').css('background-color','#c00000');
+$('.fr-core-btn-style-blue').css('border','1px solid #c00000');
+	}else{
+var url = FR.cjkEncode("/WebReport/ReportServer?op=_custom_export_&cmd=word&_cpt_=WordDownload_Cadre.cpt&_filename_="+sl+"&id="+Widget);
+console.log("url2:"+url);
+//alert("url2:"+url)
+window.open(url);
+}
+
+]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="click">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[AdvancedFilter.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"","姓名;")+IF(LEN($zhij)=0,"","职级;")+IF(LEN($zhinxl)=0,"","职能序列;")+IF(LEN($xuel)=0,"","学历;")+IF(LEN($zhuyfzy)=0,"","主营/非主营;")+IF(LEN($yuangfl)=0,"","员工分类;")+IF(LEN($gongzjl)=0,"","过往工作经历;")+IF(LEN($CurrentTime)=0,"","过往工作经历2;")+IF(LEN($jiaoyjl)=0,"","教育经历;")+IF(LEN($gangw)=0,"","岗位搜索;")+IF(LEN($DWMC)=0,"","部门;")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"",$name+";")+IF(LEN($zhij)=0,"",$zhij+";")+IF(LEN($zhinxl)=0,"",$zhinxl+";")+IF(LEN($xuel)=0,"",$xuel+";")+IF(LEN($zhuyfzy)=0,"",$zhuyfzy+";")+IF(LEN($yuangfl)=0,"",$yuangfl+";")+IF(LEN($gongzjl)=0,"",$gongzjl+";")+IF(LEN($CurrentTime)=0,"",$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"",$jiaoyjl+";")+IF(LEN($gangw)=0,"",$gangw+";")+IF(LEN($DWMC)=0,"",$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=NOW()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=  IF(LEN($name)=0,"","姓名:"+$name+";")+IF(LEN($zhij)=0,"","职级:"+$zhij+";")+IF(LEN($zhinxl)=0,"","职能序列:"+$zhinxl+";")+IF(LEN($xuel)=0,"","学历:"+$xuel+";")+IF(LEN($zhuyfzy)=0,"","主营/非主营:"+$zhuyfzy+";")+IF(LEN($yuangfl)=0,"","员工分类:"+$yuangfl+";")+IF(LEN($gongzjl)=0,"","过往工作经历:"+$gongzjl+";")+IF(LEN($CurrentTime)=0,"","过往工作经历2:"+$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"","教育经历:"+$jiaoyjl+";")+IF(LEN($gangw)=0,"","岗位搜索:"+$gangw+";")+IF(LEN($DWMC)=0,"","部门:"+$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$YGID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="ISDOWNLOADJL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[6]]></O>
+</ColumnConfig>
+<ColumnConfig name="FILENAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=joinarray($TT, ",")]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<WidgetName name="GSearch"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[批量下载]]></Text>
+<initial>
+<Background name="ColorBackground" color="-4194304"/>
+</initial>
+<over>
+<Background name="ColorBackground" color="-8585216"/>
+</over>
+<FRFont name="微软雅黑" style="1" size="88" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="758" y="93" width="80" height="24"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.FreeButton">
+<Listener event="click">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[/*var Widget = this.options.form.getWidgetByName("tt"); //在参数界面获取控件的方法，先获取表单，再通过控件名称来获取控件   
+var id = Widget.getValue(); //获取控件实际值   
+alert(id);*/
+var Widget = this.options.form.getWidgetByName("tt").getValue();
+var aa = this.options.form.getWidgetByName("tt")
+//alert(Widget)
+var a = Widget.replace(/,/g,"','");
+//alert(a)
+var sql1 = "select xingming from odm_hr_ygtz where ygid in ('"+a+"')  ORDER BY INSTR('"+Widget+"',ygid) ";
+//alert("sql1:"+sql1)
+var sl = FR.remoteEvaluate('sql("HXXF_HR","'+sql1+'",1)');
+//alert("sl:"+sl)
+var Widget1 = this.options.form.getWidgetByName("tt").getText();
+//alert("Widget1="+Widget1)
+console.log("Widget1="+Widget1);
+if(Widget1.indexOf(',')>-1){
+
+var url = FR.cjkEncode("/WebReport/ReportServer")
+var fileName = FR.cjkEncode(sl);
+
+FR.doHyperlinkByPost(url,{op:"_custom_export_",cmd:"word",_cpt_:"WordDownload.cpt",_filename_:fileName,id:Widget,_type_:"zip",_zipname_:"员工简历"});
+
+}else if(Widget1.length==0){
+
+	FR.Msg.alert("<font color=white size=3 face='microsoft yahei'>提示</font>","<font color=black size=3 face='microsoft yahei'>请选择要下载的人员！</font>");  
+$('#popup_title').css('background','#c00000');  
+$('.fr-core-btn-style-blue').css('background-color','#c00000');
+$('.fr-core-btn-style-blue').css('border','1px solid #c00000');
+	}
+else{
+var url = FR.cjkEncode("/WebReport/ReportServer?op=_custom_export_&cmd=word&_cpt_=WordDownload.cpt&_filename_="+sl+"&id="+Widget);
+console.log("url2:"+url);
+//alert("url2:"+url)
+window.open(url);
+}
+//aa.setValue();
+//aa.setText();
+]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="click">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[AdvancedFilter.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"","姓名;")+IF(LEN($zhij)=0,"","职级;")+IF(LEN($zhinxl)=0,"","职能序列;")+IF(LEN($xuel)=0,"","学历;")+IF(LEN($zhuyfzy)=0,"","主营/非主营;")+IF(LEN($yuangfl)=0,"","员工分类;")+IF(LEN($gongzjl)=0,"","过往工作经历;")+IF(LEN($CurrentTime)=0,"","过往工作经历2;")+IF(LEN($jiaoyjl)=0,"","教育经历;")+IF(LEN($gangw)=0,"","岗位搜索;")+IF(LEN($DWMC)=0,"","部门;")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"",$name+";")+IF(LEN($zhij)=0,"",$zhij+";")+IF(LEN($zhinxl)=0,"",$zhinxl+";")+IF(LEN($xuel)=0,"",$xuel+";")+IF(LEN($zhuyfzy)=0,"",$zhuyfzy+";")+IF(LEN($yuangfl)=0,"",$yuangfl+";")+IF(LEN($gongzjl)=0,"",$gongzjl+";")+IF(LEN($CurrentTime)=0,"",$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"",$jiaoyjl+";")+IF(LEN($gangw)=0,"",$gangw+";")+IF(LEN($DWMC)=0,"",$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=NOW()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=  IF(LEN($name)=0,"","姓名:"+$name+";")+IF(LEN($zhij)=0,"","职级:"+$zhij+";")+IF(LEN($zhinxl)=0,"","职能序列:"+$zhinxl+";")+IF(LEN($xuel)=0,"","学历:"+$xuel+";")+IF(LEN($zhuyfzy)=0,"","主营/非主营:"+$zhuyfzy+";")+IF(LEN($yuangfl)=0,"","员工分类:"+$yuangfl+";")+IF(LEN($gongzjl)=0,"","过往工作经历:"+$gongzjl+";")+IF(LEN($CurrentTime)=0,"","过往工作经历2:"+$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"","教育经历:"+$jiaoyjl+";")+IF(LEN($gangw)=0,"","岗位搜索:"+$gangw+";")+IF(LEN($DWMC)=0,"","部门:"+$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$YGID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="ISDOWNLOADJL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[5]]></O>
+</ColumnConfig>
+<ColumnConfig name="FILENAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=joinarray($TT, ",")]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<WidgetName name="Search_c_c"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[批量下载]]></Text>
+<initial>
+<Background name="ColorBackground" color="-4194304"/>
+</initial>
+<over>
+<Background name="ColorBackground" color="-8585216"/>
+</over>
+<FRFont name="微软雅黑" style="0" size="80" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="772" y="161" width="66" height="24"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="TT"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue/>
+</InnerWidget>
+<BoundsAttr x="242" y="236" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="YGID"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue/>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="705" y="11" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="GANBU"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("HXXF_HR","SELECT REPLACE(PARENT_NAME,'<','_')  as PARENT_NAME FROM  ODM_HR_DW where tree_node='"+DWMC+"' ",1)]]></Attributes>
+</O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72" foreground="-4259840"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="194" y="11" width="597" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c_c_c_c_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[所选组织：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="123" y="10" width="63" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.FreeButton">
+<Listener event="click">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[AdvancedFilter.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(33)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"","姓名;")+IF(LEN($zhij)=0,"","职级;")+IF(LEN($zhinxl)=0,"","职能序列;")+IF(LEN($xuel)=0,"","学历;")+IF(LEN($zhuyfzy)=0,"","主营/非主营;")+IF(LEN($yuangfl)=0,"","员工分类;")+IF(LEN($gongzjl)=0,"","过往工作经历;")+IF(LEN($CurrentTime)=0,"","过往工作经历2;")+IF(LEN($jiaoyjl)=0,"","教育经历;")+IF(LEN($gangw)=0,"","岗位搜索;")+IF(LEN($DWMC)=0,"","部门;")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"",$name+";")+IF(LEN($zhij)=0,"",$zhij+";")+IF(LEN($zhinxl)=0,"",$zhinxl+";")+IF(LEN($xuel)=0,"",$xuel+";")+IF(LEN($zhuyfzy)=0,"",$zhuyfzy+";")+IF(LEN($yuangfl)=0,"",$yuangfl+";")+IF(LEN($gongzjl)=0,"",$gongzjl+";")+IF(LEN($CurrentTime)=0,"",$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"",$jiaoyjl+";")+IF(LEN($gangw)=0,"",$gangw+";")+IF(LEN($DWMC)=0,"",$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=
+$REGISTER_ENTER_NUM]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"","姓名:"+$name+";")+IF(LEN($zhij)=0,"","职级:"+$zhij+";")+IF(LEN($zhinxl)=0,"","职能序列:"+$zhinxl+";")+IF(LEN($xuel)=0,"","学历:"+$xuel+";")+IF(LEN($zhuyfzy)=0,"","主营/非主营:"+$zhuyfzy+";")+IF(LEN($yuangfl)=0,"","员工分类:"+$yuangfl+";")+IF(LEN($gongzjl)=0,"","过往工作经历:"+$gongzjl+";")+IF(LEN($CurrentTime)=0,"","过往工作经历2:"+$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"","教育经历:"+$jiaoyjl+";")+IF(LEN($gangw)=0,"","岗位搜索:"+$gangw+";")+IF(LEN($DWMC)=0,"","部门:"+$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false"/>
+<ColumnConfig name="ISDOWNLOADJL" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$XZ_TYPE]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="FILENAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$YGID]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<WidgetName name="HR_DOWI"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[button0]]></Text>
+</InnerWidget>
+<BoundsAttr x="544" y="174" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.FreeButton">
+<Listener event="click">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[AdvancedFilter.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=NOW()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[1]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"","姓名:"+$name+";")+IF(LEN($zhij)=0,"","职级:"+$zhij+";")+IF(LEN($zhinxl)=0,"","职能序列:"+$zhinxl+";")+IF(LEN($xuel)=0,"","学历:"+$xuel+";")+IF(LEN($zhuyfzy)=0,"","主营/非主营:"+$zhuyfzy+";")+IF(LEN($yuangfl)=0,"","员工分类:"+$yuangfl+";")+IF(LEN($gongzjl)=0,"","过往工作经历:"+$gongzjl+";")+IF(LEN($CurrentTime)=0,"","过往工作经历2:"+$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"","教育经历:"+$jiaoyjl+";")+IF(LEN($gangw)=0,"","岗位搜索:"+$gangw+";")+IF(LEN($DWMC)=0,"","部门:"+$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$YGID]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<Listener event="click">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[//alert(111);]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="HR_DOW"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[button0]]></Text>
+</InnerWidget>
+<BoundsAttr x="523" y="10" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="textEditor0"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="458" y="172" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="REGISTER_ENTER_NUM"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="114" y="12" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="REGISTER_ID"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="425" y="3" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.FreeButton">
+<Listener event="click">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[AdvancedFilter.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[= $REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(33)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"","姓名;")+IF(LEN($zhij)=0,"","职级;")+IF(LEN($zhinxl)=0,"","职能序列;")+IF(LEN($xuel)=0,"","学历;")+IF(LEN($zhuyfzy)=0,"","主营/非主营;")+IF(LEN($yuangfl)=0,"","员工分类;")+IF(LEN($gongzjl)=0,"","过往工作经历;")+IF(LEN($CurrentTime)=0,"","过往工作经历2;")+IF(LEN($jiaoyjl)=0,"","教育经历;")+IF(LEN($gangw)=0,"","岗位搜索;")+IF(LEN($DWMC)=0,"","部门;")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"",$name+";")+IF(LEN($zhij)=0,"",$zhij+";")+IF(LEN($zhinxl)=0,"",$zhinxl+";")+IF(LEN($xuel)=0,"",$xuel+";")+IF(LEN($zhuyfzy)=0,"",$zhuyfzy+";")+IF(LEN($yuangfl)=0,"",$yuangfl+";")+IF(LEN($gongzjl)=0,"",$gongzjl+";")+IF(LEN($CurrentTime)=0,"",$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"",$jiaoyjl+";")+IF(LEN($gangw)=0,"",$gangw+";")+IF(LEN($DWMC)=0,"",$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ENTER_NUM]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工ID]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$YGID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[1]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=  IF(LEN($name)=0,"","姓名:"+$name+";")+IF(LEN($zhij)=0,"","职级:"+$zhij+";")+IF(LEN($zhinxl)=0,"","职能序列:"+$zhinxl+";")+IF(LEN($xuel)=0,"","学历:"+$xuel+";")+IF(LEN($zhuyfzy)=0,"","主营/非主营:"+$zhuyfzy+";")+IF(LEN($yuangfl)=0,"","员工分类:"+$yuangfl+";")+IF(LEN($gongzjl)=0,"","过往工作经历:"+$gongzjl+";")+IF(LEN($CurrentTime)=0,"","过往工作经历2:"+$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"","教育经历:"+$jiaoyjl+";")+IF(LEN($gangw)=0,"","岗位搜索:"+$gangw+";")+IF(LEN($DWMC)=0,"","部门:"+$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$YGID]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<WidgetName name="HR_LOG"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[button0]]></Text>
+</InnerWidget>
+<BoundsAttr x="318" y="0" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<Listener event="click">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[//$('.fs-tab-content-top-toolbar').find('td').eq(0).find('button').click();
+//console.log($('.fs-tab-content-top-toolbar').find('td').eq(0));]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="click">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var totalNum=_g().parameterEl.getWidgetByName('REGISTER_ENTER_NUM').getValue();
+if(totalNum ==null || totalNum==""){
+	totalNum=1;
+}else{
+	totalNum+=1;
+}
+_g().parameterEl.getWidgetByName('REGISTER_ENTER_NUM').setValue(totalNum);]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="click">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="HXXF_HR" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="" name="HR_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(32)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="URL" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter.cpt&op=view]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[AdvancedFilter.cpt]]></O>
+</ColumnConfig>
+<ColumnConfig name="CPT_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ID]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID(33)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_TREE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"","姓名;")+IF(LEN($zhij)=0,"","职级;")+IF(LEN($zhinxl)=0,"","职能序列;")+IF(LEN($xuel)=0,"","学历;")+IF(LEN($zhuyfzy)=0,"","主营/非主营;")+IF(LEN($yuangfl)=0,"","员工分类;")+IF(LEN($gongzjl)=0,"","过往工作经历;")+IF(LEN($CurrentTime)=0,"","过往工作经历2;")+IF(LEN($jiaoyjl)=0,"","教育经历;")+IF(LEN($gangw)=0,"","岗位搜索;")+IF(LEN($DWMC)=0,"","部门;")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="PARAMETER" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"",$name+";")+IF(LEN($zhij)=0,"",$zhij+";")+IF(LEN($zhinxl)=0,"",$zhinxl+";")+IF(LEN($xuel)=0,"",$xuel+";")+IF(LEN($zhuyfzy)=0,"",$zhuyfzy+";")+IF(LEN($yuangfl)=0,"",$yuangfl+";")+IF(LEN($gongzjl)=0,"",$gongzjl+";")+IF(LEN($CurrentTime)=0,"",$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"",$jiaoyjl+";")+IF(LEN($gangw)=0,"",$gangw+";")+IF(LEN($DWMC)=0,"",$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="REGISTER_ENTER_NUM" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$REGISTER_ENTER_NUM]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DOWNLOAD_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_PARAMETER" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="HYPERLINK_TYPE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="MOKUAI_NAME" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[员工信息查询]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU_NAME_CODE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN($name)=0,"","姓名:"+$name+";")+IF(LEN($zhij)=0,"","职级:"+$zhij+";")+IF(LEN($zhinxl)=0,"","职能序列:"+$zhinxl+";")+IF(LEN($xuel)=0,"","学历:"+$xuel+";")+IF(LEN($zhuyfzy)=0,"","主营/非主营:"+$zhuyfzy+";")+IF(LEN($yuangfl)=0,"","员工分类:"+$yuangfl+";")+IF(LEN($gongzjl)=0,"","过往工作经历:"+$gongzjl+";")+IF(LEN($CurrentTime)=0,"","过往工作经历2:"+$CurrentTime+";")+IF(LEN($jiaoyjl)=0,"","教育经历:"+$jiaoyjl+";")+IF(LEN($gangw)=0,"","岗位搜索:"+$gangw+";")+IF(LEN($DWMC)=0,"","部门:"+$DWMC+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="YGID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$YGID]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<WidgetName name="formSubmit0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-4259840"/>
+</initial>
+<FRFont name="微软雅黑" style="1" size="88" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="758" y="29" width="80" height="24"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.FreeButton">
+<Listener event="click">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var a = this.options.form.getWidgetByName("gongzjl").getValue();
+var b = this.options.form.getWidgetByName("name").getValue();
+var c = this.options.form.getWidgetByName("zhuyfzy").getValue();
+var d = this.options.form.getWidgetByName("yuangfl").getValue();
+var e = this.options.form.getWidgetByName("zhij").getValue();
+var f = this.options.form.getWidgetByName("zhinxl").getValue();
+var g = this.options.form.getWidgetByName("gangw").getValue();
+var h = this.options.form.getWidgetByName("CurrentTime").getValue();
+var i = this.options.form.getWidgetByName("jiaoyjl").getValue();
+var j = this.options.form.getWidgetByName("xuel").getValue();
+var k = this.options.form.getWidgetByName("textEditor0_c").getValue();
+
+if(a.length == 0){a1=""}
+if(a.length != 0 && h =='1'){a1="AND T.WBLASTSEACOL LIKE '%"+a+"%'"}
+if(a.length != 0 && h =='2'){a1="AND T.WBSEACOL LIKE '%"+a+"%'"}
+if(b.length == 0){a3=""}else{a3="and T.namepinyin like'%"+b+"%'"}
+/*switch(c){case "": a4="";break;case "1": a4="and T.ISzhuying like '主营%'";break;case "2" :a4="and T.ISzhuying like '非主营%'";break;case "1,2": a4="";break;}*/
+if(c.length == 0){a4=""}
+if(c == "1"){a4="and T.ISzhuying like '主营%'"}
+if(c == "2"){a4="and T.ISzhuying like '非主营%'"}
+if(c == "1','2"){a4=""}
+if(d.length == 0){a5=""}else{a5="and T.YGfenlei in('"+d+"')"}
+if(e.length == 0){a6=""}else{a6="and T.zhiji in('"+e+"')"}
+if(f.length == 0){a7=""}else{a7="and T.zhinengxulie in('"+f+"')"}
+if(g.length == 0){a8=""}else{a8="and T.gangwei like'%"+g+"%'"}
+if(i.length == 0){a10=""}else{a10="AND T.JYSEACOL like'%"+i+"%'"}
+if(j.length == 0){a11=""}else{a11="and T.XUELIFENLEI in('"+j+"')"}
+if(k.length == 0 || k =='HX_HEAD'){a12=""}else{a12="and T.BUMENID LIKE '%"+k+"%'"}
+
+var sql="SELECT YGID,XINGMING FROM (SELECT DISTINCT T.YGID,T.zhiji,T.xingming,T.gangwei,T.bumen,DW.TREE_NODE_NUM FROM ODM_HR_YGJLCX_SEARCH T LEFT JOIN ODM_HR_DW DW ON DW.TREE_NODE= T.BUMENID WHERE 1=1 "+a1+a3+a4+a5+a6+a7+a8+a10+a11+a12+")"
+alert(sql)
+
+var sl1 = FR.remoteEvaluate('sql("HXXF_HR","'+sql+'",1)');
+alert(sl1)
+var sl2 = FR.remoteEvaluate('sql("HXXF_HR","'+sql+'",2)');
+alert(sl2)
+var url = FR.cjkEncode("http://10.20.60.17:8080/WebReport/ReportServer?op=_custom_export_&cmd=word&_cpt_=WordDownload.cpt&_filename_="+sl2+"&id="+sl1+"&_type_=zip")
+//alert(url);
+window.open(url);]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="button2"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[button2]]></Text>
+</InnerWidget>
+<BoundsAttr x="631" y="174" width="61" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<WidgetName name="CurrentTime"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<DirectEdit>
+<![CDATA[false]]></DirectEdit>
+<CustomData>
+<![CDATA[false]]></CustomData>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="2" value="全部经历"/>
+<Dict key="1" value="最近一段"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[2]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="268" y="96" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="textEditor0_c"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$DWMC]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="204" y="8" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.CheckBoxGroup">
+<Listener event="statechange">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var b=this.options.form.getWidgetByName("yuangfl").getValue();
+
+if (b!="干部','团队负责人','员工")
+{var c=this.options.form.getWidgetByName("yuangf12")
+	c.setValue(false);c.setText(false);}
+else{
+	var c=this.options.form.getWidgetByName("yuangf12")
+	c.setValue(true);c.setText(true);
+}]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="yuangfl"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="干部" value="干部"/>
+<Dict key="团队负责人" value="团队负责人"/>
+<Dict key="员工" value="员工"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if($CADRE>0,"干部",null)]]></Attributes>
+</O>
+</widgetValue>
+<RAAttr isArray="false" delimiter="&apos;,&apos;"/>
+</InnerWidget>
+<BoundsAttr x="346" y="66" width="205" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.CheckBox">
+<Listener event="statechange">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="b"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=replace(value("Embedded1",3),",","','")]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var a=this.options.form.getWidgetByName("yuangf12").getValue();
+
+if(a==true){
+	this.options.form.getWidgetByName("yuangfl").setValue("干部','团队负责人','员工")
+	
+}
+else{
+	var c=this.options.form.getWidgetByName("yuangfl");
+
+	c.setValue();c.setText();
+}
+]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="yuangf12"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[全选]]></Text>
+<widgetValue>
+<O t="B">
+<![CDATA[false]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="287" y="65" width="52" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.CheckBoxGroup">
+<Listener event="statechange">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[//var b=this.options.form.getWidgetByName("zhuyfzy").getValue();
+//
+//if (b!="1','2")
+//{//var c=this.options.form.getWidgetByName("zhuyfzy12")
+//	c.setValue(false);c.setText(false);}
+//else{
+//	//var c=this.options.form.getWidgetByName("zhuyfzy12")
+//	c.setValue(true);c.setText(true);
+//}]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="zhuyfzy"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="1" value="主营"/>
+<Dict key="2" value="非主营"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue/>
+<RAAttr isArray="false" delimiter="&apos;,&apos;"/>
+</InnerWidget>
+<BoundsAttr x="86" y="66" width="131" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<Listener event="click">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="label9_"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[员工查询]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="88" foreground="-4259832"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="14" y="11" width="100" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="zhinxl"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.DatabaseDictionary">
+<FormulaDictAttr kiName="ZHINXL_ID" viName="ZHINXL_NAME"/>
+<DBDictAttr tableName="HR_DIM_ZHINXL_D" schemaName="HRBB" ki="-1" vi="-1" kiName="ZHINXL_ID" viName="ZHINXL_NAME"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+</Dictionary>
+<widgetValue/>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="352" y="32" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label3_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[职能序列：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="282" y="32" width="70" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="zhij"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.DatabaseDictionary">
+<FormulaDictAttr kiName="ZHIJI_ID" viName="ZHIJI_NAME"/>
+<DBDictAttr tableName="HR_DIM_ZHIJI_D" schemaName="HRBB" ki="-1" vi="-1" kiName="ZHIJI_ID" viName="ZHIJI_NAME"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+</Dictionary>
+<widgetValue/>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="193" y="32" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelDANGQZJ_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[职级：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="157" y="32" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[员工分类：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="224" y="66" width="64" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="xuel"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.DatabaseDictionary">
+<FormulaDictAttr kiName="XUELI_ID" viName="XUELI_NAME"/>
+<DBDictAttr tableName="HR_DIM_XUELI_D" schemaName="HRBB" ki="-1" vi="-1" kiName="XUELI_ID" viName="XUELI_NAME"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="498" y="32" width="74" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="name"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<fontSize>
+<![CDATA[11]]></fontSize>
+<TextAttr/>
+<watermark>
+<![CDATA[请输入姓名或拼音]]></watermark>
+<widgetValue/>
+</InnerWidget>
+<BoundsAttr x="49" y="32" width="102" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label10"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[姓名：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="10" y="33" width="60" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="jiaoyjl"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue/>
+</InnerWidget>
+<BoundsAttr x="432" y="96" width="119" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label9"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[教育经历：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="366" y="97" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="gongzjl"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue/>
+</InnerWidget>
+<BoundsAttr x="100" y="96" width="168" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label8"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[过往工作经历：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="13" y="96" width="101" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="gangw"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<widgetValue/>
+</InnerWidget>
+<BoundsAttr x="628" y="66" width="122" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label7"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[岗位搜索：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="565" y="66" width="74" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label2"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[主营/非主营：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="10" y="66" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="LabelEDUCATION"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[最高学历：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="440" y="32" width="65" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="HR_LOG"/>
+<Widget widgetName="textEditor0_c"/>
+<Widget widgetName="HR_DOW"/>
+<Widget widgetName="YGID"/>
+<Widget widgetName="name"/>
+<Widget widgetName="zhij"/>
+<Widget widgetName="zhinxl"/>
+<Widget widgetName="xuel"/>
+<Widget widgetName="CHANGQT_CHANDLND"/>
+<Widget widgetName="yuangf12"/>
+<Widget widgetName="zhuyfzy"/>
+<Widget widgetName="yuangfl"/>
+<Widget widgetName="gangw"/>
+<Widget widgetName="GSearch"/>
+<Widget widgetName="gongzjl"/>
+<Widget widgetName="CurrentTime"/>
+<Widget widgetName="jiaoyjl"/>
+<Widget widgetName="P_PX"/>
+<Widget widgetName="Search_c_c"/>
+<Widget widgetName="textEditor0"/>
+<Widget widgetName="HR_DOWI"/>
+<Widget widgetName="button2"/>
+<Widget widgetName="TT"/>
+<Widget widgetName="XZ_TYPE"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<Position position="0"/>
+<Design_Width design_width="904"/>
+<NameTagModified/>
+<WidgetNameTagMap>
+<NameTag name="YGID" tag="=sql(&quot;HXXF_HR&quot;,&quot;SELECT REPLACE(PARENT_NAME,&apos;&lt;&apos;,&apos;&gt;&apos;)  as PARENT_NAME FROM  ODM_HR_DW where tree_node=&apos;&quot;+DWMC+&quot;&apos; &quot;,1)"/>
+<NameTag name="jiaoyjl" tag="教育经历："/>
+<NameTag name="yuangf12" tag="员工分类："/>
+<NameTag name="button2" tag="常青藤年度："/>
+<NameTag name="yuangfl" tag="员工分类："/>
+<NameTag name="zhuyfzy" tag="主营/非主营："/>
+<NameTag name="gongzjl" tag="过往工作经历："/>
+<NameTag name="textEditor0_c" tag="员工查询"/>
+<NameTag name="P_PX" tag="排序规则："/>
+<NameTag name="CHANGQT_CHANDLND" tag="常青藤年度："/>
+<NameTag name="zhij" tag="职级："/>
+<NameTag name="name" tag="姓名："/>
+<NameTag name="HR_DOWI" tag="常青藤年度："/>
+<NameTag name="HR_DOW" tag="所选组织："/>
+<NameTag name="xuel" tag="最高学历："/>
+<NameTag name="zhinxl" tag="职能序列："/>
+<NameTag name="gangw" tag="岗位搜索："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="904" height="121"/>
+</ParameterUI>
+<Parameter>
+<Attributes name="select"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-16776961" underline="1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-16776961" underline="1"/>
+<Background name="ColorBackground" color="-1"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Left style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-16776961" underline="1"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72" foreground="-16776961" underline="1"/>
+<Background name="NullBackground"/>
+<Border>
+<Left style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-16776961" underline="1"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="80"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-2236963"/>
+<Bottom style="1" color="-2236963"/>
+<Left style="1" color="-2236963"/>
+<Right style="1" color="-2236963"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+<TemplateID TemplateID="ca5f8902-a2be-4214-9508-385464f6ccb7"/>
+</WorkBook>

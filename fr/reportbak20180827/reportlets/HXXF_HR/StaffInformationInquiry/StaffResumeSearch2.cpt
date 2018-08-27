@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="Tree1" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[1]]></markFields>
+<parentmarkFields>
+<![CDATA[2]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[TREE_NODE]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[PARENT_NODE]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[ds2]]></originalTableDataName>
+</TableData>
+<TableData name="常青藤年度" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT 
+distinct  IVY_POWER_YEAR
+FROM 
+HR."ODM_HR_YGTZ"
+order by IVY_POWER_YEAR  asc
+
+]]></Query>
+</TableData>
+<TableData name="ds2" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="tree_node"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select * from odm_hr_dw 
+where 1=1
+${if(len(tree_node)=0,"and 1=0","and parent_node ='"+tree_node+"'")} ORDER BY TREE_NODE_NUM asc]]></Query>
+</TableData>
+<TableData name="主营非主营" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT 
+distinct  MAJOR_BUSINESS
+FROM 
+HR."ODM_HR_YGTZ"
+order by MAJOR_BUSINESS desc
+
+]]></Query>
+</TableData>
+<TableData name="二级指标" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="tree_node"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+SELECT *
+FROM ODM_HR_DW
+  start with ${if(len(tree_node)=0,"TREE_NODE='100001'","TREE_NODE ='"+tree_node+"'")} 
+  connect by  PARENT_NODE   =  prior TREE_NODE 
+  ORDER BY TREE_NODE_NUM asc]]></Query>
+</TableData>
+<TableData name="二级指标树" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[1]]></markFields>
+<parentmarkFields>
+<![CDATA[2]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[TREE_NODE]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[PARENT_NODE]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[二级指标]]></originalTableDataName>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<ServerPrinter/>
+<WebPageContent>
+<ToolBars/>
+<WebPage isPage="false" isShowAsImage="false" isAutoScale="false" isTDHeavy="false"/>
+</WebPageContent>
+<WebViewContent>
+<ToolBars/>
+<SortFuncCheck check="true"/>
+<ConditionFuncCheck check="true"/>
+<ListFuncCheck check="true"/>
+</WebViewContent>
+</ReportWebAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[28512000,723900,723900,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[0,11520000,51840000,4320000,4320000,2160000,1440000,2880000,2880000,2880000,2880000,2880000,2880000,2880000,4320000,4320000,4320000,1440000,2160000,2160000,2160000,2160000,4320000,2880000,2160000,4320000,4320000,4320000,4320000,2160000,4320000,2160000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0" s="0">
+<PrivilegeControl/>
+<Widget class="com.fr.form.ui.TreeEditor">
+<Listener event="click">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var GSID = this.getValue();
+var url = "/WebReport/ReportServer?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter.cpt";    
+FR.doHyperlinkByPost(url,{tree_node:GSID},'REPORT');
+]]></Content>
+</JavaScript>
+</Listener>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr selectLeafOnly="false"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="true"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="TREE_NODE" viName="DESCR"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[二级指标树]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue/>
+</Widget>
+<Expand/>
+</C>
+<C c="2" r="0">
+<PrivilegeControl/>
+<Widget class="com.fr.form.ui.IframeEditor">
+<WidgetName name="REPORT"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Iframe src="${servletURL}?reportlet=HXXF_HR/StaffInformationInquiry/AdvancedFilter.cpt" overflowx="true" overflowy="true"/>
+<Parameters>
+<Parameter>
+<Attributes name="DWMC"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$DWMC]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+</Widget>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+<TemplateID/>
+</WorkBook>

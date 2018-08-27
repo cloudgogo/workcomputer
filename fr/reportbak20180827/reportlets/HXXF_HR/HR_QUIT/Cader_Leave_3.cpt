@@ -1,0 +1,1310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="date_time"/>
+<O>
+<![CDATA[2018-05-31]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT DISTINCT TREE_NODE,
+                DESCR,
+                TREE_NODE2,
+                DESCR2,
+                TREE_NODE_NUM,
+                YGID,
+                XINGMING,
+                DANWEI,
+                BUMEN,
+                ZJ,
+                RZDATE,
+                ZPQUDAO,
+                QUDAOMX,
+                LTFY,
+                FEIYONG,
+                ZPFZRNAME,
+                ZPFZRID
+FROM (
+SELECT ROWNUM, T.*
+  FROM (
+     SELECT T.*
+          FROM (
+		  SELECT *
+  FROM (
+ WITH T11 AS (
+   SELECT T3.TREE_NODE, --父node
+       T3.DESCR, --组织名称
+       T3.TREE_NODE2, --子node
+       T3.DESCR2, --名称
+       T3.TREE_NODE_NUM, --排序
+       T3.PARENT_NODES, --部门
+       T3.PARENT_NAME --部门名称
+  FROM (SELECT T1.TREE_NODE,
+               T1.DESCR,
+               T2.TREE_NODE     AS TREE_NODE2,
+               T2.DESCR         AS DESCR2,
+               T2.TREE_NODE_NUM,
+               T2.PARENT_NODES,
+               T2.PARENT_NAME
+          FROM ODM_HR_DW T1, ODM_HR_DW T2
+         WHERE T2.PARENT_NODE =
+               T1.TREE_NODE
+           AND T1.TREE_NODE IN
+               ('10001100001',
+                '100000',
+                '10041105853',
+                '10003100439')
+           AND T2.TREE_NODE <>
+               '10001100076'
+        UNION ALL
+        SELECT TREE_NODE,
+               DESCR,
+               TREE_NODE     AS TREE_NODE2,
+               DESCR         AS DESCR2,
+               TREE_NODE_NUM,
+               PARENT_NODES,
+               PARENT_NAME
+          FROM ODM_HR_DW
+         WHERE PARENT_NODE = 'HX_HEAD'
+        UNION ALL
+        SELECT '10001100001' AS TREE_NODE,
+               '股份总部' AS DESCR,
+               TREE_NODE AS TREE_NODE2,
+               '人力资源中心-' || DESCR AS DESCR2,
+               TREE_NODE_NUM,
+               PARENT_NODES,
+               PARENT_NAME
+          FROM ODM_HR_DW
+         WHERE PARENT_NODE = '10001100076'
+        UNION ALL
+        SELECT 'HX_HEAD' AS TREE_NODE,
+               '华夏幸福' AS DESCR,
+               'HX_HEAD' AS TREE_NODE2,
+               '总计（全公司）' AS DESCR2,
+               1 AS TREE_NODE_NUM,
+               'HX_HEAD' AS PARENT_NODES,
+               '华夏幸福' AS PARENT_NAME
+          FROM DUAL) T3
+ ORDER BY TREE_NODE_NUM
+ )
+  SELECT T11.TREE_NODE, --父node
+         T11.DESCR, --组织名称
+         T11.TREE_NODE2, --子node
+         T11.DESCR2, --名称
+         T11.TREE_NODE_NUM,
+         T4.YGID,
+         T4.XINGMING,
+         T4.DANWEI,
+         T4.BUMEN,
+         T4.ZJ,
+         T4.RZDATE,
+         T4.ZPQUDAO,
+         T4.QUDAOMX,
+         T4.LTFY,
+         T4.FEIYONG * 10000 FEIYONG,
+         T4.ZPFZRNAME,
+         T4.ZPFZRID
+    FROM T11
+    LEFT JOIN (
+	SELECT (CASE
+         WHEN T2.FEIYONG IS NULL THEN
+          '0'
+         ELSE
+          T2.FEIYONG
+       END) FEIYONG,
+       T2.ZHIJI,
+       T2.LEIXING,
+       T1.*
+  FROM (SELECT DISTINCT * FROM (
+    SELECT T.YGLEIBIEDQ,
+       T.GANGWEIDQ,
+       T.ZHIJIDQ,
+       T.SSXULIEDQ,
+       T.ZHINENGXULIEDQ,
+       T.YGFENLEILY,
+       T.YGLEIBIELY,
+       T.GANGWEILY,
+       T.BUMENLY,
+       T.ZHIJILY,
+       T.YWDANWEI1,
+       T.YWDANWEI2,
+       T.YWDANWEI3,
+       T.YWDANWEI4,
+       T.BUMEN,
+       T.TJRID,
+       T.TJRNAME,
+       T.ZJZGID,
+       T.ZJZGNAME,
+       T.ZJZGGANGWEI,
+       T.ZJZGZHIJI,
+       T.GJZGID,
+       T.GJZGNAME,
+       T.GJZGGANGWEI,
+       T.GJZGZHIJI,
+       T.TJRISBUMENFZR,
+       T.CLFY,
+       T.TJFY,
+       T.QUDAOCOST,
+       T.TJFYZFQK,
+       T.BDFYZFQK,
+       T.ISZLGANGWEI,
+       T.ZJZGIDTEMP,
+       T.ZJZGZHIWEITEMP,
+       T.BUMENID,
+       T.GJZGIDTEMP,
+       T.GJZGZHIWEITEMP,
+       T.NAMEPINYIN,
+       T.APPLID,
+       T.TREE_NODE_ID,
+       T.ISCQT,
+       T.QDEXP,
+       T.CLEXP,
+       T.BDEXP,
+       T.TJEXP,
+       T.ZPFY,
+       T.GBSF,
+       T.ISHXGB,
+       T.ISBZ,
+       T.ISYBS,
+       T.LTFY,
+       T.YGID,
+       T.RZDATE,
+       T.ZPQUDAO,
+       T.ZHIJILY AS ZJ,
+       T.XINGMING,
+       T.DANWEI,
+       T.QUDAOMX,
+       T.ZPFZRNAME,
+       T.ZPFZRID,
+       (CASE
+         WHEN T.LTHZLEVEL = '储备' THEN
+          '普通'
+         WHEN T.LTHZLEVEL = '试签约' THEN
+          '普通'
+         ELSE
+          T.LTHZLEVEL
+       END) LTHZLEVEL1
+  FROM ODM_HR_ZPTZ T
+ WHERE T.ZPQUDAO = '猎头'
+   AND TO_NUMBER(SUBSTR(T.ZHIJILY, 1, 2)) > 0
+   AND FCOFFERDATE <= TO_DATE('2018-02-01','YYYY/MM/DD')
+  )) T1
+  LEFT JOIN HR_LTQYJBDYFLB_OLD T2
+    ON T1.LTHZLEVEL1 = T2.LEIXING
+   AND T1.ZJ = T2.ZHIJI
+	) T4
+      ON T4.TREE_NODE_ID LIKE
+         '%' || T11.TREE_NODE2 || '%'
+   WHERE 1 = 1
+     AND TO_CHAR(T4.RZDATE, 'yyyy') =
+         SUBSTR('${date_time}', 0, 4)
+   ${IF(DWMC = 'HX_HEAD',
+              " and TREE_NODE2 in (SELECT TREE_NODE FROM ODM_HR_DW WHERE PARENT_NODE ='HX_HEAD')",
+              " and TREE_NODE2 <> TREE_NODE and parent_nodes like '%" + DWMC + "%'") }
+				  )
+                         
+                         UNION ALL
+                         SELECT *
+                           FROM (WITH T11 AS (SELECT T3.TREE_NODE, --父node
+                                                     T3.DESCR, --组织名称
+                                                     T3.TREE_NODE2, --子node
+                                                     T3.DESCR2, --名称
+                                                     T3.TREE_NODE_NUM, --排序
+                                                     T3.PARENT_NODES, --部门
+                                                     T3.PARENT_NAME --部门名称
+                                                FROM (SELECT T1.TREE_NODE,
+                                                             T1.DESCR,
+                                                             T2.TREE_NODE     AS TREE_NODE2,
+                                                             T2.DESCR         AS DESCR2,
+                                                             T2.TREE_NODE_NUM,
+                                                             T2.PARENT_NODES,
+                                                             T2.PARENT_NAME
+                                                        FROM ODM_HR_DW T1,
+                                                             ODM_HR_DW T2
+                                                       WHERE T2.PARENT_NODE =
+                                                             T1.TREE_NODE
+                                                         AND T1.TREE_NODE IN
+                                                             ('10001100001',
+                                                              '100000',
+                                                              '10041105853',
+                                                              '10003100439')
+                                                         AND T2.TREE_NODE <>
+                                                             '10001100076'
+                                                      UNION ALL
+                                                      SELECT TREE_NODE,
+                                                             DESCR,
+                                                             TREE_NODE     AS TREE_NODE2,
+                                                             DESCR         AS DESCR2,
+                                                             TREE_NODE_NUM,
+                                                             PARENT_NODES,
+                                                             PARENT_NAME
+                                                        FROM ODM_HR_DW
+                                                       WHERE PARENT_NODE =
+                                                             'HX_HEAD'
+                                                      UNION ALL
+                                                      SELECT '10001100001' AS TREE_NODE,
+                                                             '股份总部' AS DESCR,
+                                                             TREE_NODE AS TREE_NODE2,
+                                                             '人力资源中心-' || DESCR AS DESCR2,
+                                                             TREE_NODE_NUM,
+                                                             PARENT_NODES,
+                                                             PARENT_NAME
+                                                        FROM ODM_HR_DW
+                                                       WHERE PARENT_NODE =
+                                                             '10001100076'
+                                                      UNION ALL
+                                                      SELECT 'HX_HEAD' AS TREE_NODE,
+                                                             '华夏幸福' AS DESCR,
+                                                             'HX_HEAD' AS TREE_NODE2,
+                                                             '总计（全公司）' AS DESCR2,
+                                                             1 AS TREE_NODE_NUM,
+                                                             'HX_HEAD' AS PARENT_NODES,
+                                                             '华夏幸福' AS PARENT_NAME
+                                                        FROM DUAL) T3
+                                               ORDER BY TREE_NODE_NUM)
+                                
+                                  SELECT T11.TREE_NODE, --父node
+                                         T11.DESCR, --组织名称
+                                         T11.TREE_NODE2, --子node
+                                         T11.DESCR2, --名称
+                                         T11.TREE_NODE_NUM,
+                                         T4.YGID,
+                                         T4.XINGMING,
+                                         T4.DANWEI,
+                                         T4.BUMEN,
+                                         T4.ZJ,
+                                         T4.RZDATE,
+                                         T4.ZPQUDAO,
+                                         T4.QUDAOMX,
+                                         T4.LTFY,
+                                         T4.FEIYONG * 10000 FEIYONG,
+                                         T4.ZPFZRNAME,
+                                         T4.ZPFZRID
+                                    FROM T11
+                                    LEFT JOIN (SELECT (CASE
+                                                        WHEN T2.FEIYONG IS NULL THEN
+                                                         '0'
+                                                        ELSE
+                                                         T2.FEIYONG
+                                                      END) FEIYONG,
+                                                      T2.ZHIJI,
+                                                      T2.LEIXING,
+                                                      T1.*
+                                                 FROM (SELECT T.YGLEIBIEDQ,
+                                                              T.GANGWEIDQ,
+                                                              T.ZHIJIDQ,
+                                                              T.SSXULIEDQ,
+                                                              T.ZHINENGXULIEDQ,
+                                                              T.YGFENLEILY,
+                                                              T.YGLEIBIELY,
+                                                              T.GANGWEILY,
+                                                              T.BUMENLY,
+                                                              T.ZHIJILY,
+                                                              T.YWDANWEI1,
+                                                              T.YWDANWEI2,
+                                                              T.YWDANWEI3,
+                                                              T.YWDANWEI4,
+                                                              T.BUMEN,
+                                                              T.TJRID,
+                                                              T.TJRNAME,
+                                                              T.ZJZGID,
+                                                              T.ZJZGNAME,
+                                                              T.ZJZGGANGWEI,
+                                                              T.ZJZGZHIJI,
+                                                              T.GJZGID,
+                                                              T.GJZGNAME,
+                                                              T.GJZGGANGWEI,
+                                                              T.GJZGZHIJI,
+                                                              T.TJRISBUMENFZR,
+                                                              T.CLFY,
+                                                              T.TJFY,
+                                                              T.QUDAOCOST,
+                                                              T.TJFYZFQK,
+                                                              T.BDFYZFQK,
+                                                              T.ISZLGANGWEI,
+                                                              T.ZJZGIDTEMP,
+                                                              T.ZJZGZHIWEITEMP,
+                                                              T.BUMENID,
+                                                              T.GJZGIDTEMP,
+                                                              T.GJZGZHIWEITEMP,
+                                                              T.NAMEPINYIN,
+                                                              T.APPLID,
+                                                              T.TREE_NODE_ID,
+                                                              T.ISCQT,
+                                                              T.QDEXP,
+                                                              T.CLEXP,
+                                                              T.BDEXP,
+                                                              T.TJEXP,
+                                                              T.ZPFY,
+                                                              T.GBSF,
+                                                              T.ISHXGB,
+                                                              T.ISBZ,
+                                                              T.ISYBS,
+                                                              T.LTFY,
+                                                              T.YGID,
+                                                              T.RZDATE,
+                                                              T.ZPQUDAO,
+                                                              T.ZHIJILY AS ZJ,
+                                                              T.XINGMING,
+                                                              T.DANWEI,
+                                                              T.QUDAOMX,
+                                                              T.ZPFZRNAME,
+                                                              T.ZPFZRID,
+                                                              (CASE
+                                                                WHEN T.LTHZLEVEL = '储备' THEN
+                                                                 '普通'
+                                                                WHEN T.LTHZLEVEL =
+                                                                     '试签约' THEN
+                                                                 '普通'
+                                                                ELSE
+                                                                 T.LTHZLEVEL
+                                                              END) LTHZLEVEL1
+                                                         FROM ODM_HR_ZPTZ T
+                                                        WHERE T.ZPQUDAO = '猎头'
+                                                          AND TO_NUMBER(SUBSTR(T.ZHIJILY,
+                                                                               1,
+                                                                               2)) > 0
+                                                          AND FCOFFERDATE >
+                                                              TO_DATE('2018-02-01',
+                                                                      'YYYY/MM/DD')) T1
+                                                 LEFT JOIN HR_LTQYJBDYFLB T2
+                                                   ON T1.LTHZLEVEL1 = T2.LEIXING
+                                                  AND T1.ZJ = T2.ZHIJI) T4
+                                      ON T4.TREE_NODE_ID LIKE
+                                         '%' || T11.TREE_NODE2 || '%'
+                                   WHERE 1 = 1
+                                     AND TO_CHAR(T4.RZDATE, 'yyyy') =
+                                         SUBSTR('${date_time}', 0, 4)
+                                   ${IF(DWMC = 'HX_HEAD',
+                                              " and TREE_NODE2 in (SELECT TREE_NODE FROM ODM_HR_DW WHERE PARENT_NODE ='HX_HEAD')",
+                                              " and TREE_NODE2 <> TREE_NODE and parent_nodes like '%" + DWMC + "%'") })
+                
+                
+		  ) T
+         ORDER BY T.RZDATE DESC, T.BUMEN DESC, T.ZJ DESC
+  ) T
+)]]></Query>
+</TableData>
+<TableData name="猎头明细" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="date_time"/>
+<O>
+<![CDATA[2018-06-13]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[--关联入职台账取入职职级
+with zptz1 as
+ (select distinct t1.ygid,
+ 		t1.xingming,
+ 		t1.danwei,
+ 		t1.qudaomx,
+ 		t1.bumen,
+         t1.zpfzrname,
+         t1.zpfzrid,
+         t1.ygzt,
+         t2.rzzhiji,
+         t1.rzdate,
+         t1.lzdate,
+         trunc(months_between(t1.LZDATE, t1.RZDATE), 1) as nf,
+        -- t1.ltfy,
+       
+         t1.iszhuying,
+         t1.fcofferdate,
+         t1.zpqudao,
+         t1.lthzlevel,
+         case
+           when t1.lthzlevel = '战略' or t1.lthzlevel = '精英' then
+            t1.lthzlevel
+           else
+            '普通'
+         end lthzlevel1,
+         T1.ZHIJIDQ,
+         t1.bumenid,
+         t1.tree_node_id
+    from ODM_HR_ZPTZ t1
+    left join odm_hr_rztz t2
+      on t1.ygid = t2.ygid
+      and t1.rzdate=t2.rzdate
+      AND t2.rzzhiji<>'级'     
+   WHERE
+      t1.RZDATE < TO_DATE('${date_time}', 'YYYY-MM-DD')
+     AND t1.RZDATE >= TO_DATE('2018-01-01', 'YYYY-MM-DD')
+     AND T1.zpqudao = '猎头'),
+--
+ZPTZ2 AS
+ (SELECT DISTINCT YGID,
+ 			xingming,
+ 			danwei,
+ 			qudaomx,
+ 			bumen,
+        		 zpfzrname,
+       		 zpfzrid,
+                  YGZT,
+                  rzzhiji,
+                  RZDATE,
+                  nf,
+                  case
+                    when to_char(LZDATE, 'yyyy-mm-dd') != '1970-01-01' THEN
+                     to_char(LZDATE, 'yyyy-mm-dd')
+                    ELSE
+                     '-'
+                  END as LZDATE,
+                  ISZHUYING,
+                  FCOFFERDATE,
+                  ZPQUDAO,
+                  LTHZLEVEL,
+                  LTHZLEVEL1,
+                  BUMENID,
+                  --LTFY,
+                  ZHIJIDQ,
+                  tree_node_id,
+                  DW.TREE_NODE_NUM
+    FROM zptz1
+    LEFT JOIN ODM_HR_DW DW
+      ON DW.TREE_NODE = BUMENID
+   where ZHIJIDQ NOT LIKE '99%'
+     AND TREE_NODE_ID LIKE '%${DWMC}%'
+     and TO_NUMBER(SUBSTR(rzzhiji, 1, 2)) >=1
+      and TO_NUMBER(SUBSTR(rzzhiji, 1, 2)) <=18
+  UNION ALL
+  SELECT DISTINCT YGID,
+ 			 xingming,
+ 			danwei,
+ 			qudaomx,
+ 			bumen,
+        		 zpfzrname,
+       		 zpfzrid,
+                  YGZT,
+                  rzzhiji,
+                  RZDATE,
+                  nf,
+                  case
+                    when to_char(LZDATE, 'yyyy-mm-dd') != '1970-01-01' THEN
+                     to_char(LZDATE, 'yyyy-mm-dd')
+                    ELSE
+                     '—'
+                  END as LZDATE,
+                  ISZHUYING,
+                  FCOFFERDATE,
+                  ZPQUDAO,
+                  LTHZLEVEL,
+                  LTHZLEVEL1,
+                  BUMENID,
+                  --LTFY,
+                  ZHIJIDQ,
+                  tree_node_id,
+                  DW.TREE_NODE_NUM
+    FROM zptz1
+    LEFT JOIN ODM_HR_DW DW
+      ON DW.TREE_NODE = BUMENID
+   where ZHIJIDQ LIKE '99%'
+     AND TREE_NODE_ID LIKE '%${DWMC}%'
+     and TO_NUMBER(SUBSTR(rzzhiji, 1, 2)) >=1
+      and TO_NUMBER(SUBSTR(rzzhiji, 1, 2)) <=18
+   ORDER BY TREE_NODE_NUM asc, ZHIJIDQ, RZDATE asc, YGID asc),
+
+ZPTZ3 AS
+ (SELECT *
+    FROM ZPTZ2
+   WHERE RZDATE < TO_DATE('${date_time}', 'YYYY-MM-DD')
+     AND YGID NOT IN (SELECT YGID
+                        FROM ZPTZ1
+                       WHERE ygzt = '离职'
+                         and nf < 6
+                         AND nf >= 0)),
+
+--关联 HR_LTQYJBDYFLB_OLD 费用表 <2018-02-01
+ZPTZ4 as
+ (select case
+           when T1.FCOFFERDATE < TO_DATE('2018-02-01', 'YYYY-MM-DD') then
+            t2.FEIYONG1
+           else
+            0
+         end FEIYONG1,
+         T1.*
+    from ZPTZ3 T1
+    LEFT JOIN HR_LTQYJBDYFLB_OLD T2
+      ON T1.LTHZLEVEL1 = T2.LEIXING
+     AND T1.rzzhiji = T2.ZHIJI),
+
+--关联 HR_LTQYJBDYFLB >=2018-02-01
+ZPTZ5 as
+ (select case
+           when T1.FCOFFERDATE >= TO_DATE('2018-02-01', 'YYYY-MM-DD') then
+            T2.FEIYONG1
+           else
+            T1.FEIYONG1
+         end FEIYONG2,
+         T1.*
+    from ZPTZ4 T1
+    LEFT JOIN HR_LTQYJBDYFLB T2
+      ON T1.LTHZLEVEL1 = T2.LEIXING
+     AND T1.rzzhiji = T2.ZHIJI),
+--ZPTZ6
+ODM_ZPTZ_FY AS
+ (select CASE
+           WHEN FEIYONG2 IS NULL THEN
+            0
+           ELSE
+            FEIYONG2*10000
+         END FEIYONG,
+         YGID,
+         xingming,
+ 		danwei,
+ 		qudaomx,
+ 		bumen,
+        	 zpfzrname,
+       	zpfzrid,
+         YGZT,
+         rzzhiji,
+         to_char(RZDATE,'yyyy-mm-dd') as RZDATE ,
+         nf,
+         LZDATE,
+         ISZHUYING,
+         to_char(FCOFFERDATE,'yyyy-mm-dd') as FCOFFERDATE,
+         ZPQUDAO,
+         LTHZLEVEL1,
+         BUMENID,
+         --LTFY,
+         ZHIJIDQ,
+         tree_node_id,
+         TREE_NODE_NUM
+    from ZPTZ5)
+
+SELECT ROWNUM ,T.* 
+from
+(select * 
+FROM ODM_ZPTZ_FY where ygid not in (SELECT YGID FROM ODM_ZPTZ_FY WHERE ZHIJIDQ IN ('04级','05级') AND FEIYONG=0) order by RZDATE desc,BUMENID ,rzzhiji desc) t
+
+
+]]></Query>
+</TableData>
+<TableData name="ds2" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="date_time"/>
+<O>
+<![CDATA[2018-05-31]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="DWMC"/>
+<O>
+<![CDATA[HX_HEAD]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH W1 AS(
+SELECT T.YGID,
+       T.XINGMING,
+       T.DANWEI,
+       T.QUDAOMX,
+       T.RZDATE,
+       T.ZHIJILY,
+       T.BUMEN,
+       T.ZPFZRNAME,
+       T.ZPFZRID,
+       T.LTFY,
+	  T.TREE_NODE_ID,
+	  T.ZPQUDAO,
+       CASE WHEN T.LTHZLEVEL='储备' THEN '普通'
+             WHEN T.LTHZLEVEL='试签约' THEN '普通'  
+       ELSE LTHZLEVEL END AS LTHZLEVEL1 
+  FROM ODM_HR_ZPTZ T
+ WHERE T.ROWID IN (
+                 SELECT ROWIDS 
+                   FROM (
+                         SELECT YGID,
+                                XINGMING,
+                                DANWEI,
+                                QUDAOMX,
+                                RZDATE,
+                                ZHIJILY,
+                                BUMEN,
+                                ZPFZRNAME,
+                                ZPFZRID,
+                                MAX(ROWID) AS ROWIDS
+                           FROM ODM_HR_ZPTZ
+                          WHERE TO_NUMBER(SUBSTR(ZHIJILY,1,2)) > 0
+						    AND FCOFFERDATE <= TO_DATE('2018-02-01','YYYY/MM/DD')
+                            AND ZPQUDAO = '猎头'
+                          GROUP BY YGID,
+                                   XINGMING,
+                                   DANWEI,
+                                   QUDAOMX,
+                                   RZDATE,
+                                   ZHIJILY,
+                                   BUMEN,
+                                   ZPFZRNAME,
+                                   ZPFZRID
+                         )
+                 )
+),W2 AS (
+SELECT T.YGID,
+       T.XINGMING,
+       T.DANWEI,
+       T.QUDAOMX,
+       T.RZDATE,
+       T.ZHIJILY,
+       T.BUMEN,
+       T.ZPFZRNAME,
+       T.ZPFZRID,
+       T.LTFY,
+	  T.TREE_NODE_ID,
+	  T.ZPQUDAO,
+       CASE WHEN T.LTHZLEVEL='储备' THEN '普通'
+             WHEN T.LTHZLEVEL='试签约' THEN '普通'  
+       ELSE LTHZLEVEL END AS LTHZLEVEL1 
+  FROM ODM_HR_ZPTZ T
+ WHERE T.ROWID IN (
+                 SELECT ROWIDS 
+                   FROM (
+                         SELECT YGID,
+                                XINGMING,
+                                DANWEI,
+                                QUDAOMX,
+                                RZDATE,
+                                ZHIJILY,
+                                BUMEN,
+                                ZPFZRNAME,
+                                ZPFZRID,
+                                MAX(ROWID) AS ROWIDS
+                           FROM ODM_HR_ZPTZ
+                          WHERE TO_NUMBER(SUBSTR(ZHIJILY,1,2)) > 0
+						    AND FCOFFERDATE > TO_DATE('2018-02-01','YYYY/MM/DD')
+                            AND ZPQUDAO = '猎头'
+                          GROUP BY YGID,
+                                   XINGMING,
+                                   DANWEI,
+                                   QUDAOMX,
+                                   RZDATE,
+                                   ZHIJILY,
+                                   BUMEN,
+                                   ZPFZRNAME,
+                                   ZPFZRID
+                         )
+                 )
+),T11 AS (
+SELECT T3.TREE_NODE ,--父node
+         T3.DESCR, --组织名称
+         T3.TREE_NODE2    , --子node
+         T3.DESCR2         ,--名称
+         T3.TREE_NODE_NUM,--排序
+         T3.PARENT_NODES,--部门
+         T3.PARENT_NAME--部门名称
+FROM (
+    SELECT T1.TREE_NODE,
+         T1.DESCR,
+         T2.TREE_NODE     AS TREE_NODE2,
+         T2.DESCR         AS DESCR2,
+         T2.TREE_NODE_NUM,
+         T2.PARENT_NODES,
+         T2.PARENT_NAME
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE
+   AND T1.TREE_NODE IN('10001100001','100000','10041105853','10003100439') AND T2.TREE_NODE<>'10001100076'
+   UNION ALL
+   SELECT TREE_NODE,DESCR,TREE_NODE AS TREE_NODE2,DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+    FROM ODM_HR_DW  WHERE PARENT_NODE ='HX_HEAD'
+   UNION ALL
+   SELECT '10001100001' AS TREE_NODE,'股份总部' AS DESCR,TREE_NODE AS TREE_NODE2,'人力资源中心-'||DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+   FROM ODM_HR_DW WHERE PARENT_NODE='10001100076'
+   UNION ALL
+   SELECT 'HX_HEAD' AS TREE_NODE,'华夏幸福' AS DESCR,'HX_HEAD' AS TREE_NODE2,'总计（全公司）' AS DESCR2,
+   1 AS TREE_NODE_NUM,'HX_HEAD' AS PARENT_NODES,'华夏幸福' AS PARENT_NAME
+   FROM dual
+   )T3  ORDER BY TREE_NODE_NUM
+),W3 AS (
+ SELECT T11.TREE_NODE ,--父node
+        T11.DESCR, --组织名称
+        T11.TREE_NODE2    , --子node
+        T11.DESCR2        ,--名称
+        T11.TREE_NODE_NUM,
+        W1.YGID,
+        W1.XINGMING,
+        W1.DANWEI,
+        W1.QUDAOMX,
+        W1.RZDATE,
+        W1.ZHIJILY,
+        W1.BUMEN,
+        W1.ZPFZRNAME,
+        W1.ZPFZRID,
+        W1.LTFY, 
+        W1.LTHZLEVEL1,
+	   W1.ZPQUDAO,
+        NVL(T2.FEIYONG,'0') * 10000 AS FEIYONG
+   FROM W1
+   LEFT JOIN HR_LTQYJBDYFLB_OLD T2 ON W1.LTHZLEVEL1 = T2.LEIXING
+         AND W1.ZHIJILY = T2.ZHIJI
+   LEFT JOIN T11 ON W1.TREE_NODE_ID LIKE '%'||T11.TREE_NODE2||'%'
+  WHERE 1 = 1
+    AND TO_CHAR(W1.RZDATE,'YYYY') = SUBSTR('${date_time}',1,4)
+${IF(DWMC = 'HX_HEAD'," and T11.TREE_NODE2 in (SELECT TREE_NODE FROM ODM_HR_DW WHERE PARENT_NODE ='HX_HEAD')",
+            " AND T11.TREE_NODE2 <> T11.TREE_NODE AND T11.PARENT_NODES LIKE '%" + DWMC + "%'")}
+)SELECT * FROM W3 WHERE YGID = '10068792']]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<ServerPrinter/>
+<WebPageContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[
+var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+//获取A1单元格的值    ]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.page.First">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-First')}]]></Text>
+<IconName>
+<![CDATA[first]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Previous">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Previous')}]]></Text>
+<IconName>
+<![CDATA[previous]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.PageNavi">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Next">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Next')}]]></Text>
+<IconName>
+<![CDATA[next]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Last">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Last')}]]></Text>
+<IconName>
+<![CDATA[last]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出Excel]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<WebPage isPage="false" isShowAsImage="false" isAutoScale="false" isTDHeavy="false"/>
+</WebPageContent>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[
+var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+//获取A1单元格的值    
+ ]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.PageSetup">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('PageSetup-Page_Setup')}]]></Text>
+<IconName>
+<![CDATA[pagesetup]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.PrintPreview">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('PrintP-Print_Preview')}]]></Text>
+<IconName>
+<![CDATA[preview]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.FlashPrint">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('FR-Engine_Utils_Flash_Print[Client]A')}]]></Text>
+<IconName>
+<![CDATA[flashprint]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.Print">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Print')}]]></Text>
+<IconName>
+<![CDATA[print]]></IconName>
+<PrintButtons/>
+</Widget>
+<Widget class="com.fr.report.web.button.Export">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Export')}]]></Text>
+<IconName>
+<![CDATA[export]]></IconName>
+<Buttons pdf="true" excelP="true" excelO="true" excelS="true" word="true" image="true" html="true"/>
+</Widget>
+<Widget class="com.fr.report.web.button.Email">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Email')}]]></Text>
+<IconName>
+<![CDATA[email]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="true"/>
+<ConditionFuncCheck check="true"/>
+<ListFuncCheck check="true"/>
+</WebViewContent>
+</ReportWebAttr>
+<ReportFitAttr fitStateInPC="1" fitFont="false"/>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR F="0" T="1"/>
+<FR/>
+<HC/>
+<FC/>
+<UPFCR COLUMN="false" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[0,1295400,864000,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[1333500,2743200,2743200,5105400,3600000,0,5905500,3124200,3162300,2743200,2095500,9360000,5040000,5040000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=ROWCOUNT("猎头明细")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1" s="0">
+<O>
+<![CDATA[序号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="0">
+<O>
+<![CDATA[员工ID]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="0">
+<O>
+<![CDATA[姓名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="0">
+<O>
+<![CDATA[猎头费\\n(业务规则)]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="0">
+<O>
+<![CDATA[猎头费用\\n(HOPE系统)]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="6" r="1" s="0">
+<O>
+<![CDATA[招聘渠道明细]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="1" s="0">
+<O>
+<![CDATA[入职日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" s="0">
+<O>
+<![CDATA[发放offer日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" s="0">
+<O>
+<![CDATA[离职日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="1" s="0">
+<O>
+<![CDATA[入职职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="1" s="0">
+<O>
+<![CDATA[部门]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="1" s="0">
+<O>
+<![CDATA[招聘负责人]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="1" s="0">
+<O>
+<![CDATA[招聘负责人ID]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="ROWNUM"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[row() % 2 = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-657931"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="1" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="YGID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="XINGMING"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="DANWEI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="FEIYONG"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="LTFY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="QUDAOMX"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="RZDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="FCOFFERDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="LZDATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="RZZHIJI"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="BUMEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="ZPFZRNAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="猎头明细" columnName="ZPFZRID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting>
+<PaperSize width="57600000" height="57600000"/>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<LayerReportAttr isPageQuery="true" countPerPage="50"/>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+<TemplateID TemplateID="38da7da6-3f86-4032-b449-69632c75be6d"/>
+</WorkBook>

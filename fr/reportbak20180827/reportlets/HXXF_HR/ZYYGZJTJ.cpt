@@ -1,0 +1,1699 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH TT AS (
+SELECT DESCR,
+       '干部' AS FL,
+       COUNT(1)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') THEN YGID END) ZRS,
+       COUNT(CASE WHEN ZHIJI='01级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='01级' THEN YGID END) A,
+       COUNT(CASE WHEN ZHIJI='02级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='02级' THEN YGID END) B,
+       COUNT(CASE WHEN ZHIJI='03级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='03级' THEN YGID END) C,
+       COUNT(CASE WHEN ZHIJI='04级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='04级' THEN YGID END) D,
+       COUNT(CASE WHEN ZHIJI='05级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='05级' THEN YGID END) E,
+       COUNT(CASE WHEN ZHIJI='06级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='06级' THEN YGID END) F,
+       COUNT(CASE WHEN ZHIJI='07级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='07级' THEN YGID END) G,
+       COUNT(CASE WHEN ZHIJI='08级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='08级' THEN YGID END) H,
+       COUNT(CASE WHEN ZHIJI='09级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='09级' THEN YGID END) I,
+       COUNT(CASE WHEN ZHIJI='10级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='10级' THEN YGID END) J,
+       COUNT(CASE WHEN ZHIJI='11级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='11级' THEN YGID END) K,
+       COUNT(CASE WHEN ZHIJI='12级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='12级' THEN YGID END) L,
+       COUNT(CASE WHEN ZHIJI='13级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='13级' THEN YGID END) M,
+       COUNT(CASE WHEN ZHIJI='14级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='14级' THEN YGID END) N,
+       COUNT(CASE WHEN ZHIJI='15级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='15级' THEN YGID END) O,
+       COUNT(CASE WHEN ZHIJI='16级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='16级' THEN YGID END) P
+ FROM ODM_HR_YGTZ  T1
+LEFT JOIN ODM_HR_DW  T2 ON 
+ T1.tree_node_id like '%' || t2.tree_node || '%' 
+WHERE TREE_NODE='HX_HEAD'
+AND ISZHUYING='主营'
+AND BUMEN NOT LIKE '%财务管理中心%'
+AND BUMEN NOT LIKE '%融资中心%'
+AND YGID NOT IN ('10027979','10034523')
+AND YGFENLEI='干部'
+GROUP BY DESCR
+UNION ALL
+SELECT DESCR,
+       '员工' AS FL,
+       COUNT(1)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') THEN YGID END) ZRS,
+       COUNT(CASE WHEN ZHIJI='01级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='01级' THEN YGID END) A,
+       COUNT(CASE WHEN ZHIJI='02级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='02级' THEN YGID END) B,
+       COUNT(CASE WHEN ZHIJI='03级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='03级' THEN YGID END) C,
+       COUNT(CASE WHEN ZHIJI='04级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='04级' THEN YGID END) D,
+       COUNT(CASE WHEN ZHIJI='05级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='05级' THEN YGID END) E,
+       COUNT(CASE WHEN ZHIJI='06级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='06级' THEN YGID END) F,
+       COUNT(CASE WHEN ZHIJI='07级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='07级' THEN YGID END) G,
+       COUNT(CASE WHEN ZHIJI='08级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='08级' THEN YGID END) H,
+       COUNT(CASE WHEN ZHIJI='09级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='09级' THEN YGID END) I,
+       COUNT(CASE WHEN ZHIJI='10级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='10级' THEN YGID END) J,
+       COUNT(CASE WHEN ZHIJI='11级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='11级' THEN YGID END) K,
+       COUNT(CASE WHEN ZHIJI='12级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='12级' THEN YGID END) L,
+       COUNT(CASE WHEN ZHIJI='13级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='13级' THEN YGID END) M,
+       COUNT(CASE WHEN ZHIJI='14级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='14级' THEN YGID END) N,
+       COUNT(CASE WHEN ZHIJI='15级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='15级' THEN YGID END) O,
+       COUNT(CASE WHEN ZHIJI='16级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='16级' THEN YGID END) P
+ FROM ODM_HR_YGTZ  T1
+LEFT JOIN ODM_HR_DW  T2 ON 
+ T1.tree_node_id like '%' || t2.tree_node || '%' 
+WHERE TREE_NODE='HX_HEAD'
+AND ISZHUYING='主营'
+AND BUMEN NOT LIKE '%财务管理中心%'
+AND BUMEN NOT LIKE '%融资中心%'
+AND YGID NOT IN ('10027979','10034523')
+AND YGFENLEI<>'干部'
+GROUP BY DESCR
+UNION ALL
+SELECT DESCR,
+       '总计' AS FL,
+       COUNT(1)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') THEN YGID END) ZRS,
+       COUNT(CASE WHEN ZHIJI='01级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='01级' THEN YGID END) A,
+       COUNT(CASE WHEN ZHIJI='02级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='02级' THEN YGID END) B,
+       COUNT(CASE WHEN ZHIJI='03级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='03级' THEN YGID END) C,
+       COUNT(CASE WHEN ZHIJI='04级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='04级' THEN YGID END) D,
+       COUNT(CASE WHEN ZHIJI='05级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='05级' THEN YGID END) E,
+       COUNT(CASE WHEN ZHIJI='06级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='06级' THEN YGID END) F,
+       COUNT(CASE WHEN ZHIJI='07级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='07级' THEN YGID END) G,
+       COUNT(CASE WHEN ZHIJI='08级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='08级' THEN YGID END) H,
+       COUNT(CASE WHEN ZHIJI='09级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='09级' THEN YGID END) I,
+       COUNT(CASE WHEN ZHIJI='10级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='10级' THEN YGID END) J,
+       COUNT(CASE WHEN ZHIJI='11级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='11级' THEN YGID END) K,
+       COUNT(CASE WHEN ZHIJI='12级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='12级' THEN YGID END) L,
+       COUNT(CASE WHEN ZHIJI='13级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='13级' THEN YGID END) M,
+       COUNT(CASE WHEN ZHIJI='14级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='14级' THEN YGID END) N,
+       COUNT(CASE WHEN ZHIJI='15级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='15级' THEN YGID END) O,
+       COUNT(CASE WHEN ZHIJI='16级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='16级' THEN YGID END) P
+ FROM ODM_HR_YGTZ  T1
+LEFT JOIN ODM_HR_DW  T2 ON 
+ T1.tree_node_id like '%' || t2.tree_node || '%' 
+WHERE TREE_NODE='HX_HEAD'
+AND ISZHUYING='主营'
+AND BUMEN NOT LIKE '%财务管理中心%'
+AND BUMEN NOT LIKE '%融资中心%'
+AND YGID NOT IN ('10027979','10034523')
+GROUP BY DESCR 
+UNION ALL
+SELECT DESCR,
+       '干部' AS FL,
+       COUNT(1)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') THEN YGID END) ZRS,
+       COUNT(CASE WHEN ZHIJI='01级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='01级' THEN YGID END) A,
+       COUNT(CASE WHEN ZHIJI='02级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='02级' THEN YGID END) B,
+       COUNT(CASE WHEN ZHIJI='03级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='03级' THEN YGID END) C,
+       COUNT(CASE WHEN ZHIJI='04级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='04级' THEN YGID END) D,
+       COUNT(CASE WHEN ZHIJI='05级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='05级' THEN YGID END) E,
+       COUNT(CASE WHEN ZHIJI='06级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='06级' THEN YGID END) F,
+       COUNT(CASE WHEN ZHIJI='07级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='07级' THEN YGID END) G,
+       COUNT(CASE WHEN ZHIJI='08级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='08级' THEN YGID END) H,
+       COUNT(CASE WHEN ZHIJI='09级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='09级' THEN YGID END) I,
+       COUNT(CASE WHEN ZHIJI='10级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='10级' THEN YGID END) J,
+       COUNT(CASE WHEN ZHIJI='11级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='11级' THEN YGID END) K,
+       COUNT(CASE WHEN ZHIJI='12级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='12级' THEN YGID END) L,
+       COUNT(CASE WHEN ZHIJI='13级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='13级' THEN YGID END) M,
+       COUNT(CASE WHEN ZHIJI='14级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='14级' THEN YGID END) N,
+       COUNT(CASE WHEN ZHIJI='15级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='15级' THEN YGID END) O,
+       COUNT(CASE WHEN ZHIJI='16级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='16级' THEN YGID END) P
+ FROM ODM_HR_YGTZ  T1
+LEFT JOIN ODM_HR_DW  T2 ON 
+ T1.tree_node_id like '%' || t2.tree_node || '%' 
+WHERE TREE_NODE='10001100001'
+AND ISZHUYING='主营'
+AND BUMEN NOT LIKE '%财务管理中心%'
+AND BUMEN NOT LIKE '%融资中心%'
+AND YGID NOT IN ('10027979','10034523')
+AND YGFENLEI='干部'
+GROUP BY DESCR
+UNION ALL
+SELECT DESCR,
+       '员工' AS FL,
+       COUNT(1)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') THEN YGID END) ZRS,
+       COUNT(CASE WHEN ZHIJI='01级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='01级' THEN YGID END) A,
+       COUNT(CASE WHEN ZHIJI='02级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='02级' THEN YGID END) B,
+       COUNT(CASE WHEN ZHIJI='03级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='03级' THEN YGID END) C,
+       COUNT(CASE WHEN ZHIJI='04级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='04级' THEN YGID END) D,
+       COUNT(CASE WHEN ZHIJI='05级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='05级' THEN YGID END) E,
+       COUNT(CASE WHEN ZHIJI='06级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='06级' THEN YGID END) F,
+       COUNT(CASE WHEN ZHIJI='07级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='07级' THEN YGID END) G,
+       COUNT(CASE WHEN ZHIJI='08级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='08级' THEN YGID END) H,
+       COUNT(CASE WHEN ZHIJI='09级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='09级' THEN YGID END) I,
+       COUNT(CASE WHEN ZHIJI='10级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='10级' THEN YGID END) J,
+       COUNT(CASE WHEN ZHIJI='11级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='11级' THEN YGID END) K,
+       COUNT(CASE WHEN ZHIJI='12级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='12级' THEN YGID END) L,
+       COUNT(CASE WHEN ZHIJI='13级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='13级' THEN YGID END) M,
+       COUNT(CASE WHEN ZHIJI='14级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='14级' THEN YGID END) N,
+       COUNT(CASE WHEN ZHIJI='15级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='15级' THEN YGID END) O,
+       COUNT(CASE WHEN ZHIJI='16级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='16级' THEN YGID END) P
+ FROM ODM_HR_YGTZ  T1
+LEFT JOIN ODM_HR_DW  T2 ON 
+ T1.tree_node_id like '%' || t2.tree_node || '%' 
+WHERE TREE_NODE='10001100001'
+AND ISZHUYING='主营'
+AND BUMEN NOT LIKE '%财务管理中心%'
+AND BUMEN NOT LIKE '%融资中心%'
+AND YGID NOT IN ('10027979','10034523')
+AND YGFENLEI<>'干部'
+GROUP BY DESCR
+UNION ALL
+SELECT DESCR,
+       '总计' AS FL,
+       COUNT(1)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') THEN YGID END) ZRS,
+       COUNT(CASE WHEN ZHIJI='01级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='01级' THEN YGID END) A,
+       COUNT(CASE WHEN ZHIJI='02级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='02级' THEN YGID END) B,
+       COUNT(CASE WHEN ZHIJI='03级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='03级' THEN YGID END) C,
+       COUNT(CASE WHEN ZHIJI='04级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='04级' THEN YGID END) D,
+       COUNT(CASE WHEN ZHIJI='05级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='05级' THEN YGID END) E,
+       COUNT(CASE WHEN ZHIJI='06级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='06级' THEN YGID END) F,
+       COUNT(CASE WHEN ZHIJI='07级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='07级' THEN YGID END) G,
+       COUNT(CASE WHEN ZHIJI='08级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='08级' THEN YGID END) H,
+       COUNT(CASE WHEN ZHIJI='09级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='09级' THEN YGID END) I,
+       COUNT(CASE WHEN ZHIJI='10级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='10级' THEN YGID END) J,
+       COUNT(CASE WHEN ZHIJI='11级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='11级' THEN YGID END) K,
+       COUNT(CASE WHEN ZHIJI='12级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='12级' THEN YGID END) L,
+       COUNT(CASE WHEN ZHIJI='13级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='13级' THEN YGID END) M,
+       COUNT(CASE WHEN ZHIJI='14级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='14级' THEN YGID END) N,
+       COUNT(CASE WHEN ZHIJI='15级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='15级' THEN YGID END) O,
+       COUNT(CASE WHEN ZHIJI='16级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='16级' THEN YGID END) P
+ FROM ODM_HR_YGTZ  T1
+LEFT JOIN ODM_HR_DW  T2 ON 
+ T1.tree_node_id like '%' || t2.tree_node || '%' 
+WHERE TREE_NODE='10001100001'
+AND ISZHUYING='主营'
+AND BUMEN NOT LIKE '%财务管理中心%'
+AND BUMEN NOT LIKE '%融资中心%'
+AND YGID NOT IN ('10027979','10034523')
+GROUP BY DESCR
+) 
+SELECT * FROM TT ORDER BY DESCR,FL DESC
+
+
+]]></Query>
+</TableData>
+<TableData name="ds2" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH ODM_HR_DW1 AS(
+SELECT * FROM (
+    SELECT T1.TREE_NODE,
+         T1.DESCR,
+         T2.TREE_NODE     AS TREE_NODE2,
+         T2.DESCR         AS DESCR2,
+         T2.TREE_NODE_NUM,
+         T2.PARENT_NODES,
+         T2.PARENT_NAME
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE
+   AND T1.TREE_NODE IN('10001100001','100000','10041105853','10003100439','10004100730','10046109037') AND T2.TREE_NODE<>'10001100076'
+   UNION ALL
+   SELECT TREE_NODE,DESCR,TREE_NODE AS TREE_NODE2,DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+    FROM ODM_HR_DW  WHERE PARENT_NODE ='HX_HEAD'
+   UNION ALL
+   SELECT '10001100001' AS TREE_NODE,'股份总部' AS DESCR,TREE_NODE AS TREE_NODE2,'人力资源中心-'||DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+   FROM ODM_HR_DW WHERE PARENT_NODE='10001100076'
+   UNION ALL
+   SELECT 'HX_HEAD' AS TREE_NODE,'华夏幸福' AS DESCR,'HX_HEAD' AS TREE_NODE2,'总计（全公司）' AS DESCR2,
+   1 AS TREE_NODE_NUM,'HX_HEAD' AS PARENT_NODES,'华夏幸福' AS PARENT_NAME
+   FROM dual 
+   ) ORDER BY TREE_NODE_NUM)
+
+SELECT * FROM   
+(SELECT DESCR, 
+       T1.DESCR2,
+       TREE_NODE_NUM,
+       '干部' AS FL,
+       
+       COUNT(1)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') THEN YGID END) ZRS,
+       COUNT(CASE WHEN ZHIJI='01级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='01级' THEN YGID END) A,
+       COUNT(CASE WHEN ZHIJI='02级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='02级' THEN YGID END) B,
+       COUNT(CASE WHEN ZHIJI='03级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='03级' THEN YGID END) C,
+       COUNT(CASE WHEN ZHIJI='04级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='04级' THEN YGID END) D,
+       COUNT(CASE WHEN ZHIJI='05级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='05级' THEN YGID END) E,
+       COUNT(CASE WHEN ZHIJI='06级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='06级' THEN YGID END) F,
+       COUNT(CASE WHEN ZHIJI='07级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='07级' THEN YGID END) G,
+       COUNT(CASE WHEN ZHIJI='08级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='08级' THEN YGID END) H,
+       COUNT(CASE WHEN ZHIJI='09级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='09级' THEN YGID END) I,
+       COUNT(CASE WHEN ZHIJI='10级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='10级' THEN YGID END) J,
+       COUNT(CASE WHEN ZHIJI='11级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='11级' THEN YGID END) K,
+       COUNT(CASE WHEN ZHIJI='12级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='12级' THEN YGID END) L,
+       COUNT(CASE WHEN ZHIJI='13级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='13级' THEN YGID END) M,
+       COUNT(CASE WHEN ZHIJI='14级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='14级' THEN YGID END) N,
+       COUNT(CASE WHEN ZHIJI='15级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='15级' THEN YGID END) O,
+       COUNT(CASE WHEN ZHIJI='16级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='16级' THEN YGID END) P
+      
+FROM ODM_HR_YGTZ T LEFT JOIN ODM_HR_DW1 T1
+ON T.TREE_NODE_ID LIKE '%' || T1.TREE_NODE2 || '%' --WHERE TREE_NODE2='10001105500'
+WHERE TREE_NODE<>'HX_HEAD'
+AND TREE_NODE<>'10001100001'
+AND YGFENLEI='干部'
+AND ISZHUYING='主营'
+AND BUMEN NOT LIKE '%财务管理中心%'
+AND YGID NOT IN ('10027979','10034523')
+GROUP BY T1.DESCR,T1.DESCR2,T1.TREE_NODE_NUM
+
+UNION ALL
+SELECT DESCR,
+       T1.DESCR2,
+       TREE_NODE_NUM,
+       '员工' AS FL,
+       COUNT(1)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') THEN YGID END) ZRS,
+      COUNT(CASE WHEN ZHIJI='01级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='01级' THEN YGID END) A,
+       COUNT(CASE WHEN ZHIJI='02级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='02级' THEN YGID END) B,
+       COUNT(CASE WHEN ZHIJI='03级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='03级' THEN YGID END) C,
+       COUNT(CASE WHEN ZHIJI='04级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='04级' THEN YGID END) D,
+       COUNT(CASE WHEN ZHIJI='05级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='05级' THEN YGID END) E,
+       COUNT(CASE WHEN ZHIJI='06级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='06级' THEN YGID END) F,
+       COUNT(CASE WHEN ZHIJI='07级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='07级' THEN YGID END) G,
+       COUNT(CASE WHEN ZHIJI='08级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='08级' THEN YGID END) H,
+       COUNT(CASE WHEN ZHIJI='09级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='09级' THEN YGID END) I,
+       COUNT(CASE WHEN ZHIJI='10级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='10级' THEN YGID END) J,
+       COUNT(CASE WHEN ZHIJI='11级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='11级' THEN YGID END) K,
+       COUNT(CASE WHEN ZHIJI='12级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='12级' THEN YGID END) L,
+       COUNT(CASE WHEN ZHIJI='13级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='13级' THEN YGID END) M,
+       COUNT(CASE WHEN ZHIJI='14级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='14级' THEN YGID END) N,
+       COUNT(CASE WHEN ZHIJI='15级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='15级' THEN YGID END) O,
+       COUNT(CASE WHEN ZHIJI='16级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='16级' THEN YGID END) P
+      
+FROM ODM_HR_YGTZ T LEFT JOIN ODM_HR_DW1 T1
+ON T.TREE_NODE_ID LIKE '%' || T1.TREE_NODE2 || '%' --WHERE TREE_NODE2='10001105500'
+WHERE TREE_NODE<>'HX_HEAD'
+AND TREE_NODE<>'10001100001'
+AND YGFENLEI<>'干部'
+AND ISZHUYING='主营'
+AND BUMEN NOT LIKE '%财务管理中心%'
+AND YGID NOT IN ('10027979','10034523')
+GROUP BY T1.DESCR,T1.DESCR2,T1.TREE_NODE_NUM
+
+UNION ALL
+SELECT DESCR,
+       T1.DESCR2,
+       TREE_NODE_NUM,
+       '总计' AS FL,
+       COUNT(1)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') THEN YGID END) ZRS,
+       COUNT(CASE WHEN ZHIJI='01级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='01级' THEN YGID END) A,
+       COUNT(CASE WHEN ZHIJI='02级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='02级' THEN YGID END) B,
+       COUNT(CASE WHEN ZHIJI='03级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='03级' THEN YGID END) C,
+       COUNT(CASE WHEN ZHIJI='04级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='04级' THEN YGID END) D,
+       COUNT(CASE WHEN ZHIJI='05级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='05级' THEN YGID END) E,
+       COUNT(CASE WHEN ZHIJI='06级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='06级' THEN YGID END) F,
+       COUNT(CASE WHEN ZHIJI='07级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='07级' THEN YGID END) G,
+       COUNT(CASE WHEN ZHIJI='08级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='08级' THEN YGID END) H,
+       COUNT(CASE WHEN ZHIJI='09级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='09级' THEN YGID END) I,
+       COUNT(CASE WHEN ZHIJI='10级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='10级' THEN YGID END) J,
+       COUNT(CASE WHEN ZHIJI='11级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='11级' THEN YGID END) K,
+       COUNT(CASE WHEN ZHIJI='12级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='12级' THEN YGID END) L,
+       COUNT(CASE WHEN ZHIJI='13级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='13级' THEN YGID END) M,
+       COUNT(CASE WHEN ZHIJI='14级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='14级' THEN YGID END) N,
+       COUNT(CASE WHEN ZHIJI='15级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='15级' THEN YGID END) O,
+       COUNT(CASE WHEN ZHIJI='16级' THEN YGID END)-COUNT(CASE WHEN  ISCQT = '是'
+AND CQTCDLYEAR  IN ('2018','2017') AND ZHIJI='16级' THEN YGID END) P
+      
+FROM ODM_HR_YGTZ T LEFT JOIN ODM_HR_DW1 T1
+ON T.TREE_NODE_ID LIKE '%' || T1.TREE_NODE2 || '%' --WHERE TREE_NODE2='10001105500'
+WHERE TREE_NODE<>'HX_HEAD'
+AND TREE_NODE<>'10001100001'
+AND ISZHUYING='主营'
+AND BUMEN NOT LIKE '%财务管理中心%'
+AND YGID NOT IN ('10027979','10034523')
+GROUP BY T1.DESCR,T1.DESCR2,T1.TREE_NODE_NUM)
+ORDER BY TREE_NODE_NUM,FL desc
+
+]]></Query>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[971550,971550,1152000,1152000,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[7200000,7200000,3600000,4320000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2160000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0" rs="2" s="0">
+<O>
+<![CDATA[业务单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="0" rs="2" s="0">
+<O>
+<![CDATA[组织层级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="0" rs="2" s="0">
+<O>
+<![CDATA[分类]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="0" rs="2" s="0">
+<O>
+<![CDATA[主营（不含财务，17/18常青藤）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="0" cs="2" s="1">
+<O>
+<![CDATA[1级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="0" cs="2" s="1">
+<O>
+<![CDATA[2级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="0" cs="2" s="1">
+<O>
+<![CDATA[3级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="0" cs="2" s="1">
+<O>
+<![CDATA[4级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="0" cs="2" s="1">
+<O>
+<![CDATA[5级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="0" cs="2" s="1">
+<O>
+<![CDATA[6级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="0" cs="2" s="1">
+<O>
+<![CDATA[7级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="18" r="0" cs="2" s="1">
+<O>
+<![CDATA[8级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="0" cs="2" s="1">
+<O>
+<![CDATA[9级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="0" cs="2" s="1">
+<O>
+<![CDATA[10级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="0" cs="2" s="1">
+<O>
+<![CDATA[11级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="26" r="0" cs="2" s="1">
+<O>
+<![CDATA[12级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="28" r="0" cs="2" s="1">
+<O>
+<![CDATA[13级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="30" r="0" cs="2" s="1">
+<O>
+<![CDATA[14级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="32" r="0" cs="2" s="1">
+<O>
+<![CDATA[15级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="34" r="0" cs="2" s="1">
+<O>
+<![CDATA[16级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="2">
+<O>
+<![CDATA[1级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="3">
+<O>
+<![CDATA[1级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" s="2">
+<O>
+<![CDATA[2级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="1" s="3">
+<O>
+<![CDATA[2级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" s="2">
+<O>
+<![CDATA[3级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" s="3">
+<O>
+<![CDATA[3级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="1" s="2">
+<O>
+<![CDATA[4级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="1" s="3">
+<O>
+<![CDATA[4级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="1" s="2">
+<O>
+<![CDATA[5级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="1" s="3">
+<O>
+<![CDATA[5级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="1" s="2">
+<O>
+<![CDATA[6级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="1" s="3">
+<O>
+<![CDATA[6级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="1" s="2">
+<O>
+<![CDATA[7级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="1" s="3">
+<O>
+<![CDATA[7级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="18" r="1" s="2">
+<O>
+<![CDATA[8级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="19" r="1" s="3">
+<O>
+<![CDATA[8级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="1" s="2">
+<O>
+<![CDATA[9级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="21" r="1" s="3">
+<O>
+<![CDATA[9级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="1" s="2">
+<O>
+<![CDATA[10级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="1" s="3">
+<O>
+<![CDATA[10级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="1" s="2">
+<O>
+<![CDATA[11级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="25" r="1" s="3">
+<O>
+<![CDATA[11级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="26" r="1" s="2">
+<O>
+<![CDATA[12级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="27" r="1" s="3">
+<O>
+<![CDATA[12级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="28" r="1" s="2">
+<O>
+<![CDATA[13级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="29" r="1" s="3">
+<O>
+<![CDATA[13级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="30" r="1" s="2">
+<O>
+<![CDATA[14级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="31" r="1" s="3">
+<O>
+<![CDATA[14级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="32" r="1" s="2">
+<O>
+<![CDATA[15级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="33" r="1" s="3">
+<O>
+<![CDATA[15级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="34" r="1" s="2">
+<O>
+<![CDATA[16级人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="35" r="1" s="3">
+<O>
+<![CDATA[16级占比]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" cs="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="FL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ZRS"/>
+<Complex/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="A"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(E3)=0,"-",IF(E3/D3=0,"0%",E3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="6" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="B"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(G3)=0,"-",IF(G3/D3=0,"0%",G3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="8" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="C"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(I3)=0,"-",IF(I3/D3=0,"0%",I3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="10" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="D"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(K3)=0,"-",IF(K3/D3=0,"0%",K3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="12" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="E"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(M3)=0,"-",IF(M3/D3=0,"0%",M3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="14" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="F"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(O3)=0,"-",IF(O3/D3=0,"0%",O3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="16" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="G"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(Q3)=0,"-",IF(Q3/D3=0,"0%",Q3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="18" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="H"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(S3)=0,"-",IF(S3/D3=0,"0%",S3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="20" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="I"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(U3)=0,"-",IF(U3/D3=0,"0%",U3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="22" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="J"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(W3)=0,"-",IF(W3/D3=0,"0%",W3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="24" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="K"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(Y3)=0,"-",IF(Y3/D3=0,"0%",Y3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="26" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="L"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(AA3)=0,"-",IF(AA3/D3=0,"0%",AA3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="28" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="M"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="2" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(AC3)=0,"-",IF(AC3/D3=0,"0%",AC3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="30" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="N"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="31" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(AE3)=0,"-",IF(AE3/D3=0,"0%",AE3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="32" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="O"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="33" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(AG3)=0,"-",IF(AG3/D3=0,"0%",AG3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="34" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="P"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="2" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(AI3)=0,"-",IF(AI3/D3=0,"0%",AI3/D3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="0" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="DESCR2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="FL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="ZRS"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="A"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(E4)=0,"-",IF(E4/D4=0,"0%",E4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="6" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="B"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(G4)=0,"-",IF(G4/D4=0,"0%",G4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="8" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="C"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(I4)=0,"-",IF(I4/D4=0,"0%",I4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="10" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="D"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(K4)=0,"-",IF(K4/D4=0,"0%",K4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="12" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="E"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(M4)=0,"-",IF(M4/D4=0,"0%",M4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="14" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="F"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(O4)=0,"-",IF(O4/D4=0,"0%",O4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="16" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="G"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(Q4)=0,"-",IF(Q4/D4=0,"0%",Q4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="18" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="H"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(S4)=0,"-",IF(S4/D4=0,"0%",S4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="20" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="I"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(U4)=0,"-",IF(U4/D4=0,"0%",U4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="22" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="J"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(W4)=0,"-",IF(W4/D4=0,"0%",W4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="24" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="K"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(Y4)=0,"-",IF(Y4/D4=0,"0%",Y4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="26" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="L"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(AA4)=0,"-",IF(AA4/D4=0,"0%",AA4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="28" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="M"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(AC4)=0,"-",IF(AC4/D4=0,"0%",AC4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="30" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="N"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="31" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(AE4)=0,"-",IF(AE4/D4=0,"0%",AE4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="32" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="O"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="33" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(AG4)=0,"-",IF(AG4/D4=0,"0%",AG4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="34" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds2" columnName="P"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="3" s="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(LEN(AI4)=0,"-",IF(AI4/D4=0,"0%",AI4/D4))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting>
+<PaperSize width="50400000" height="46411200"/>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Top style="1" color="-16777216"/>
+<Bottom style="1" color="-16777216"/>
+<Left style="1" color="-16777216"/>
+<Right style="1" color="-16777216"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Top style="1" color="-16777216"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Bottom style="1"/>
+<Left style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Bottom style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="0"/>
+<TemplateID TemplateID="fc810c16-c73d-41bb-98df-628865767790"/>
+</WorkBook>

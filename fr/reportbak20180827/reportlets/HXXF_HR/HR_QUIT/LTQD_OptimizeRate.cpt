@@ -1,0 +1,1008 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170715" releaseVersion="8.0.0">
+<TableDataMap>
+<TableData name="猎头级职" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="date_time"/>
+<O>
+<![CDATA[2018-05-09]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+WITH T11 AS (
+SELECT T3.TREE_NODE ,--父node
+         T3.DESCR, --组织名称
+         T3.TREE_NODE2    , --子node
+         T3.DESCR2         ,--名称
+         T3.TREE_NODE_NUM,--排序
+         T3.PARENT_NODES,--部门
+         T3.PARENT_NAME--部门名称
+FROM (
+    SELECT T1.TREE_NODE,
+         T1.DESCR,
+         T2.TREE_NODE     AS TREE_NODE2,
+         T2.DESCR         AS DESCR2,
+         T2.TREE_NODE_NUM,
+         T2.PARENT_NODES,
+         T2.PARENT_NAME
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE
+   AND T1.TREE_NODE IN('10001100001','100000','10041105853','10003100439') AND T2.TREE_NODE<>'10001100076'
+   UNION ALL
+   SELECT TREE_NODE,DESCR,TREE_NODE AS TREE_NODE2,DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+    FROM ODM_HR_DW  WHERE PARENT_NODE ='HX_HEAD'
+   UNION ALL
+   SELECT '10001100001' AS TREE_NODE,'股份总部' AS DESCR,TREE_NODE AS TREE_NODE2,'人力资源中心-'||DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+   FROM ODM_HR_DW WHERE PARENT_NODE='10001100076'
+   UNION ALL
+   SELECT 'HX_HEAD' AS TREE_NODE,'华夏幸福' AS DESCR,'HX_HEAD' AS TREE_NODE2,'总计（全公司）' AS DESCR2,
+   1 AS TREE_NODE_NUM,'HX_HEAD' AS PARENT_NODES,'华夏幸福' AS PARENT_NAME
+   FROM dual
+   )T3  ORDER BY TREE_NODE_NUM)
+   
+
+   
+   SELECT T11.TREE_NODE ,--父node
+         T11.DESCR, --组织名称
+         T11.TREE_NODE2    , --子node
+         T11.DESCR2        ,--名称
+        T11.TREE_NODE_NUM,
+      sum(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) THEN SUBSTR(ZHIJIDQ,1,2)END)/
+    count(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) THEN ygid END)  avgzhiji,
+    count(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))> 6 THEN ygid END) as sixs,
+    count(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))<= 5 THEN ygid END) as fives,
+    count(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))='06' THEN ygid END) as six,
+    count(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))='07' THEN ygid END) as seven,
+    count(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))='08' THEN ygid END) as eight,
+    count(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))='09' THEN ygid END) as nine,
+    count(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))='10' THEN ygid END) as ten,
+    count(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))='11' THEN ygid END) as eleven,
+    count(CASE WHEN zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))>=12 THEN ygid END)  as twelve
+    FROM T11 LEFT JOIN ODM_HR_ZPTZ T4  
+   ON   T4.TREE_NODE_ID LIKE '%'||T11.TREE_NODE2||'%'
+      GROUP BY T11.TREE_NODE, T11.DESCR,T11.TREE_NODE2,T11.TREE_NODE_NUM,T11.DESCR2
+     ORDER BY T11.TREE_NODE_NUM
+--SELECT * FROM ODM_HR_ZPTZ WHERE zpqudao='猎头' and TO_CHAR(RZDATE,'YYYY')='2018'
+   /*
+   
+   SELECT  T22.TREE_NODE,T22.DESCR,T22.TREE_NODE2 ,T22.DESCR2 ,
+   ceil(sum(TO_NUMBER(SUBSTR(ZHIJIDQ,1,2)))/sum(rs)) avgzhiji,
+   SUM( CASE WHEN TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))> 6 then rs  end  )   as sixs,
+   sum (CASE WHEN TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))<= 5 then rs end )  as fives,
+   max (CASE WHEN ZHIJIDQ='06级' then rs  end  )   as six ,
+   max (CASE WHEN ZHIJIDQ='07级' then rs  end  )   as seven ,
+   max (CASE WHEN ZHIJIDQ='08级' then rs  end  )   as eight ,
+   max (CASE WHEN ZHIJIDQ='09级' then rs  end  )   as nine ,
+   max (CASE WHEN ZHIJIDQ='10级' then rs  end  )   as ten ,
+   max (CASE WHEN ZHIJIDQ='11级' then rs  end  )   as eleven,
+  sum (CASE WHEN TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))>=12  then rs end)   as twelve级以上,
+  t22.TREE_NODE_NUM
+    FROM T22 
+    group by  T22.TREE_NODE,T22.DESCR,T22.TREE_NODE2,T22.DESCR2 ,t22.TREE_NODE_NUM
+    order by  t22.TREE_NODE_NUM*/
+    
+ ]]></Query>
+</TableData>
+<TableData name="总人数" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="date_time"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+WITH T11 AS (
+SELECT T3.TREE_NODE ,--父node
+         T3.DESCR, --组织名称
+         T3.TREE_NODE2    , --子node
+         T3.DESCR2         ,--名称
+         T3.TREE_NODE_NUM,--排序
+         T3.PARENT_NODES,--部门
+         T3.PARENT_NAME--部门名称
+FROM (
+    SELECT T1.TREE_NODE,
+         T1.DESCR,
+         T2.TREE_NODE     AS TREE_NODE2,
+         T2.DESCR         AS DESCR2,
+         T2.TREE_NODE_NUM,
+         T2.PARENT_NODES,
+         T2.PARENT_NAME
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE
+   AND T1.TREE_NODE IN('10001100001','100000','10041105853','10003100439') AND T2.TREE_NODE<>'10001100076'
+   UNION ALL
+   SELECT TREE_NODE,DESCR,TREE_NODE AS TREE_NODE2,DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+    FROM ODM_HR_DW  WHERE PARENT_NODE ='HX_HEAD'
+   UNION ALL
+   SELECT '10001100001' AS TREE_NODE,'股份总部' AS DESCR,TREE_NODE AS TREE_NODE2,'人力资源中心-'||DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+   FROM ODM_HR_DW WHERE PARENT_NODE='10001100076'
+   UNION ALL
+   SELECT 'HX_HEAD' AS TREE_NODE,'华夏幸福' AS DESCR,'HX_HEAD' AS TREE_NODE2,'总计（全公司）' AS DESCR2,
+   1 AS TREE_NODE_NUM,'HX_HEAD' AS PARENT_NODES,'华夏幸福' AS PARENT_NAME
+   FROM dual
+   )T3  ORDER BY TREE_NODE_NUM)
+   
+   SELECT T11.TREE_NODE ,--父node
+         T11.DESCR, --组织名称
+         T11.TREE_NODE2    , --子node
+         T11.DESCR2        ,--名称
+        T11.TREE_NODE_NUM,
+         T4.zhijidq        ,--职级
+         
+          COUNT(CASE WHEN TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))> 6 then YGID  end) as SIXS      --员工id   
+    FROM T11 LEFT JOIN ODM_HR_ZPTZ T4  
+   ON   T4.TREE_NODE_ID LIKE '%'||T11.TREE_NODE2||'%'
+   and TO_CHAR(T4.RZDATE,'YYYY')='${date_time}'
+      GROUP BY T11.TREE_NODE, T11.DESCR,T11.TREE_NODE2,T11.TREE_NODE_NUM,T11.DESCR2,T4.zhijidq
+   ]]></Query>
+</TableData>
+<TableData name="year猎头人数" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+WITH T11 AS (
+SELECT T3.TREE_NODE ,--父node
+         T3.DESCR, --组织名称
+         T3.TREE_NODE2    , --子node
+         T3.DESCR2         ,--名称
+         T3.TREE_NODE_NUM,--排序
+         T3.PARENT_NODES,--部门
+         T3.PARENT_NAME--部门名称
+FROM (
+    SELECT T1.TREE_NODE,
+         T1.DESCR,
+         T2.TREE_NODE     AS TREE_NODE2,
+         T2.DESCR         AS DESCR2,
+         T2.TREE_NODE_NUM,
+         T2.PARENT_NODES,
+         T2.PARENT_NAME
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE
+   AND T1.TREE_NODE IN('10001100001','100000','10041105853','10003100439') AND T2.TREE_NODE<>'10001100076'
+   UNION ALL
+   SELECT TREE_NODE,DESCR,TREE_NODE AS TREE_NODE2,DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+    FROM ODM_HR_DW  WHERE PARENT_NODE ='HX_HEAD'
+   UNION ALL
+   SELECT '10001100001' AS TREE_NODE,'股份总部' AS DESCR,TREE_NODE AS TREE_NODE2,'人力资源中心-'||DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+   FROM ODM_HR_DW WHERE PARENT_NODE='10001100076'
+   UNION ALL
+   SELECT 'HX_HEAD' AS TREE_NODE,'华夏幸福' AS DESCR,'HX_HEAD' AS TREE_NODE2,'总计（全公司）' AS DESCR2,
+   1 AS TREE_NODE_NUM,'HX_HEAD' AS PARENT_NODES,'华夏幸福' AS PARENT_NAME
+   FROM dual
+   )T3  ORDER BY TREE_NODE_NUM),
+   
+   T22 AS (
+   
+   SELECT T11.TREE_NODE ,--父node
+         T11.DESCR, --组织名称
+         T11.TREE_NODE2    , --子node
+         T11.DESCR2        ,--名称
+        T11.TREE_NODE_NUM,
+         T4.zhijidq        ,--职级
+         
+          COUNT(YGID) as rs      --员工id   
+    FROM T11 LEFT JOIN ODM_HR_ZPTZ T4  
+   ON   T4.TREE_NODE_ID LIKE '%'||T11.TREE_NODE2||'%'
+   AND  T4.zpqudao='猎头' and TO_CHAR(T4.RZDATE,'YYYY')='2017'
+      GROUP BY T11.TREE_NODE, T11.DESCR,T11.TREE_NODE2,T11.TREE_NODE_NUM,T11.DESCR2,T4.zhijidq
+      -- ORDER BY T11.TREE_NODE_NUM
+   )
+   
+   
+   SELECT  T22.TREE_NODE,T22.DESCR,T22.TREE_NODE2 ,T22.DESCR2
+    ,
+  
+   SUM( CASE WHEN TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))> 6 then rs  end  )   as sixs
+    FROM T22 
+    group by  T22.TREE_NODE,T22.DESCR,T22.TREE_NODE2,T22.DESCR2 ,t22.TREE_NODE_NUM
+    order by  t22.TREE_NODE_NUM
+    
+ ]]></Query>
+</TableData>
+<TableData name="YEAR总" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+WITH T11 AS (
+SELECT T3.TREE_NODE ,--父node
+         T3.DESCR, --组织名称
+         T3.TREE_NODE2    , --子node
+         T3.DESCR2         ,--名称
+         T3.TREE_NODE_NUM,--排序
+         T3.PARENT_NODES,--部门
+         T3.PARENT_NAME--部门名称
+FROM (
+    SELECT T1.TREE_NODE,
+         T1.DESCR,
+         T2.TREE_NODE     AS TREE_NODE2,
+         T2.DESCR         AS DESCR2,
+         T2.TREE_NODE_NUM,
+         T2.PARENT_NODES,
+         T2.PARENT_NAME
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE
+   AND T1.TREE_NODE IN('10001100001','100000','10041105853','10003100439') AND T2.TREE_NODE<>'10001100076'
+   UNION ALL
+   SELECT TREE_NODE,DESCR,TREE_NODE AS TREE_NODE2,DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+    FROM ODM_HR_DW  WHERE PARENT_NODE ='HX_HEAD'
+   UNION ALL
+   SELECT '10001100001' AS TREE_NODE,'股份总部' AS DESCR,TREE_NODE AS TREE_NODE2,'人力资源中心-'||DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+   FROM ODM_HR_DW WHERE PARENT_NODE='10001100076'
+   UNION ALL
+   SELECT 'HX_HEAD' AS TREE_NODE,'华夏幸福' AS DESCR,'HX_HEAD' AS TREE_NODE2,'总计（全公司）' AS DESCR2,
+   1 AS TREE_NODE_NUM,'HX_HEAD' AS PARENT_NODES,'华夏幸福' AS PARENT_NAME
+   FROM dual
+   )T3  ORDER BY TREE_NODE_NUM),
+   
+   T22 AS (
+   
+   SELECT T11.TREE_NODE ,--父node
+         T11.DESCR, --组织名称
+         T11.TREE_NODE2    , --子node
+         T11.DESCR2        ,--名称
+        T11.TREE_NODE_NUM,
+         T4.zhijidq        ,--职级
+         
+          COUNT(YGID) as rs      --员工id   
+    FROM T11 LEFT JOIN ODM_HR_ZPTZ T4  
+   ON   T4.TREE_NODE_ID LIKE '%'||T11.TREE_NODE2||'%'
+   and TO_CHAR(T4.RZDATE,'YYYY')='2017'
+      GROUP BY T11.TREE_NODE, T11.DESCR,T11.TREE_NODE2,T11.TREE_NODE_NUM,T11.DESCR2,T4.zhijidq
+      -- ORDER BY T11.TREE_NODE_NUM
+   )
+   
+   
+   SELECT  T22.TREE_NODE,T22.DESCR,T22.TREE_NODE2 ,T22.DESCR2
+    ,
+  
+   SUM( CASE WHEN TO_NUMBER(SUBSTR(ZHIJIDQ,1,2))> 6 then rs  end  )   as sixs
+    FROM T22 
+    group by  T22.TREE_NODE,T22.DESCR,T22.TREE_NODE2,T22.DESCR2 ,t22.TREE_NODE_NUM
+    order by  t22.TREE_NODE_NUM
+    
+ ]]></Query>
+</TableData>
+<TableData name="tree" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="dwmc"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[SELECT T3.TREE_NODE ,--父node
+         T3.DESCR, --组织名称
+         T3.TREE_NODE2    , --子node
+         T3.DESCR2         ,--名称
+         T3.TREE_NODE_NUM,--排序
+         T3.PARENT_NODES,--部门
+         T3.PARENT_NAME--部门名称
+FROM (
+    SELECT T1.TREE_NODE,
+         T1.DESCR,
+         T2.TREE_NODE     AS TREE_NODE2,
+         T2.DESCR         AS DESCR2,
+         T2.TREE_NODE_NUM,
+         T2.PARENT_NODES,
+         T2.PARENT_NAME
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE
+   AND T1.TREE_NODE IN('10001100001','100000','10041105853','10003100439') AND T2.TREE_NODE<>'10001100076'
+   UNION ALL
+   SELECT TREE_NODE,DESCR,TREE_NODE AS TREE_NODE2,DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+    FROM ODM_HR_DW  WHERE PARENT_NODE ='HX_HEAD'
+   UNION ALL
+   SELECT '10001100001' AS TREE_NODE,'股份总部' AS DESCR,TREE_NODE AS TREE_NODE2,'人力资源中心-'||DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+   FROM ODM_HR_DW WHERE PARENT_NODE='10001100076'
+   UNION ALL
+   SELECT 'HX_HEAD' AS TREE_NODE,'华夏幸福' AS DESCR,'HX_HEAD' AS TREE_NODE2,'总计（全公司）' AS DESCR2,
+   1 AS TREE_NODE_NUM,'HX_HEAD' AS PARENT_NODES,'华夏幸福' AS PARENT_NAME
+   FROM dual
+   )T3 
+where  1=1 
+
+${if(len(dwmc)=0,'',if(dwmc='HX_HEAD',''," and T3.TREE_NODE ='"+dwmc+"'"))}
+
+   ORDER BY TREE_NODE_NUM
+   ]]></Query>
+</TableData>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="date_time"/>
+<O>
+<![CDATA[2018-05-31]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="dwmc"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[HXXF_HR]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH TREE AS(
+SELECT T3.TREE_NODE ,--父node
+         T3.DESCR, --组织名称
+         T3.TREE_NODE2    , --子node
+         T3.DESCR2         ,--名称
+         T3.TREE_NODE_NUM,--排序
+         T3.PARENT_NODES,--部门
+         T3.PARENT_NAME--部门名称
+FROM (
+    SELECT T1.TREE_NODE,
+         T1.DESCR,
+         T2.TREE_NODE     AS TREE_NODE2,
+         T2.DESCR         AS DESCR2,
+         T2.TREE_NODE_NUM,
+         T2.PARENT_NODES,
+         T2.PARENT_NAME
+    FROM ODM_HR_DW T1, ODM_HR_DW T2
+   WHERE T2.PARENT_NODE = T1.TREE_NODE
+   AND T1.TREE_NODE IN('10001100001','100000','10041105853','10003100439') AND T2.TREE_NODE<>'10001100076'
+   UNION ALL
+   SELECT TREE_NODE,DESCR,TREE_NODE AS TREE_NODE2,DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+    FROM ODM_HR_DW  WHERE PARENT_NODE ='HX_HEAD'
+   UNION ALL
+   SELECT '10001100001' AS TREE_NODE,'股份总部' AS DESCR,TREE_NODE AS TREE_NODE2,'人力资源中心-'||DESCR AS DESCR2,TREE_NODE_NUM,PARENT_NODES,PARENT_NAME
+   FROM ODM_HR_DW WHERE PARENT_NODE='10001100076'
+   UNION ALL
+   SELECT 'HX_HEAD' AS TREE_NODE,'华夏幸福' AS DESCR,'HX_HEAD' AS TREE_NODE2,'总计（全公司）' AS DESCR2,
+   1 AS TREE_NODE_NUM,'HX_HEAD' AS PARENT_NODES,'华夏幸福' AS PARENT_NAME
+   FROM dual
+   )T3 )
+   
+SELECT 
+  T1.TREE_NODE ,--父node
+  T1.DESCR, --组织名称
+  T1.TREE_NODE2    , --子node
+  T1.DESCR2        ,--名称
+  T1.TREE_NODE_NUM,
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))> 5 THEN ygid END) as LT_SIXYS, --06级以上猎头使用人数
+ count(CASE WHEN TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))> 5 THEN ygid END) as Z_SIXYS,--06级以上入职总人数
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4)-1 AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))> 5 THEN ygid END) as LT_17,--06级以上猎头17年人数
+ count(CASE WHEN TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4)-1 AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))> 5 THEN ygid END) as Z_17,--06级以上17年总人数
+ sum(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) THEN SUBSTR(ZHIJILY,1,2)END)/
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) THEN ygid END)  avgzhiji,--平均职级
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))< 6 THEN ygid END) as LT_FIVEYX, --05级以下猎头使用人数
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))= 6 THEN ygid END) as LT_SIX, --06级猎头使用人数
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))= 7 THEN ygid END) as LT_SEVEN, --07级猎头使用人数
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))= 8 THEN ygid END) as LT_EIGHT, --08级猎头使用人数
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))= 9 THEN ygid END) as LT_NINE, --09级猎头使用人数 
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))= 10 THEN ygid END) as LT_TEN, --10级猎头使用人数
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))= 11 THEN ygid END) as LT_ELEVEN, --11级猎头使用人数
+ count(CASE WHEN zpqudao='猎头' and TO_CHAR(T2.RZDATE,'YYYY')=SUBSTR('${date_time}',0,4) AND TO_NUMBER(SUBSTR(ZHIJILY,1,2))> 11 THEN ygid END) as LT_TWELVE --12级以上猎头使用人数
+ FROM TREE T1 LEFT JOIN ODM_HR_ZPTZ T2  
+   ON   T2.TREE_NODE_ID LIKE '%'||T1.TREE_NODE2||'%'
+   WHERE ZHIJILY NOT LIKE '%99%'
+ ${IF(LEN(dwmc)=0,"",IF(dwmc='HX_HEAD',""," AND T1.TREE_NODE2='"+dwmc+"'"))} 
+   GROUP BY T1.TREE_NODE ,--父node
+  T1.DESCR, --组织名称
+  T1.TREE_NODE2    , --子node
+  T1.DESCR2        ,--名称
+  T1.TREE_NODE_NUM
+   ORDER BY T1.TREE_NODE_NUM
+   ]]></Query>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR F="0" T="1"/>
+<FR/>
+<HC/>
+<FC/>
+<UPFCR COLUMN="false" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[1333500,1295400,723900,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[6324600,0,8420100,5334000,5181600,4762500,2743200,2743200,3600000,3600000,2286000,2400300,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0" cs="3" rs="2" s="0">
+<O>
+<![CDATA[]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="0" cs="7" s="1">
+<O>
+<![CDATA[猎头使用优化率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="0" cs="9" s="1">
+<O>
+<![CDATA[猎头渠道招聘员工职级分布]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" s="2">
+<O>
+<![CDATA[06级以上猎头使用人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" s="2">
+<O>
+<![CDATA[06级以上入职总人数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="2">
+<O>
+<![CDATA[06级以上猎头使用率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" s="3">
+<O>
+<![CDATA[2017猎头]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="7" r="1" s="3">
+<O>
+<![CDATA[2017总]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="8" r="1" s="2">
+<O>
+<![CDATA[2017年06级以上猎头使用率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" s="2">
+<O>
+<![CDATA[06级以上猎头使用优化率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="1" s="2">
+<O>
+<![CDATA[平均职级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="1" s="2">
+<O>
+<![CDATA[5级及以下]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="1" s="2">
+<O>
+<![CDATA[6级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="1" s="2">
+<O>
+<![CDATA[7级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="1" s="2">
+<O>
+<![CDATA[8级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="1" s="2">
+<O>
+<![CDATA[9级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="1" s="2">
+<O>
+<![CDATA[10级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="1" s="2">
+<O>
+<![CDATA[11级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="18" r="1" s="2">
+<O>
+<![CDATA[12级及以上]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="DESCR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="2">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="TREE_NODE2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="DESCR2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper">
+<Attr divideMode="1"/>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[A3 = "华夏新城建设发展有限公司"
+]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ <> "华夏新城建设发展有限公司"
+]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[A3 = "医疗事业部"
+
+]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ <> "医疗事业部"
+]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="3" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LT_SIXYS"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="4" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="Z_SIXYS"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="5" r="2" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[= D3 / E3]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[E3=0]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[LEN(E3)=0]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[D3=0]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[LEN(D3)=0]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[0%]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand leftParentDefault="false" left="C3"/>
+</C>
+<C c="6" r="2" s="7">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LT_17"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="7">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="Z_17"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(H3=0,0,IF(LEN(E3) = 0, 0, G3 / H3))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[G3=0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[0%]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand leftParentDefault="false" left="C3"/>
+</C>
+<C c="9" r="2" s="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(F3=0,I3,I3 / F3 - 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[F3=0]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[I3<>0]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=I3]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$=0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[0%]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand leftParentDefault="false" left="C3"/>
+</C>
+<C c="10" r="2" s="8">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="AVGZHIJI"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[IF(LEN($$$)=0,"-",$$$)]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="11" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LT_FIVEYX"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="12" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LT_SIX"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="13" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LT_SEVEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="14" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LT_EIGHT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="15" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LT_NINE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="16" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LT_TEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="17" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LT_ELEVEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="18" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LT_TWELVE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="0" r="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<FrozenColumnRow columnrow="A3"/>
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="96" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-4194304"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="1" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="IAA"/>
+<PreviewType PreviewType="1"/>
+<TemplateID TemplateID="37aa7240-e55d-4407-b70f-a732a57b0fcb"/>
+</WorkBook>

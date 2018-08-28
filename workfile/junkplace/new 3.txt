@@ -1,0 +1,128 @@
+WITH RES AS
+ (SELECT *
+    FROM (SELECT ND.*,
+                 ROW_NUMBER() OVER(PARTITION BY ND.PROJECTGUID ORDER BY ND.NODESORT) NUM
+            FROM DM_PROJECT_NODE_DETAIL ND
+           WHERE ND.PROJECTGUID NOT IN
+                 (SELECT DISTINCT PROJGUID
+                    FROM DM_PROJECT_DELAY_DETAIL
+                  UNION
+                  SELECT DISTINCT PROJGUID
+                    FROM DM_PROJECT_NWRISK_DETAIL)
+             AND ND.NODETATUS = 'N') RES
+   WHERE RES.NUM = 1)
+   
+SELECT   n.areaname, 
+    n.projname,
+     N.PROJGUID,
+    n.invest_amount,
+   n. image,
+   n. nodeitem, 
+    N.CITYNAME,   
+   n. delaycausetype,
+   n. areaname||n.projname as area_pro,
+   n.PROJECTTYPE,
+    n.completion_plan_date
+    FROM (
+    SELECT  n.areaname, 
+    n.projname,
+    N.PROJGUID,
+    n.invest_amount,
+   n. image,
+   n. nodeitem,    
+   n. delaycausetype,
+   n.areaguid,
+    N.CITYNAME,
+   n.entityguid,
+   n.PROJECTTYPE,
+    n.completion_plan_date
+    FROM  (select * from (SELECT N.AREANAME,
+       N.PROJNAME,
+       N.PROJGUID,
+       N.INVEST_AMOUNT,
+       N.IMAGE,
+       N.NODEITEM,
+       N.DELAYCAUSETYPE,
+       N.AREAGUID,
+       N.ENTITYGUID,
+       N.CITYNAME,
+       N.COMPLETION_PLAN_DATE,
+       '已延期' PROJECTTYPE
+  FROM DM_PROJECT_DELAY_DETAIL N
+UNION ALL
+SELECT N.AREANAME,
+       N.PROJNAME,
+       N.PROJGUID,
+       N.INVEST_AMOUNT,
+       N.IMAGE,
+       N.NODEITEM,
+       '风险' DELAYCAUSETYPE,
+       N.AREAGUID,
+       N.ENTITYGUID,
+       N.CITYNAME,
+       N.COMPLETION_PLAN_DATE,
+       '风险' PROJECTTYPE
+  FROM DM_PROJECT_NWRISK_DETAIL N
+UNION ALL
+SELECT DISTINCT ND.AREANAME,
+                ND.PROJECTNAME PROJNAME,
+                ND.PROJECTGUID PROJGUID,
+                PD.INVEST_AMOUNT,
+                PD.IMAGE,
+                ND.NODENAME NODEITEM,
+                '正常' DELAYCAUSETYPE,
+                ND.AREAGUID,
+                ND.ENTITYGUID,
+                PD.CITYNAME,
+                ND.COMPLETION_PLAN_NODE,
+                '正常' PROJECTTYPE
+
+  FROM DM_PROJECT_PROCEED_DETAIL PD,
+       (SELECT *
+  FROM RES
+UNION ALL
+SELECT *
+  FROM (SELECT ND.*,
+               ROW_NUMBER() OVER(PARTITION BY ND.PROJECTGUID ORDER BY ND.NODESORT DESC) NUM
+          FROM DM_PROJECT_NODE_DETAIL ND
+         WHERE ND.PROJECTGUID NOT IN
+               (SELECT DISTINCT PROJGUID
+                  FROM DM_PROJECT_DELAY_DETAIL
+                UNION
+                SELECT DISTINCT PROJGUID
+                  FROM DM_PROJECT_NWRISK_DETAIL)
+           AND ND.PROJECTGUID NOT IN (SELECT RES.PROJECTGUID FROM RES)) RESULT
+ WHERE RESULT.NUM = 1) ND
+ WHERE PD.PROJGUID = ND.PROJECTGUID)res 
+ where 1=1
+  ${if(len(projecttype) == 0,""," and res.PROJECTTYPE in ('" + projecttype+ "')")}
+) n
+
+) n
+ LEFT JOIN (select ORG_ID,
+      CASE
+         WHEN FATHER_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B3'
+         THEN  'E0A3D386-D5C8-FB22-18DE-4424D49363B2'
+          WHEN org_ID = 'E0A3D386-D5C8-FB22-18DE-4424D49363B2' THEN
+           NULL
+          ELSE
+           FATHER_ID
+        END FATHER_ID,
+       ORG_NAME,
+       ORG_SNAME,
+       ORDER_KEY,
+       ORG_CODE
+  from dim_org
+  WHERE ORG_CODE LIKE 'HXCYXC%'
+   and ORG_CODE not LIKE 'HXCYXCGJ%'
+   and FATHER_ID != 'E0A3D386-D5C8-FB22-18DE-4424D49363B2')
+  t ON (n.entityguid=t.org_id OR n.areaguid=t.org_id) 
+
+WHERE 1=1 
+and  t.org_code LIKE '${org}%'
+      ${if(year_cash='S',"and INVEST_AMOUNT>1",if(year_cash='X',"and INVEST_AMOUNT<1",""))}
+      ${if(len(city_name) == 0,"","and cityname in ('" + city_name + "')")}
+      order by areaname,projname
+ 
+
+   

@@ -226,7 +226,8 @@ SELECT TRIM(TO_CHAR(ROWNUM, '00')) || '月' YF,
 <![CDATA[HXXF_HR]]></DatabaseName>
 </Connection>
 <Query>
-<![CDATA[SELECT NVL(A.DESC_HEADHUNTER,NVL(B.DESC_HEADHUNTER,C.DESC_HEADHUNTER)) DESC_HEADHUNTER ,A.PEONUM SUMVALUE,B.PEONUM HIRENUM,C.PEONUM FIRENUM,
+<![CDATA[select * from (
+SELECT NVL(A.DESC_HEADHUNTER,NVL(B.DESC_HEADHUNTER,C.DESC_HEADHUNTER)) DESC_HEADHUNTER ,A.PEONUM SUMVALUE,B.PEONUM HIRENUM,C.PEONUM FIRENUM,
        CASE
          WHEN A.PEONUM IS NULL OR A.PEONUM = 0 THEN
           0
@@ -270,7 +271,8 @@ SELECT TRIM(TO_CHAR(ROWNUM, '00')) || '月' YF,
                          ${if(len(YEAR)=0,"","AND TO_CHAR(S.HIREDATE, 'yyyy') = '"+YEAR+"'")}
                          ${if(or(len(start)=0,len(end)=0),"","AND TO_CHAR(S.HIREDATE, 'MM') BETWEEN '"+start+"' AND '"+end + "'")})
                GROUP BY DESC_HEADHUNTER) C
-     ON B.DESC_HEADHUNTER = C.DESC_HEADHUNTER]]></Query>
+     ON B.DESC_HEADHUNTER = C.DESC_HEADHUNTER) res
+     order by res.SUMVALUE desc]]></Query>
 </TableData>
 <TableData name="THIRD" class="com.fr.data.impl.DBTableData">
 <Parameters>

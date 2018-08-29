@@ -334,5 +334,16 @@ SELECT CASE
                          AND INSTR(S.TREE_NODE_ID, D.PARENT_NODES) > 0
                          AND TO_CHAR(S.HIREDATE, 'yyyy') = '2018'
                          AND TO_CHAR(S.HIREDATE, 'MM') BETWEEN '01' AND '05')
-               GROUP BY DESC_HEADHUNTER
+               GROUP BY DESC_HEADHUNTER;
+               /*
+SELECT DISTINCT S.CANDIDATO_NAME,null id,S.PRO_LEVEL,S.UNIT_NAME||'-'||S.DEPT_NAME UNITDEPT,SUBSTR(s.pro_name,5) pro_name,S.DESC_HEADHUNTER,  S.HIREDATE,NULL OFFERDATE ,S.FIREDATE,S.PROBATION_LEAVE
+          FROM ODS_HR_CANDIDATO_S S, ODM_HR_DW D
+          WHERE S.DITCH = '57' 
+           AND D.PARENT_NODE =  ${if(len(DWMC)=0,"'HX_HEAD'","'"+DWMC+"'")}
+           AND INSTR(S.TREE_NODE_ID, D.PARENT_NODES) > 0
+           ${if(len(YEAR)=0,"","AND TO_CHAR(S.HIREDATE, 'yyyy') = '"+YEAR+"'")}
+           AND S.STATUS_FLOW = '090'
+           ${if(or(len(start)=0,len(end)=0),"","AND TO_CHAR(S.HIREDATE, 'MM') BETWEEN '"+start+"' AND '"+end + "'")}
+           ORDER BY S.HIREDATE
+           */
 

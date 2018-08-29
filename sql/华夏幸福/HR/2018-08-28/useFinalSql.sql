@@ -121,3 +121,35 @@ SELECT DESC_HEADHUNTER, COUNT(CANDIDATO) PEONUM
            AND TO_CHAR(S.HIREDATE, 'yyyy') = '2018'
            AND TO_CHAR(S.HIREDATE, 'MM') BETWEEN '01' AND '05')
  GROUP BY DESC_HEADHUNTER
+ 
+ 
+ /*
+ SELECT DESC_HEADHUNTER, COUNT(CANDIDATO) PEONUM
+  FROM (SELECT DISTINCT S.CANDIDATO, S.DESC_HEADHUNTER
+          FROM ODS_HR_CANDIDATO_S S, ODM_HR_DW D
+         WHERE S.DITCH = '57'
+           AND D.PARENT_NODE = ${if(len(DWMC)=0,"'HX_HEAD'","'"+DWMC+"'")}
+           AND S.STATUS_FLOW = '090'
+           ${if(len(ZJ)=0,"","AND S.PRO_LEVEL = '"+ZJ+"'")}
+           AND INSTR(S.TREE_NODE_ID, D.PARENT_NODES) > 0
+           ${if(len(YEAR)=0,"","AND TO_CHAR(S.HIREDATE, 'yyyy') = '"+YEAR+"'")}
+           ${or(if(len(start)=0,len(end)=0),"","AND TO_CHAR(S.HIREDATE, 'MM') BETWEEN '"+start+"' AND '"+end+"'")}
+           
+ GROUP BY DESC_HEADHUNTER
+ 
+
+
+
+SELECT DESC_HEADHUNTER, COUNT(CANDIDATO) PEONUM
+  FROM (SELECT DISTINCT S.CANDIDATO, S.DESC_HEADHUNTER
+          FROM ODS_HR_CANDIDATO_S S, ODM_HR_DW D
+         WHERE S.DITCH = '57'
+           AND D.PARENT_NODE =  ${if(len(DWMC)=0,"'HX_HEAD'","'"+DWMC+"'")}
+           AND S.STATUS_FLOW = '090'
+           ${if(len(ZJ)=0,"","AND S.PRO_LEVEL = '"+ZJ+"'")}
+           AND INSTR(S.TREE_NODE_ID, D.PARENT_NODES) > 0
+           ${if(len(YEAR)=0,"","AND TO_CHAR(S.HIREDATE, 'yyyy') = '"+YEAR+"'")}
+           ${if(or(len(start)=0,len(end)=0),"","AND TO_CHAR(S.HIREDATE, 'MM') BETWEEN '"+start+"' AND '"+end + "'")})
+ GROUP BY DESC_HEADHUNTER
+ 
+ */

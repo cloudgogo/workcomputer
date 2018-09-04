@@ -1,0 +1,1 @@
+select regexp_substr('1,2,3','[^,]+', 1, level, 'i') as id_arr from dual connect by level <= length('1,2,3')-length(regexp_replace('1,2,3', ',', ''))+1

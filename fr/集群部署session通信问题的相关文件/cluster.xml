@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ClusterConfig useCluster="true" userShare="true">
+	<ClusterService  isSelf="true">	
+		<ServiceName>A</ServiceName>
+		<ip>10.120.133.94</ip>
+		<port>8075</port>
+		<WebAppName>WebReport</WebAppName>
+	</ClusterService>
+	<ClusterService>			
+		<ServiceName>B</ServiceName>
+		<ip>10.120.133.99</ip>
+		<port>8075</port>
+		<WebAppName>WebReport</WebAppName>
+	</ClusterService>
+</ClusterConfig>

@@ -188,6 +188,13 @@ upstream  xu {
 ```
 ip_hash可以和weight结合使用。
 
+
+
+- 关于session粘滞的问题
+    > 集群报表时会出session time out错误，因为集群的每台服务器间必须创建通信，即session粘滞，若有3台服务器进行集群，用户发出一请求被分配至服务器A，保存了一些信息在session中，该用户再次发送请求被分配到服务器B，要用之前保存的信息，若服务器A和B之间没有session粘滞，那么服务器B就拿不到之前的信息，就返回session time out。
+
+    需要查看相关服务器间有关于session通信的内容
+
 ## 拓展
 
 windows下查看端口占用情况

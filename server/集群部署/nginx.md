@@ -1,7 +1,10 @@
 
 # nginx总结
 - 什么是nginx？
-Nginx (engine x) 是一款轻量级的Web 服务器 、反向代理服务器及电子邮件（IMAP/POP3）代理服务器。
+Nginx (engine x) 是一款轻量级的Web 服务器 、反向代理服务器及电子邮件（IMAP/POP3）代理服务器。<br>
+服务器集群：是指将很多服务器集中起来一起进行同一种服务，在客户端看来就是只有一个服务器。集群可以利用多个计算机进行并行计算从而获得很高的计算速度，也可以用多个计算机做备份，从而使得任何一个机器坏了整个系统还是能正常运行。<br>
+
+均衡负载：对于集群来说，负载均衡意味着当方向代理服务nginx接受到用户发起的请求之后，会把请求按照配置的分配方式让各个服务器摊分任务，以此来减少服务器的压力，提高性能。
 
 - 什么是反向代理？
 反向代理（Reverse Proxy）方式是指以代理服务器来接受internet上的连接请求，然后将请求转发给内部网络上的服务器，并将从服务器上得到的结果返回给internet上请求连接的客户端，此时代理服务器对外就表现为一个反向代理服务器。
@@ -136,6 +139,54 @@ http {
  
 }
 ```
+> **配置两个地方，第一个是upstream，另一个是proxy_pass http:// xxx**<br>
+> **注意upstream 后面的名字需要和server中的location下的proxy_paxx http:// 后的内容相同**
+
+- 在location中进行参数配置
+```
+proxy_connect_timeout：与服务器连接的超时时间，默认60s
+fail_timeout：当该时间内服务器没响应，则认为服务器失效，默认10s
+max_fails：允许连接失败次数，默认为1
+
+等待时间 = proxy_connect_timeout + fail_timeout * max_fails
+```
+
+## 负载均衡策略
+1. 轮询 
+这种是默认的策略，把每个请求按顺序逐一分配到不同的server
+```conf
+upstream  xu {   
+    server    127.0.0.1:8080; 
+    server    127.0.0.1:8090;  
+} 
+```
+2. 最少连接 
+把请求分配到连接数最少的server
+```conf
+upstream  xu {
+    least_conn;
+    server    127.0.0.1:8080; 
+    server    127.0.0.1:8090;  
+} 
+```
+3. 权重 
+使用weight来指定server访问比率，weight默认是1。
+```conf
+upstream  xu {   
+    server    127.0.0.1:8080 weight=1; 
+    server    127.0.0.1:8090 weight=2;  
+}
+```
+4. ip_hash 
+每个请求会按照访问ip的hash值分配，这样同一客户端连续的Web请求都会被分发到同一server进行处理，可以解决session的问题。
+```conf
+upstream  xu {
+    ip_hash;
+    server    127.0.0.1:8080; 
+    server    127.0.0.1:8090;  
+}
+```
+ip_hash可以和weight结合使用。
 
 ## 拓展
 

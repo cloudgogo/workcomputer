@@ -1,0 +1,16 @@
+
+数据库表
+DM_PROJECT_NODE_DETAIL 节点明细表
+DM_PROJECT_DELAY_DETAIL 延期项目明细表
+DM_PROJECT_NWRISK_DETAIL  风险项目明细表
+DM_PROJECT_PROCEED_DETAIL  项目明细表
+dim_org 组织表
+DM_PROJECT_TIM_IMAGE 图片信息表
+
+
+- 字段意义在数据库中有 comment 请查看
+
+
+说明：
+1. 在取正常项目时，请通过所有项目去除风险项目和延期项目的最近的未进行到的节点
+2. 组织表有层级关系，请依据层级关系作出树状多选框

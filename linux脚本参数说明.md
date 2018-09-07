@@ -124,3 +124,50 @@ $* linux
 $* python
 $* c
 ```
+
+
+
+### 测试
+> 基于云开发环境codingStudio
+切换coding账户再转至root权限
+```s
+ ➜  /etc su coding
+Password:
+➜  /etc w
+ 08:11:06 up 15 days,  1:27,  0 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+➜  /etc sudo su
+root@coding:/etc# ll
+```
+为test1.sh文件赋权
+```s
+root@coding:/home/coding/workspace/linux# chmod 777  test1.sh
+root@coding:/home/coding/workspace/linux# ll
+total 12
+drwxr-xr-x 2 coding coding 4096 Aug 31 03:26 ./
+drwxr-xr-x 8 coding coding 4096 Sep  1 09:47 ../
+-rwxrwxrwx 1 coding coding  182 Sep  3 01:33 test1.sh*
+```
+查看test1.sh文件
+```s
+root@coding:/home/coding/workspace/linux# cat test1.sh
+#!/bin/bash
+
+echo "Shell 输出脚本名称及参数";
+echo "执行的脚本名：$0";
+echo "第一个参数为：$1";
+echo "第二个参数为：$2";
+echo "第三个参数为：$3";root@coding:/home/coding/workspace/linux#
+root@coding:/home/coding/workspace/linux# ./test1.sh
+bash: ./test1.sh: Permission denied
+root@coding:/home/coding/workspace/linux# ll
+```
+执行并查看结果
+```s
+root@coding:/home/coding/workspace/linux# ./test1.sh a  b c
+Shell 输出脚本名称及参数
+执行的脚本名：./test1.sh
+第一个参数为：a
+第二个参数为：b
+第三个参数为：c
+```

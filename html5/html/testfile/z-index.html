@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--
+    <style>
+    .pr{position:relative;}
+    .pa{position:absolute;}
+    div{width:200px;height:200px;border:1px solid #ccc;color:#fff;font:bold 14px \5fae\8f6f\96c5\9ed1;}
+    #one{background:#39f;}
+    #one .pa1{background:#096;top:25px;left:20px;}
+    #one .pa2{background:#969;top:90px;left:40px;}
+    #two{background:#669;top:165px;left:70px;}
+    </style>
+
+    -->
+
+    <!--
+    <style>
+    .pr{position:relative;}
+    .pa{position:absolute;}
+    div{width:200px;height:200px;border:1px solid #ccc;color:#fff;font:bold 14px \5fae\8f6f\96c5\9ed1;}
+    #one{background:#39f; z-index:1;}
+    #one .pa1{background:#096;top:25px;left:20px; z-index:30;}
+    #one .pa2{background:#969;top:90px;left:40px; z-index:20;}
+    #two{background:#669;top:165px;left:70px; z-index:9;}
+    
+    </style>
+    -->
+</head>
+
+<body>
+
+    <div style="width: 20%; background-color: rgb(192, 192, 97) ;position: relative;">
+
+        <div style="width: 80%; background-color: blueviolet; position: absolute">
+            &nbsp;
+        </div>
+        <div style="position:absolute;width: 100%;" align="right">this os data</div>
+        &nbsp;
+    </div>
+
+    <!--
+    <div class="pr" id="one">
+        #one相对定位
+        <div class="pa pa1">#one的子元素pa1，相对#one绝对定位，#one是它的父元素，与.pa2为同级兄弟元素</div>
+        <div class="pa pa2">#one的子元素pa2，相对#one绝对定位，#one是它的父元素，与.pa1为同级兄弟元素</div>
+    </div>
+    <div class="pa" id="two">#two绝对定位，与#one为同级元素</div>
+    -->
+</body>
+
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>鼠标悬停显示提示信息窗口</title>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8">
+<style type="text/css">
+body{background: #d5d5d5}
+*{padding:0;margin:0}
+.contact{width:10px;background-color:#CCCCCC;text-align:center;}
+.us{display:none;width:300px;padding:10px;position:relative;top:0px;left:0px;background-color:#fff;border: 1px solid #f5f5f5;border-radius:3px;} 
+.us p{font-size:12px;color:#999;padding-top:5px} 
+</style>
+<script src="http://libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+$(".contact").mouseover(function(){
+$(".us").show("slow");
+$(".contact").mouseout(function(){
+$(".us").hide("slow");
+});
+});
+})
+</script>
+</head>
+<body>
+<div class="contact">联</div>
+<div class="us">
+     <p>1.联系我们鼠标悬停显示提示信息窗口</p >
+     <p>2.鼠标悬停显示提示信息窗口</p >
+     <p>3.鼠标悬停显示提示信息窗口鼠标悬停显示提示信息窗口</p >
+</div>
+</body>
+</html>

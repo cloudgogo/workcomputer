@@ -1,0 +1,35 @@
+<div  title="deijdiejdklejfiuehkjewlfhe">3298049305</div>
+
+contentPane.toolbar.getWidgetByName("ExcelO").setVisible(false);
+
+
+var m = document.getElementById("要移除的元素id");
+
+m.parentNode.removeChild(m);
+
+
+
+var m = contentPane.toolbar.getWidgetByName("ExcelO")
+
+m.parentNode.removeChild(m);
+
+
+$(x-toolbar ui-state-enabled fs-tab-content-top-toolbar)
+var m = contentPane.toolbar.getWidgetByName("ExcelO");
+var p= document.getElementsByClassName("x-toolbar");
+p.removeChild(m);
+
+
+
+
+
+
+<div class="x-toolbar ui-state-enabled fs-tab-content-top-toolbar" style="height: 28px; border-width: 0px; padding: 0px; left: 0px; top: 0px; width: 1104px; position: absolute;"><table cellspacing="0" style="height: 28px;"><tbody><tr><td><div class="fr-btn ui-state-disabled" widgetname="First"><div id="fr-btn-First" class="fr-btn-up  fr-btn-text-icon" style="height:NaNpx;width:autopx;display:table-cell;"><div class="fr-btn-small fr-btn-icon-small-left"><em unselectable="on"><button unselectable="none" type="button" data-role="none" class="fr-btn-text x-emb-first">首页</button></em></div></div></div></td><td><span class="sep"> </span></td><td><div class="fr-btn ui-state-disabled" widgetname="Previous"><div id="fr-btn-Previous" class="fr-btn-up  fr-btn-text-icon" style="height:NaNpx;width:autopx;display:table-cell;"><div class="fr-btn-small fr-btn-icon-small-left"><em unselectable="on"><button unselectable="none" type="button" data-role="none" class="fr-btn-text x-emb-previous">上一页</button></em></div></div></div></td><td><span class="sep"> </span></td><td><div class="ui-state-enabled" style="position: relative;"><div class="fr-horizontalboxlayout ui-state-enabled" style="overflow: hidden; width: 90px; height: 24px; position: relative;"><div class="ui-state-enabled" style="width: 50px; height: 20px; left: 0px; top: 2px; position: absolute;"><input type="text" name="" class="fr-texteditor" style="font-size: 12px; width: 42px; height: 16px; text-align: center;"></div><div class="ui-state-enabled" style="width: 40px; height: 20px; overflow: hidden; left: 50px; top: 2px; position: absolute;"><table cellpadding="0" cellspacing="0" style="table-layout: fixed; width: 40px; height: 20px; text-size-adjust: none;"><tbody><tr><td><pre class="fr-label" style="font-size: 12px; color: rgb(0, 0, 0); text-decoration: none; text-align: center; font-family: SimSun; word-wrap: break-word; white-space: pre-wrap; width: 40px;">/1</pre></td></tr></tbody></table></div></div></div></td><td><span class="sep"> </span></td><td><div class="fr-btn ui-state-disabled" widgetname="Next"><div id="fr-btn-Next" class="fr-btn-up  fr-btn-text-icon" style="height:NaNpx;width:autopx;display:table-cell;"><div class="fr-btn-small fr-btn-icon-small-left"><em unselectable="on"><button unselectable="none" type="button" data-role="none" class="fr-btn-text x-emb-next">下一页</button></em></div></div></div></td><td><span class="sep"> </span></td><td><div class="fr-btn ui-state-disabled" widgetname="Last"><div id="fr-btn-Last" class="fr-btn-up  fr-btn-text-icon" style="height:NaNpx;width:autopx;display:table-cell;"><div class="fr-btn-small fr-btn-icon-small-left"><em unselectable="on"><button unselectable="none" type="button" data-role="none" class="fr-btn-text x-emb-last">末页</button></em></div></div></div></td><td><span class="sep"> </span></td><td><div class="fr-btn ui-state-enabled" widgetname="ExcelO"><div id="fr-btn-ExcelO" class="fr-btn-up  fr-btn-text-icon" style="height:NaNpx;width:autopx;display:table-cell;"><div class="fr-btn-small fr-btn-icon-small-left"><em unselectable="on"><button unselectable="none" type="button" data-role="none" class="fr-btn-text x-emb-excel">原样导出</button></em></div></div></div></td></tr></tbody></table></div>
+
+contentPane.toolbar.getWidgetByName("CustomToolBarButton").setVisible(false);
+CustomToolBarButton
+
+fangwenlujing=FR.remoteEvaluate('=$reportName');   
+
+var REPORT_URL = '/WebReport/ReportServer?reportlet=ThreeLevelPage%2FOPE_FIN_SIGN_DEMO_HK_E.cpt&op=view&org=' + ORG1 + '&yearmonth='+ TIME1 +'&time=' + YEARMONTH1 + '&format=excel' + '&__filename__="回款"';  
+window.location = (FR.cjkEncode(REPORT_URL));

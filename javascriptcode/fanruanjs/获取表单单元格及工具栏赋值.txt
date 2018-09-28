@@ -1,0 +1,101 @@
+var totalnumber=123//$("tr[tridx=0]","div.content-container").children().eq(0).text();
+alert(totalnumber)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton'] :button").eq(2).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton'] :button").eq(2).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+
+
+
+cpt
+
+
+//
+////回款详情
+if(export1==0&&state1==0){ 
+
+	$('.fr-btn-text-icon').parent().css('visibility','hidden');
+     $('.fr-btn-text-icon').parent().css("width",0);  
+      
+//回款预估
+}else if(export2==0&&state1==1){
+	
+	$('.fr-btn-text-icon').parent().css('visibility','hidden');
+     $('.fr-btn-text-icon').parent().css("width",0);  
+	
+	}
+
+//
+//var totalnumber=$("tr[tridx=0]","div.content-container").children().eq(0).text();
+//
+//	if(totalnumber==0){
+//	$("div[id^='fr-btn-CustomToolBarButton'] :button").eq(1).text("无数据").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		})
+//}
+//else {	
+//	$("div[id^='fr-btn-CustomToolBarButton'] :button").eq(1).text("共"+totalnumber+"条").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		});	
+//
+//}
+
+////展开的最大节点级值  
+//var t = 4;   
+//for(var m = 1; m <= t; m++) {  
+//    //循环执行“+”号展开  
+//    $('.x-treenode-unexpand').trigger('click');  
+//}  
+//
+//var totalnumber=$("tr[tridx=3]","div.content-container").children().eq(0).text();
+////alert(totalnumber.length)
+//	if(totalnumber==0){
+//	$("div[id^='fr-btn-CustomToolBarButton'] :button").eq(0).text("无数据").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		})
+//}
+//else {	
+//	$("div[id^='fr-btn-CustomToolBarButton'] :button").eq(0).text("共"+totalnumber+"条").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		});	
+//
+//}
+//
+////获取A1单元格的值
+
+var totalnumber=a1
+      //alert(totalnumber.length)
+        if(totalnumber==0){
+        $("div[id^='fr-btn-CustomToolBarButton'] :button").eq(1).text("无数据").css({
+        "color":"rgb(191,0,0)",
+        "font-weight":"800" 
+          })
+      }
+      else {  
+        $("div[id^='fr-btn-CustomToolBarButton'] :button").eq(1).text("共"+totalnumber+"条").css({
+        "color":"rgb(191,0,0)",
+        "font-weight":"800" 
+          }); 
+
+      }
+      //获取A1单元格的值
+
+
+
+$("div[class^='x-toolbar").css({
+	"background":"#ffffff"
+		})

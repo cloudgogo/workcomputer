@@ -9,6 +9,19 @@ public class TestStatic {
         System.out.println("before:"+st2.i);
             st1.i=2;
         System.out.println("after:"+st2.i);
+        StaticTest.increment();
+
+        System.out.println("CLASS static method after :"+StaticTest.i);
+        System.out.println("st1`s static attribute "+st1.i);
+        System.out.println("st2`s static attribute "+st2.i);
+        st1.increment();
+        System.out.println("CLASS static method after :"+StaticTest.i);
+        System.out.println("st1`s static attribute "+st1.i);
+        System.out.println("st2`s static attribute "+st2.i);
+        st2.increment();
+        System.out.println("CLASS static method after :"+StaticTest.i);
+        System.out.println("st1`s static attribute "+st1.i);
+        System.out.println("st2`s static attribute "+st2.i);
 
     }
 }

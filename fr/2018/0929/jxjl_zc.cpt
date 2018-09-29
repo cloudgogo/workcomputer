@@ -1,0 +1,5135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="index" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select * from(
+select 'JXJLZC' AS guid,'' as fa_guid,'合计' as names,160 as ordernum from dual
+union all
+select guid,
+       case when serialnumber='JXJLJY02' then 'JXJLZC' 
+            when serialnumber='JXJLTZ02' then 'JXJLZC'
+            when serialnumber='JXJLCZ02' then 'JXJLZC'
+            else fa_guid end as fa_guid,names,to_number(ordernum)
+from dim_ncf_index 
+where serialnumber like 'JXJLJY02%' or serialnumber like 'JXJLTZ02%' or serialnumber like 'JXJLCZ02%') a
+order by ordernum]]></Query>
+</TableData>
+<TableData name="index_tree" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[GUID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FA_GUID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[index]]></originalTableDataName>
+</TableData>
+<TableData name="org1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="orggroupid"/>
+<O>
+<![CDATA[产业新城]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[A80C0CB8-E296-491B-B222-C2D89BC74AEC,5FB62123-5DF2-0750-0F82-F04B251EA55E]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="org_zz"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select org_id,
+       case when org_type = '事业部' then null else father_id end as father_id,
+       org_name, order_key,org_code
+     from dim_org
+     where 1=1 ${if(orggroupid="住宅"," and org_id in ('"+REPLACE(org_zz,",","','")+"')"," and org_id in ('"+REPLACE(org,",","','")+"')" )}
+     order by order_key]]></Query>
+</TableData>
+<TableData name="xshk" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="orggroupid"/>
+<O>
+<![CDATA[新城全口径]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[A80C0CB8-E296-491B-B222-C2D89BC74AEC]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="yearmonth"/>
+<O>
+<![CDATA[2018-09-22]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="org_zz"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select guid,gname,order_key,index_id,index_name,levels,ordernum,
+case when sum(target_year)=0 then '-' else to_char(sum(target_year),'fm9999990.90') end target_year,
+case when sum(fact_year)=0 then '-' else to_char(sum(fact_year),'fm9999990.90') end fact_year,
+case when sum(complete_rate_year)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_year),'fm9999990.90') else to_char(sum(complete_rate_year)*100,'fm9999990')||'%' end end complete_rate_year,
+case when sum(target_quarter)=0 then '-' else to_char(sum(target_quarter),'fm9999990.90') end target_quarter,
+case when sum(fact_quarter)=0 then '-' else to_char(sum(fact_quarter),'fm9999990.90') end fact_quarter,
+case when sum(complete_rate_quarter)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_quarter),'fm9999990.90') else to_char(sum(complete_rate_quarter)*100,'fm9999990')||'%' end end complete_rate_quarter,  
+case when sum(target_month)=0 then '-' else to_char(sum(target_month),'fm9999990.90') end target_month,
+case when sum(fact_month)=0 then '-' else to_char(sum(fact_month),'fm9999990.90') end fact_month,
+case when sum(complete_rate_month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_month),'fm9999990.90') else to_char(sum(complete_rate_month)*100,'fm9999990')||'%' end end complete_rate_month, 
+case when sum(target_1month)=0 then '-' else to_char(sum(target_1month),'fm9999990.90') end target_1month,
+case when sum(fact_1month)=0 then '-' else to_char(sum(fact_1month),'fm9999990.90') end fact_1month,
+case when sum(complete_rate_1month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_1month),'fm9999990.90') else to_char(sum(complete_rate_1month)*100,'fm9999990')||'%' end end complete_rate_1month,
+case when sum(target_2month)=0 then '-' else to_char(sum(target_2month),'fm9999990.90') end target_2month,
+case when sum(fact_2month)=0 then '-' else to_char(sum(fact_2month),'fm9999990.90') end fact_2month,
+case when sum(complete_rate_2month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_2month),'fm9999990.90') else to_char(sum(complete_rate_2month)*100,'fm9999990')||'%' end end complete_rate_2month,  
+case when sum(target_3month)=0 then '-' else to_char(sum(target_3month),'fm9999990.90') end target_3month,
+case when sum(fact_3month)=0 then '-' else to_char(sum(fact_3month),'fm9999990.90') end fact_3month,
+case when sum(complete_rate_3month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_3month),'fm9999990.90') else to_char(sum(complete_rate_3month)*100,'fm9999990')||'%' end end complete_rate_3month,  
+case when sum(target_4month)=0 then '-' else to_char(sum(target_4month),'fm9999990.90') end target_4month,
+case when sum(fact_4month)=0 then '-' else to_char(sum(fact_4month),'fm9999990.90') end fact_4month,
+case when sum(complete_rate_4month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_4month),'fm9999990.90') else to_char(sum(complete_rate_4month)*100,'fm9999990')||'%' end end complete_rate_4month,  
+case when sum(target_5month)=0 then '-' else to_char(sum(target_5month),'fm9999990.90') end target_5month,
+case when sum(fact_5month)=0 then '-' else to_char(sum(fact_5month),'fm9999990.90') end fact_5month,
+case when sum(complete_rate_5month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_5month),'fm9999990.90') else to_char(sum(complete_rate_5month)*100,'fm9999990')||'%' end end complete_rate_5month,  
+case when sum(target_6month)=0 then '-' else to_char(sum(target_6month),'fm9999990.90') end target_6month,
+case when sum(fact_6month)=0 then '-' else to_char(sum(fact_6month),'fm9999990.90') end fact_6month,
+case when sum(complete_rate_6month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_6month),'fm9999990.90') else to_char(sum(complete_rate_6month)*100,'fm9999990')||'%' end end complete_rate_6month,  
+case when sum(target_7month)=0 then '-' else to_char(sum(target_7month),'fm9999990.90') end target_7month,
+case when sum(fact_7month)=0 then '-' else to_char(sum(fact_7month),'fm9999990.90') end fact_7month,
+case when sum(complete_rate_7month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_7month),'fm9999990.90') else to_char(sum(complete_rate_7month)*100,'fm9999990')||'%' end end complete_rate_7month,  
+case when sum(target_8month)=0 then '-' else to_char(sum(target_8month),'fm9999990.90') end target_8month,
+case when sum(fact_8month)=0 then '-' else to_char(sum(fact_8month),'fm9999990.90') end fact_8month,
+case when sum(complete_rate_8month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_8month),'fm9999990.90') else to_char(sum(complete_rate_8month)*100,'fm9999990')||'%' end end complete_rate_8month,  
+case when sum(target_9month)=0 then '-' else to_char(sum(target_9month),'fm9999990.90') end target_9month,
+case when sum(fact_9month)=0 then '-' else to_char(sum(fact_9month),'fm9999990.90') end fact_9month,
+case when sum(complete_rate_9month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_9month),'fm9999990.90') else to_char(sum(complete_rate_9month)*100,'fm9999990')||'%' end end complete_rate_9month,  
+case when sum(target_10month)=0 then '-' else to_char(sum(target_10month),'fm9999990.90') end target_10month,
+case when sum(fact_10month)=0 then '-' else to_char(sum(fact_10month),'fm9999990.90') end fact_10month,
+case when sum(complete_rate_10month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_10month),'fm9999990.90') else to_char(sum(complete_rate_10month)*100,'fm9999990')||'%' end end complete_rate_10month,  
+case when sum(target_11month)=0 then '-' else to_char(sum(target_11month),'fm9999990.90') end target_11month,
+case when sum(fact_11month)=0 then '-' else to_char(sum(fact_11month),'fm9999990.90') end fact_11month,
+case when sum(complete_rate_11month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_11month),'fm9999990.90') else to_char(sum(complete_rate_11month)*100,'fm9999990')||'%' end end complete_rate_11month,  
+case when sum(target_12month)=0 then '-' else to_char(sum(target_12month),'fm9999990.90') end target_12month,
+case when sum(fact_12month)=0 then '-' else to_char(sum(fact_12month),'fm9999990.90') end fact_12month,
+case when sum(complete_rate_12month)=0 then '-' else case when index_id in ('ed9a0d0fc6d240a18277e0fc3a153d45','851211f803ba4f8fbb37b6f582b7d07a','27c5565c13d743bea93cead15cfa04ed','3813b7b994544088a2d6b8a763c08cc2') 
+then to_char(sum(complete_rate_12month),'fm9999990.90') else to_char(sum(complete_rate_12month)*100,'fm9999990')||'%' end end complete_rate_12month
+from
+(select a.guid,a.gname,b.order_key,a.index_id,a.index_name,c.levels,c.ordernum,
+case when a.date_string=substr('${yearmonth}',1,4) then target else 0 end target_year,
+case when a.date_string=substr('${yearmonth}',1,4) then fact else 0 end fact_year,
+case when a.date_string=substr('${yearmonth}',1,4) then complete_rate else 0 end complete_rate_year,
+case when a.date_string=to_char(to_date('${yearmonth}','yyyy-mm-dd'),'yyyyq') then target else 0 end target_quarter,
+case when a.date_string=to_char(to_date('${yearmonth}','yyyy-mm-dd'),'yyyyq') then fact else 0 end fact_quarter,
+case when a.date_string=to_char(to_date('${yearmonth}','yyyy-mm-dd'),'yyyyq') then complete_rate else 0 end complete_rate_quarter,
+case when a.date_string=to_char(to_date('${yearmonth}','yyyy-mm-dd'),'yyyymm') then target else 0 end target_month,
+case when a.date_string=to_char(to_date('${yearmonth}','yyyy-mm-dd'),'yyyymm') then fact else 0 end fact_month,
+case when a.date_string=to_char(to_date('${yearmonth}','yyyy-mm-dd'),'yyyymm') then complete_rate else 0 end complete_rate_month,
+case when a.date_string=substr('${yearmonth}',1,4)||'01' then target else 0 end target_1month,
+case when a.date_string=substr('${yearmonth}',1,4)||'01' then fact else 0 end fact_1month,
+case when a.date_string=substr('${yearmonth}',1,4)||'01' then complete_rate else 0 end complete_rate_1month,
+case when a.date_string=substr('${yearmonth}',1,4)||'02' then target else 0 end target_2month,
+case when a.date_string=substr('${yearmonth}',1,4)||'02' then fact else 0 end fact_2month,
+case when a.date_string=substr('${yearmonth}',1,4)||'02' then complete_rate else 0 end complete_rate_2month, 
+case when a.date_string=substr('${yearmonth}',1,4)||'03' then target else 0 end target_3month,
+case when a.date_string=substr('${yearmonth}',1,4)||'03' then fact else 0 end fact_3month,
+case when a.date_string=substr('${yearmonth}',1,4)||'03' then complete_rate else 0 end complete_rate_3month,
+case when a.date_string=substr('${yearmonth}',1,4)||'04' then target else 0 end target_4month,
+case when a.date_string=substr('${yearmonth}',1,4)||'04' then fact else 0 end fact_4month,
+case when a.date_string=substr('${yearmonth}',1,4)||'04' then complete_rate else 0 end complete_rate_4month,
+case when a.date_string=substr('${yearmonth}',1,4)||'05' then target else 0 end target_5month,
+case when a.date_string=substr('${yearmonth}',1,4)||'05' then fact else 0 end fact_5month,
+case when a.date_string=substr('${yearmonth}',1,4)||'05' then complete_rate else 0 end complete_rate_5month,
+case when a.date_string=substr('${yearmonth}',1,4)||'06' then target else 0 end target_6month,
+case when a.date_string=substr('${yearmonth}',1,4)||'06' then fact else 0 end fact_6month,
+case when a.date_string=substr('${yearmonth}',1,4)||'06' then complete_rate else 0 end complete_rate_6month,
+case when a.date_string=substr('${yearmonth}',1,4)||'07' then target else 0 end target_7month,
+case when a.date_string=substr('${yearmonth}',1,4)||'07' then fact else 0 end fact_7month,
+case when a.date_string=substr('${yearmonth}',1,4)||'07' then complete_rate else 0 end complete_rate_7month,
+case when a.date_string=substr('${yearmonth}',1,4)||'08' then target else 0 end target_8month,
+case when a.date_string=substr('${yearmonth}',1,4)||'08' then fact else 0 end fact_8month,
+case when a.date_string=substr('${yearmonth}',1,4)||'08' then complete_rate else 0 end complete_rate_8month,
+case when a.date_string=substr('${yearmonth}',1,4)||'09' then target else 0 end target_9month,
+case when a.date_string=substr('${yearmonth}',1,4)||'09' then fact else 0 end fact_9month,
+case when a.date_string=substr('${yearmonth}',1,4)||'09' then complete_rate else 0 end complete_rate_9month,
+case when a.date_string=substr('${yearmonth}',1,4)||'10' then target else 0 end target_10month,
+case when a.date_string=substr('${yearmonth}',1,4)||'10' then fact else 0 end fact_10month,
+case when a.date_string=substr('${yearmonth}',1,4)||'10' then complete_rate else 0 end complete_rate_10month,
+case when a.date_string=substr('${yearmonth}',1,4)||'11' then target else 0 end target_11month,
+case when a.date_string=substr('${yearmonth}',1,4)||'11' then fact else 0 end fact_11month,
+case when a.date_string=substr('${yearmonth}',1,4)||'11' then complete_rate else 0 end complete_rate_11month,
+case when a.date_string=substr('${yearmonth}',1,4)||'12' then target else 0 end target_12month,
+case when a.date_string=substr('${yearmonth}',1,4)||'12' then fact else 0 end fact_12month,
+case when a.date_string=substr('${yearmonth}',1,4)||'12' then complete_rate else 0 end complete_rate_12month
+from dm_ncf_netcashflow a inner join dim_org b on a.guid=b.org_id inner join dim_ncf_index c on a.index_id=c.guid
+ where 1=1 
+ ${if(orggroupid="新城全口径"," and a.calibre='5a7354d69ad84e1cba378279096c4157' and org_id in ('"+replace(org,",","','")+"')",
+ 
+ if(orggroupid="产业新城"," and a.calibre='1b97deb312be4c2d836db933a0edc9c2'  and org_id in ('"+replace(org,",","','")+"')",
+" and a.calibre='1b97deb312be4c2d836db933a0edc9c2'  and org_id in ('"+replace(org_zz,",","','")+"')"))}
+
+) a      
+group by guid,gname,order_key,index_id,index_name,levels,ordernum
+order by order_key,to_number(ordernum)]]></Query>
+</TableData>
+<TableData name="org_tree" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[org]]></originalTableDataName>
+</TableData>
+<TableData name="org_zhu" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select org_id,null as father_id, org_name, order_key,org_code
+       from dim_org
+       where org_type_id ='孔雀城住宅'
+       order by order_key]]></Query>
+</TableData>
+<TableData name="orgzhu" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[org_zhu]]></originalTableDataName>
+</TableData>
+<TableData name="org" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="fr_authority"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="fr_username"/>
+<O>
+<![CDATA[heyanfei1]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with role as
+ (select regexp_substr(role, '[^,]A+', 1, level, 'i') as role
+    from (select '${fr_authority}' role from dual)
+  connect by level <=
+             length(role) - length(regexp_replace(role, ',', '')) + 1),
+             
+du as
+ ( --查询用户组织权限
+  select orgid
+    from dm_hx_data_aut du
+   where 1 = 1
+     and du.userid = '${fr_username}'
+     and du.orgid is not null
+  
+  union all
+  
+  --如果用户组织权限为空，则组织权限为对应的角色的权限
+  select orgid
+    from dm_hx_data_aut du
+   where 1 = 1
+     and du.rolename in (select * from role)
+     and 1 = nvl((select case
+                       when orgid is null then
+                        1
+                       else
+                        0
+                     end flag
+                from dm_hx_data_aut
+               where userid = '${fr_username}'
+                 ),1)),
+du2 as (
+select regexp_substr(orgid, '[^,]A+', 1, level, 'i') as orgid
+    from (select orgid  from du)
+  connect by level <=
+             length(orgid) - length(regexp_replace(orgid, ',', '')) + 1
+
+
+),
+
+ORG_JG AS(
+select ORG_ID,
+       PARENTID as FATHER_ID,
+       ORG_NAME,
+       ORG_SHORTNAME as ORG_SNAME,
+       ORG_NUM as ORDER_KEY,
+       org_level,
+       ORG_CODE
+  from dim_org_jxjl
+   start with ORG_ID in(select orgid from du2)
+connect by prior org_id =PARENTID
+--where   ORG_ID in (select orgid from du2)
+ --or FATHER_ID in (select orgid from du2)
+ )
+
+SELECT 
+    ORG_ID,
+    null  FATHER_ID,
+    ORG_NAME,
+    ORG_SNAME,
+    ORDER_KEY,
+    org_level,
+    ORG_CODE
+FROM ORG_JG where ORG_ID in(select ORG_ID from dim_org_jxjl where org_level=(select min(org_level) from  ORG_JG ))
+UNION ALL
+SELECT * FROM ORG_JG where ORG_ID not in(select ORG_ID from dim_org_jxjl where org_level=(select min(org_level) from  ORG_JG ))
+order by order_key]]></Query>
+</TableData>
+<TableData name="datatime" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="yearmonth"/>
+<O>
+<![CDATA[2018-09-22]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select period_year,period_quarter,to_number(substr(period_month,1,2))||'月' period_month,to_number(substr(period_month,1,2)) num from dim_period where to_char(period_date,'YYYY-MM-DD')='${yearmonth}']]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[支出明细表]]></Title>
+<ServerPrinter/>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();
+
+//展开的最大节点级值  
+/*
+var t = 3;   
+for(var m = 1; m <= t; m++) {  
+    //循环执行“+”号展开  
+    $('.x-treenode-unexpand').trigger('click');  
+}*/
+
+
+$("#content-container").find("tr").has(".x-treenode-unexpand").each(function(){  
+if($(this).children().eq(0).text()==1){ //eq（0）表示最左边的单元格；text（）==1，表示内容为1的单元格  
+$(this).find(".x-treenode-unexpand").trigger('click');}}) 
+
+var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+//获取A1单元格的值]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.slimScrollBarY').css('width','15px'); //Y轴宽
+$('.slimScrollBarX').css('height','15px');//X轴高
+$('.slimScrollBarX').css('background','#000000');//X轴颜色
+$('.slimScrollBarX').css('opacity','0.65');//X轴透明度
+$('.slimScrollBarY').css('background','#000000');//Y轴颜色
+$('.slimScrollBarY').css('opacity','0.65');//Y轴透明度]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportWebAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="支出明细表">
+<ReportPageAttr>
+<HR F="0" T="1"/>
+<FR/>
+<HC/>
+<FC/>
+<UPFCR COLUMN="false" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[1152000,1152000,864000,864000,864000,864000,864000,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,2743200,576000,7315200,8648700,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,576000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(B3:B9)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="1" r="0">
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="3" r="0" rs="2" s="0">
+<O>
+<![CDATA[组织]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="0" rs="2" s="0">
+<O>
+<![CDATA[科目]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="0" cs="3" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("datatime",1,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="0" cs="3" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("datatime",2,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="0" cs="3" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("datatime",3,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="0" cs="3" s="0">
+<O>
+<![CDATA[1月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="0" cs="3" s="0">
+<O>
+<![CDATA[2月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="0" cs="3" s="0">
+<O>
+<![CDATA[3月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="0" cs="3" s="0">
+<O>
+<![CDATA[4月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="26" r="0" cs="3" s="0">
+<O>
+<![CDATA[5月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="29" r="0" cs="3" s="0">
+<O>
+<![CDATA[6月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="32" r="0" cs="3" s="0">
+<O>
+<![CDATA[7月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="35" r="0" cs="3" s="0">
+<O>
+<![CDATA[8月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="38" r="0" cs="3" s="0">
+<O>
+<![CDATA[9月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="41" r="0" cs="3" s="0">
+<O>
+<![CDATA[10月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="44" r="0" cs="3" s="0">
+<O>
+<![CDATA[11月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="47" r="0" cs="3" s="0">
+<O>
+<![CDATA[12月]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="18" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="19" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="21" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="25" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="26" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="27" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="28" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="29" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="30" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="31" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="32" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="33" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="34" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="35" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="36" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="37" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="38" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="39" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="40" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="41" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="42" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="43" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="44" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="45" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="46" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="47" r="1" s="0">
+<O>
+<![CDATA[预算]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="48" r="1" s="0">
+<O>
+<![CDATA[实际]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="49" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2">
+<O t="I">
+<![CDATA[1]]></O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E3"/>
+</C>
+<C c="1" r="2">
+<O t="I">
+<![CDATA[1]]></O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E3"/>
+</C>
+<C c="3" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="org1" columnName="ORG_ID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[org1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="index_tree" columnName="FR_GEN_0"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = $index1]]></Formula>
+</Condition>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="GUID" viName="NAMES"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[index]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="D3"/>
+</C>
+<C c="5" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(F4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(G4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(F3 = 0, 0, round(G3 / F3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(I4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="9" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(J4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(I3 = 0, 0, round(J3 / I3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(L4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(M4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(L3 = 0, 0, round(M3 / L3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="14" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(O4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(P4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(O3 = 0, 0, round(P3 / O3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="17" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(R4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="18" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(S4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="19" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(R3 = 0, 0, round(S3 / R3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="20" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(U4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="21" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(V4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="22" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(U3 = 0, 0, round(V3 / U3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="23" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(X4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="24" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(Y4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="25" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(X3 = 0, 0, round(Y3 / X3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="26" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AA4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="27" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AB4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="28" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(AA3 = 0, 0, round(AB3 / AA3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="29" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AD4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="30" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AE4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="31" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(AD3 = 0, 0, round(AE3 / AD3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="32" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AG4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="33" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AH4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="34" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(AG3 = 0, 0, round(AH3 / AG3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="35" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AJ4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="36" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AK4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="37" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(AJ3 = 0, 0, round(AK3 / AJ3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="38" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AM4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="39" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AN4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="40" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(AM3 = 0, 0, round(AN3 / AM3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="41" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AP4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="42" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AQ4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="43" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(AP3 = 0, 0, round(AQ3 / AP3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="44" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AS4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="45" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AT4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="46" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(AS3 = 0, 0, round(AT3 / AS3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="47" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AV4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="48" r="2" s="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(AW4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="49" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(AV3 = 0, 0, round(AW3 / AV3, 2))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="50" r="2">
+<O>
+<![CDATA[ ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="3">
+<O t="I">
+<![CDATA[1]]></O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E4"/>
+</C>
+<C c="1" r="3">
+<O t="I">
+<![CDATA[1]]></O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E4"/>
+</C>
+<C c="3" r="3" s="5">
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E4"/>
+</C>
+<C c="4" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="index_tree" columnName="FR_GEN_1"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="GUID" viName="NAMES"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[index]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="E3"/>
+</C>
+<C c="5" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[GUID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="2"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[INDEX_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="4" row="3"/>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="22" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="30" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="31" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="32" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="33" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="34" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="36" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="37" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="38" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="39" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="40" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="41" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="42" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="43" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="44" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="45" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="46" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="47" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="48" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="49" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="4">
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E5"/>
+</C>
+<C c="1" r="4">
+<O t="I">
+<![CDATA[1]]></O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E5"/>
+</C>
+<C c="3" r="4" s="5">
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E5"/>
+</C>
+<C c="4" r="4" s="9">
+<O t="DSColumn">
+<Attributes dsName="index_tree" columnName="FR_GEN_2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="GUID" viName="NAMES"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[index]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="E4"/>
+</C>
+<C c="5" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[GUID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="2"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[INDEX_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="4" row="4"/>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="22" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="30" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="31" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="32" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="33" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="34" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="36" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="37" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="38" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="39" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="40" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="41" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="42" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="43" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="44" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="45" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="46" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="47" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="48" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="49" r="4" s="11">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="5">
+<O t="I">
+<![CDATA[1]]></O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E6"/>
+</C>
+<C c="3" r="5" s="5">
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E6"/>
+</C>
+<C c="4" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="index_tree" columnName="FR_GEN_3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="GUID" viName="NAMES"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[index]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="E5"/>
+</C>
+<C c="5" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[GUID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="2"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[INDEX_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="4" row="5"/>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="22" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="30" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="31" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="32" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="33" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="34" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="36" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="37" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="38" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="39" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="40" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="41" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="42" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="43" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="44" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="45" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="46" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="47" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="48" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="49" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="6">
+<O t="I">
+<![CDATA[1]]></O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E7"/>
+</C>
+<C c="3" r="6" s="5">
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E7"/>
+</C>
+<C c="4" r="6" s="15">
+<O t="DSColumn">
+<Attributes dsName="index_tree" columnName="FR_GEN_4"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="GUID" viName="NAMES"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[index]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="E6"/>
+</C>
+<C c="5" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[GUID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="2"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[INDEX_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="4" row="6"/>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="22" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="30" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="31" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="32" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="33" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="34" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="36" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="37" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="38" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="39" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="40" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="41" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="42" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="43" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="44" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="45" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="46" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="47" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="48" r="6" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="49" r="6" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="7">
+<O t="I">
+<![CDATA[1]]></O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E8"/>
+</C>
+<C c="3" r="7" s="5">
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E8"/>
+</C>
+<C c="4" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="index_tree" columnName="FR_GEN_5"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="GUID" viName="NAMES"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[index]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="E7"/>
+</C>
+<C c="5" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[GUID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="2"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[INDEX_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="4" row="7"/>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="22" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="30" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="31" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="32" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="33" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="34" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="36" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="37" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="38" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="39" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="40" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="41" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="42" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="43" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="44" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="45" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="46" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="47" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="48" r="7" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="49" r="7" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="8">
+<O t="I">
+<![CDATA[1]]></O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E9"/>
+</C>
+<C c="3" r="8" s="5">
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="E8"/>
+</C>
+<C c="4" r="8" s="17">
+<O t="DSColumn">
+<Attributes dsName="index_tree" columnName="FR_GEN_6"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="GUID" viName="NAMES"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[index]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="E8"/>
+</C>
+<C c="5" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[GUID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="2"/>
+</Compare>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[INDEX_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="4" row="8"/>
+</Compare>
+</Condition>
+</JoinCondition>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="15" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_1MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_2MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="22" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_3MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="23" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_4MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_5MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="29" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="30" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="31" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_6MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="32" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="33" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="34" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_7MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="35" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="36" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="37" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_8MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="38" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="39" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="40" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_9MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="41" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="42" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="43" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_10MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="44" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="45" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="46" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_11MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="47" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="TARGET_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="48" r="8" s="13">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="FACT_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="49" r="8" s="14">
+<O t="DSColumn">
+<Attributes dsName="xshk" columnName="COMPLETE_RATE_12MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="9">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0" useParamsTemplate="false"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1380618"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
+<Listener event="afterinit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var wiget= this.options.form.getWidgetByName("org");
+var deptcode=wiget.getValue();
+var sql=" select org_name from dim_org where org_id ='"+deptcode+"'";
+var  deptname=FR.remoteEvaluate('sql("oracle_test","'+sql+'",1,1)');
+wiget.setText(deptname) ;
+/*
+var sql2 =" select '['''||listagg(org_id,''',''') within group(order by order_key)||''']A' from (SELECT o.org_id,order_key FROM DIM_ORG O START WITH O.ORG_ID = '"+deptcode+"' connect by prior o.father_id = o.org_id ) ";
+var  deptcode2=FR.remoteEvaluate('sql("oracle_test","'+sql2+'",1,1)');
+alert (deptcode2);
+wiget.setValue(deptcode2) ;
+*/
+]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="org"/>
+<LabelName name="组织："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr mutiSelect="true" selectLeafOnly="false"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="false"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[org_tree]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue/>
+</InnerWidget>
+<BoundsAttr x="60" y="34" width="150" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<Listener event="afteredit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var form = this.options.form;  
+var p2Widget = form.getWidgetByName("org");  
+var p3Widget = form.getWidgetByName("org_zz");  
+
+var value = this.getValue();  //获取当前参数即type参数的值  
+if (value == "住宅") {         
+   p3Widget.visible();  
+   p2Widget.invisible();  
+   //p4Widget.invisible();  
+}else{
+   p2Widget.visible();  
+   p3Widget.invisible();
+	} ]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="orggroupid"/>
+<LabelName name="业务："/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="新城全口径" value="新城全口径"/>
+<Dict key="产业新城" value="产业新城"/>
+<Dict key="住宅" value="住宅"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[新城全口径]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="60" y="34" width="124" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
+<Listener event="afterinit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var colour=this.options.form.getWidgetByName("orggroupid").getValue();
+var p2Widget = this.options.form.getWidgetByName("org_zz");  
+if(colour!="住宅"){
+p2Widget.invisible();
+}]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="org_zz"/>
+<LabelName name="组织："/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr mutiSelect="true" selectLeafOnly="false"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="false"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orgzhu]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="245" y="34" width="150" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label3"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[组织：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="34" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label2"/>
+<LabelName name="=if(len($indexname)=0,&quot;净现金流完成&quot;,switch($indexname,&quot;jxjlwc&quot;,&quot;净现金流完成&quot;,&quot;HK&quot;,&quot;回款&quot;,&quot;JYXHK&quot;,&quot;经营性回款&quot;,&quot;TZHDXJLR&quot;,&quot;投资活动现金流入&quot;,&quot;CZHDXJLR&quot;,&quot;筹资活动净现金流入&quot;,&quot;ZC&quot;,&quot;支出&quot;))+&quot;明细表 （单位：亿元）&quot;"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="数据截止日期："+sql("oracle_test", "select to_char(to_date(data_date,'YYYY-mm-dd'),'YYYY-mm-dd') from dm_ncf_netcashflow where rownum=1", 1)]]></Attributes>
+</O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="4" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72" foreground="-6877671"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="900" y="5" width="180" height="29"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="formSubmit0"/>
+<LabelName name="结束月份："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-6877671"/>
+</initial>
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="220" y="34" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label1"/>
+<LabelName name="导航："/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[业务：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="34" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="title"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[="支出明细表 （单位：亿元）"]]></Attributes>
+</O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="96" foreground="-6877671"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="5" width="403" height="29"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="orggroupid"/>
+<Widget widgetName="formSubmit0"/>
+<Widget widgetName="org_zz"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<UseParamsTemplate use="false"/>
+<Position position="0"/>
+<Design_Width design_width="1100"/>
+<NameTagModified/>
+<WidgetNameTagMap>
+<NameTag name="formSubmit0" tag="结束月份："/>
+<NameTag name="orggroupid" tag="业务："/>
+<NameTag name="org" tag="组织："/>
+<NameTag name="org_zz" tag="组织："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="1100" height="62"/>
+</ParameterUI>
+<Parameter>
+<Attributes name="indexname"/>
+<O>
+<![CDATA[ZC]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="orggroupid"/>
+<O>
+<![CDATA[产业新城全口径]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="yearmonth"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("oracle_test", "select to_char(to_date(data_date, 'YYYY-MM-DD'), 'YYYY-MM-DD') from dm_mcl_acct where rownum=1", 1)]]></Attributes>
+</O>
+</Parameter>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6877671"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top color="-1"/>
+<Bottom color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="12">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="22" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="32" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="42" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="52" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="62" paddingRight="4">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="d7614c1a-af16-42c3-b222-6ff35af7c48e"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="c74d7698-c28d-4413-b0bb-ed4fd28eb8b5"/>
+</TemplateIdAttMark>
+</WorkBook>

@@ -11,8 +11,6 @@ public class Test1 {
         System.out.println(new Date());
         /*
         这是注释
-
-
          */
         System.getProperties().list(System.out);
         System.out.println(System.getProperty("user.name"));

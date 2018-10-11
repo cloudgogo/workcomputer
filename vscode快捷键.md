@@ -154,3 +154,9 @@
 |Ctrl+↑ / ↓|	向上/向下滚动 Scroll up/down|
 |Shift+PgUp / PgDown|	向上/向下滚动页面 Scroll page up/down|
 |Ctrl+Home / End|	滚动到顶部/底部 Scroll to top/bottom|
+
+
+
+> 安装插件：**markdownPDF**, chinese, Debugger for Java ,ESLint, JavaExtensionPack,JavaTestRunner,Language Support for Java(TM) by Red Hat,
+Maven for Java,SQL Server (mssql)
+

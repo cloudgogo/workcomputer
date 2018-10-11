@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>提示ie不兼容及导出权限控制问题说明.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
+	font-size: 14px;
+	padding: 0 12px;
+	line-height: 22px;
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	color: #4080D0;
+	text-decoration: none;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+h1 code,
+h2 code,
+h3 code,
+h4 code,
+h5 code,
+h6 code {
+	font-size: inherit;
+	line-height: auto;
+}
+
+a:hover {
+	color: #4080D0;
+	text-decoration: underline;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left: 5px solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 14px;
+	line-height: 19px;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+.mac code {
+	font-size: 12px;
+	line-height: 18px;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+/** Theming */
+
+.vscode-light,
+.vscode-light pre code {
+	color: rgb(30, 30, 30);
+}
+
+.vscode-dark,
+.vscode-dark pre code {
+	color: #DDD;
+}
+
+.vscode-high-contrast,
+.vscode-high-contrast pre code {
+	color: white;
+}
+
+.vscode-light code {
+	color: #A31515;
+}
+
+.vscode-dark code {
+	color: #D7BA7D;
+}
+
+.vscode-light pre:not(.hljs),
+.vscode-light code > div {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre:not(.hljs),
+.vscode-dark code > div {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre:not(.hljs),
+.vscode-high-contrast code > div {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+.vscode-light blockquote,
+.vscode-dark blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.vscode-high-contrast blockquote {
+	background: transparent;
+	border-color: #fff;
+}
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family:  "Meiryo", "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+</head>
+<body>
+<p><strong>本文档包含两个问题的技术解决方案</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">问题</th>
+<th style="text-align:left">简要说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">提示IE不兼容问题</td>
+<td style="text-align:left">在使用ie时，提示过大约7s~8s会自动消失</td>
+</tr>
+<tr>
+<td style="text-align:left">导出权限控制问题</td>
+<td style="text-align:left">无导出权限的人通过F12调用开发者工具修改页面内容可强制导出文档</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E6%8F%90%E7%A4%BAie%E4%B8%8D%E5%85%BC%E5%AE%B9%E9%97%AE%E9%A2%98">提示IE不兼容问题</h2>
+<h4 id="%E9%97%AE%E9%A2%98%E8%AF%B4%E6%98%8E">问题说明</h4>
+<blockquote>
+<p>IE浏览器中使用fr自带的提示在经过7s左右会自动消失，而chrome浏览器中无此问题。</p>
+</blockquote>
+<h4 id="%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0">问题原因</h4>
+<p>经查证，fr自带的提示是使用title属性，而title属性在ie中和在chrome中内核实现不同导致的差异。</p>
+<h4 id="%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3">问题解决</h4>
+<p>方案为通过重写title属性，在js中调用相关鼠标移入移出的事件来实现title属性所对应的功能。</p>
+<h4 id="%E6%AD%A5%E9%AA%A4">步骤</h4>
+<ol>
+<li>将<code>title.js</code>文件放入工程中，且在工程中引入该文件。</li>
+</ol>
+<p><strong>title.js:</strong></p>
+<pre class="hljs"><code><div><span class="hljs-comment">//获取当前的x坐标值  </span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">pageX</span>(<span class="hljs-params">elem</span>) </span>{
+    <span class="hljs-keyword">return</span> elem.offsetParent ? (elem.offsetLeft + pageX(elem.offsetParent)) : elem.offsetLeft;
+}
+<span class="hljs-comment">//获取当前的Y坐标值  </span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">pageY</span>(<span class="hljs-params">elem</span>) </span>{
+    <span class="hljs-keyword">return</span> elem.offsetParent ? (elem.offsetTop + pageY(elem.offsetParent)) : elem.offsetTop;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">split_str</span>(<span class="hljs-params">string, words_per_line</span>) </span>{
+    <span class="hljs-keyword">var</span> output_string = string.substring(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>);  <span class="hljs-comment">//取出i=0时的字，避免for循环里换行时多次判断i是否为0   </span>
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">1</span>; i &lt; string.length; i++) {
+        <span class="hljs-keyword">if</span> (i % words_per_line == <span class="hljs-number">0</span>) {
+            output_string += <span class="hljs-string">"&lt;br/&gt;"</span>;
+        }
+        output_string += string.substring(i, i + <span class="hljs-number">1</span>);
+    }
+    <span class="hljs-keyword">return</span> output_string;
+}
+
+
+
+<span class="hljs-keyword">var</span> title_value = <span class="hljs-string">''</span>;
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">title_show</span>(<span class="hljs-params">pSpan</span>) </span>{
+    <span class="hljs-keyword">var</span> divObj = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"div"</span>);
+    divObj.innerHTML = <span class="hljs-string">"&lt;span id='title_show' style='position:absolute;display:none;background-color:#f0f0f0;z-index:999;opacity:1;font-size:12px;color:#999999;width:300px;padding:10px;border:1px solid #f5f5f5;border-radius:3px;line-height:18px'&gt;&lt;/span&gt;"</span>;
+    <span class="hljs-keyword">var</span> first = <span class="hljs-built_in">document</span>.body.firstChild;<span class="hljs-comment">//得到页面的第一个元素 </span>
+    <span class="hljs-built_in">document</span>.body.insertBefore(divObj, first);<span class="hljs-comment">//在得到的第一个元素之前插入 </span>
+    <span class="hljs-keyword">var</span> span = <span class="hljs-built_in">document</span>.getElementById(pSpan);
+    <span class="hljs-keyword">var</span> div = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"title_show"</span>);
+    title_value = span.title;
+    div.style.left = pageX(span) + <span class="hljs-string">'px'</span>;
+    div.style.top = pageY(span) + <span class="hljs-number">20</span> + <span class="hljs-string">'px'</span>;
+    <span class="hljs-keyword">var</span> words_per_line = <span class="hljs-number">40</span>;     <span class="hljs-comment">//每行字数   </span>
+    <span class="hljs-keyword">var</span> title = split_str(span.title, words_per_line);  <span class="hljs-comment">//按每行25个字显示标题内容。      </span>
+    div.innerHTML = title;
+    div.style.display = <span class="hljs-string">''</span>;
+    span.title = <span class="hljs-string">''</span>;        <span class="hljs-comment">//去掉原有title显示。  </span>
+}
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">title_back</span>(<span class="hljs-params">pSpan</span>) </span>{
+    <span class="hljs-keyword">var</span> span = <span class="hljs-built_in">document</span>.getElementById(pSpan)
+    <span class="hljs-keyword">var</span> div = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"title_show"</span>);
+    span.title = title_value;
+    div.style.display = <span class="hljs-string">"none"</span>;
+}
+</div></code></pre>
+<p><strong>在工程中引入js文件如下图：</strong></p>
+<ol>
+<li><strong>找到配置选项</strong><br>
+<img src="img/1-1-1.jpg" alt="打开服务器配置选项"></li>
+<li><strong>将js引入项目</strong>
+<img src="img/1-1-2.jpg" alt="添加js到服务器中"></li>
+</ol>
+<blockquote>
+<p>通过以上工作，我们已经将重写title的js方法放入服务器。<br>
+接下来我们需要在单元格中进行使用。</p>
+</blockquote>
+<p><strong>在报表单元格中调用重写的js方法</strong><br>
+首先准备好要使用的提示文本所对应的html代码，此时该段代码已经调用到了我们放入服务器中的js内容</p>
+<pre class="hljs"><code><div><span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">style</span>=<span class="hljs-string">""</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"span1"</span> <span class="hljs-attr">title</span> =<span class="hljs-string">'一、统计范围：当年新摘牌项目，如果分批次开盘，取首批时间；&lt;br&gt;二、达标规则：5（摘牌-开盘），10（摘牌-现金流回正），同时满足；&lt;br&gt;三、一区一策：发布过一区一策操盘纪律的区域按照签批时间统计，未发布的全部按照23510统计。 '</span> <span class="hljs-attr">onmouseover</span>=<span class="hljs-string">"title_show('span1');"</span> <span class="hljs-attr">onmouseout</span>=<span class="hljs-string">"title_back('span1');"</span>&gt;</span>   <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"scripts/img/详情.png"</span>  <span class="hljs-attr">alt</span>=<span class="hljs-string">"详情"</span> /&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>
+</div></code></pre>
+<blockquote>
+<p><strong>description:</strong> 该段代码中显示的内容也是通过<code>img</code>标签进行引入图片的</p>
+</blockquote>
+<p><strong>将代码放入开发文件中的单元格中</strong>
+<img src="img/1-1-3.jpg" alt="使用代码完成功能"></p>
+<blockquote>
+<p>通过以上操作，我们完成了对页面提示title的重写</p>
+</blockquote>
+<p><strong>完成结果</strong>
+<img src="img/1-1-4.jpg" alt="完成功能的结果"></p>
+<h2 id="%E5%AF%BC%E5%87%BA%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%E9%97%AE%E9%A2%98">导出权限控制问题</h2>
+<h4 id="%E9%97%AE%E9%A2%98%E8%AF%B4%E6%98%8E">问题说明</h4>
+<p>无导出权限的人通过F12调用开发者工具修改页面内容可强制导出文档</p>
+<h4 id="%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0">问题原因</h4>
+<p>自带的导出功能是通过直接调用后台api实现导出，无法在中间做权限的判定，通过开发者工具将显示属性改为<code>block</code> 即可点击按钮，调用后台的api。</p>
+<h4 id="%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3">问题解决</h4>
+<p>通过自定义按钮，去实现导出功能，通过权限，去判断是否导出，并给出不能导出的提示</p>
+<p>自定义按钮js代码：</p>
+<pre class="hljs"><code><div>fangwenlujing=FR.remoteEvaluate(<span class="hljs-string">'=$reportName'</span>); 
+FR.Msg.toast(<span class="hljs-string">'文件路径为:'</span>+fangwenlujing);
+<span class="hljs-keyword">var</span> REPORT_URL = <span class="hljs-string">'/WebReport/ReportServer?reportlet='</span>+fangwenlujing+<span class="hljs-string">'&amp;format=excel'</span>; 
+<span class="hljs-keyword">if</span> (export1==<span class="hljs-string">'true'</span>){ 
+<span class="hljs-built_in">window</span>.location = (FR.cjkEncode(REPORT_URL));
+}
+<span class="hljs-keyword">else</span> {
+      contentPane.toolbar.getWidgetByName(<span class="hljs-string">"CustomToolBarButton"</span>).setVisible(<span class="hljs-literal">false</span>);
+      FR.Msg.toast(<span class="hljs-string">'您不具有导出权限'</span>);	
+	}
+</div></code></pre>
+<ol>
+<li><strong>找到配置选项</strong>
+<img src="img/1-2-1.jpg" alt="找到配置选项"></li>
+<li><strong>配置自定义按钮</strong>
+<img src="img/1-2-2.jpg" alt="配置自定义按钮"></li>
+<li><strong>实现导出的权限功能</strong>
+<img src="img/1-2-3.jpg" alt="配置自定义按钮"></li>
+</ol>
+<blockquote>
+<p>通过以上，我们已经完成了该部分功能的实现，需要注意的是，在表单加载起始，仍需要通过权限判断是否隐藏掉该按钮</p>
+</blockquote>
+<p><strong>加载起始中使用该段代码对没有权限的用户进行隐藏自定义按钮</strong></p>
+<pre class="hljs"><code><div>contentPane.toolbar.getWidgetByName(<span class="hljs-string">"CustomToolBarButton"</span>).setVisible(<span class="hljs-literal">false</span>);
+</div></code></pre>
+<p><strong>完成结果</strong></p>
+<ol>
+<li>修改导出源码前
+<img src="img/1-2-4.jpg" alt="修改前"></li>
+<li>修改导出源码后
+<img src="img/1-2-5.jpg" alt="修改后"></li>
+<li>点击显示出来的导出按钮
+<img src="img/1-2-6.jpg" alt="结果"></li>
+</ol>
+
+</body>
+</html>

@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="dim_cal"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with factdate as
+ (select substr(data_date, 1, 6)
+    from dm_mcl_acct
+   where data_date is not null
+     and rownum = 1),
+RESULT as (
+--当年
+select *
+  from (select a.org_id,
+               a.org_name,
+               a.order_key,
+               a.targetid,
+               a.target_name,
+               a.factdate,
+               '1' type1,
+               substr(a.factdate, 1, 4)||'年' type2,
+               a.year_target_val target_val,
+               a.year_val val,
+               a.year_target_rate target_rate,
+               a.lst_year_val lst_val,
+               a.year_rate rate
+          from DM_MCL_RESIDENTIAL a
+         where 1 = 1
+           and targetid in( '81a24bfbfa9a45ebaf35ed9466b0e553','d3b49d2f94bc4fa8896ba93d9a4abec6')
+           and father_id is not null
+           and a.factdate = (select * from factdate)
+        
+        union all
+        
+        select a.org_id,
+               a.org_name,
+               a.order_key,
+               a.targetid,
+               a.target_name,
+               a.factdate,
+               '1' type1,
+               case
+                 when to_number(substr(a.factdate, 5, 2)) = 1 then
+                  '1季度'
+                 when to_number(substr(a.factdate, 5, 2)) = 4 then
+                  '2季度'
+                 when to_number(substr(a.factdate, 5, 2)) = 7 then
+                  '3季度'
+                 when to_number(substr(a.factdate, 5, 2)) = 10 then
+                  '4季度'
+               end type2,
+               
+               a.quarter_target_val  target_val,
+               a.quarter_val         val,
+               a.quarter_target_rate target_rate,
+               a.lst_quarter_val     lst_val,
+               a.quarter_rate        rate
+        
+          from DM_MCL_RESIDENTIAL a
+         where 1 = 1
+           and targetid in( '81a24bfbfa9a45ebaf35ed9466b0e553','d3b49d2f94bc4fa8896ba93d9a4abec6')
+           and father_id is not null
+           and to_number(substr(a.factdate, 5, 2)) in (1, 4, 7, 10))
+ where 1 = 1
+   and type1 = '1' --type1 = '${dim_cal}'
+
+union all
+--当季
+select *
+  from (select a.org_id,
+               a.org_name,
+               a.order_key,
+               a.targetid,
+               a.target_name,
+               a.factdate,
+               '2' type1,
+               substr(a.factdate, 1, 4)||'年' type2,
+               a.year_target_val target_val,
+               a.year_val val,
+               a.year_target_rate target_rate,
+               a.lst_year_val lst_val,
+               a.year_rate rate
+          from DM_MCL_RESIDENTIAL a
+         where 1 = 1
+           and targetid in( '81a24bfbfa9a45ebaf35ed9466b0e553','d3b49d2f94bc4fa8896ba93d9a4abec6')
+           and father_id is not null
+           and a.factdate = (select * from factdate)
+        union all
+        select a.org_id,
+               a.org_name,
+               a.order_key,
+               a.targetid,
+               a.target_name,
+               a.factdate,
+               '2' type1,
+               ceil(to_number(substr(a.factdate, 5, 2)) / 3) || '季度' type2,
+               a.quarter_target_val target_val,
+               a.quarter_val val,
+               a.quarter_target_rate target_rate,
+               a.lst_quarter_val lst_val,
+               a.quarter_rate rate
+          from DM_MCL_RESIDENTIAL a
+         where 1 = 1
+           and targetid in( '81a24bfbfa9a45ebaf35ed9466b0e553','d3b49d2f94bc4fa8896ba93d9a4abec6')
+           and father_id is not null
+           and a.factdate = (select * from factdate)
+        
+        union all
+        
+        select a.org_id,
+               a.org_name,
+               a.order_key,
+               a.targetid,
+               a.target_name,
+               a.factdate,
+               '2' type1,
+               to_number(substr(a.factdate, 5, 2)) || '月' type2,
+               a.month_target_val target_val,
+               a.month_val val,
+               a.month_target_rate target_rate,
+               a.lst_month_val lst_val,
+               a.month_rate rate
+          from DM_MCL_RESIDENTIAL a
+         where 1 = 1
+           and targetid in( '81a24bfbfa9a45ebaf35ed9466b0e553','d3b49d2f94bc4fa8896ba93d9a4abec6')
+           and father_id is not null
+           and to_char(to_date((select * from factdate), 'YYYYMM'), 'yyyyq') =
+               to_char(to_date(factdate, 'yyyymm'), 'yyyyq'))
+ where 1 = 1 and type1 = '1'   --type1 = '${dim_cal}'
+
+union all
+--当月
+select *
+  from (select a.org_id,
+               a.org_name,
+               a.order_key,
+               a.targetid,
+               a.target_name,
+               a.factdate,
+               '3' type1,
+               substr(a.factdate, 1, 4)||'年' type2,
+               a.year_target_val target_val,
+               a.year_val val,
+               a.year_target_rate target_rate,
+               a.lst_year_val lst_val,
+               a.year_rate rate
+          from DM_MCL_RESIDENTIAL a
+         where 1 = 1
+           and targetid in( '81a24bfbfa9a45ebaf35ed9466b0e553','d3b49d2f94bc4fa8896ba93d9a4abec6')
+           and father_id is not null
+           and a.factdate = (select * from factdate)
+        
+        union all
+        
+        select a.org_id,
+               a.org_name,
+               a.order_key,
+               a.targetid,
+               a.target_name,
+               a.factdate,
+               '3' type1,
+               ceil(to_number(substr(a.factdate, 5, 2)) / 3) || '季度' type2,
+               a.quarter_target_val target_val,
+               a.quarter_val val,
+               a.quarter_target_rate target_rate,
+               a.lst_quarter_val lst_val,
+               a.quarter_rate rate
+          from DM_MCL_RESIDENTIAL a
+         where 1 = 1
+           and targetid in( '81a24bfbfa9a45ebaf35ed9466b0e553','d3b49d2f94bc4fa8896ba93d9a4abec6')
+           and father_id is not null
+           and a.factdate = (select * from factdate)
+        
+        union all
+        
+        select a.org_id,
+               a.org_name,
+               a.order_key,
+               a.targetid,
+               a.target_name,
+               a.factdate,
+               '3' type1,
+               to_number(substr(a.factdate, 5, 2)) || '月' type2,
+               a.month_target_val target_val,
+               a.month_val val,
+               a.month_target_rate target_rate,
+               a.lst_month_val lst_val,
+               a.month_rate rate
+          from DM_MCL_RESIDENTIAL a
+         where 1 = 1
+           and targetid in( '81a24bfbfa9a45ebaf35ed9466b0e553','d3b49d2f94bc4fa8896ba93d9a4abec6')
+           and father_id is not null
+           and a.factdate = (select * from factdate))
+ where 1 = 1 and type1 = '1' --type1 = '${dim_cal}'
+) 
+,org as  (select org_id, org_name,/*lpad(org_name,length(org_name)+2*org_level)*/ case when org_level=2 then ' '||org_name  when org_level=3 then '  '||org_name else  org_name  end orgshowname,  parentid father_id, org_num order_key , org_code
+from dim_org_jxjl o
+where 1=1
+and org_code like ( select org_code|| '%' from dim_org_jxjl where org_id='E0A3D386-D5C8-FB22-18DE-4424D49363B1'  )  --( select org_code|| '%' from dim_org_jxjl where org_id='${org}'  )
+and isshow=1
+order by to_number(org_num))
+
+
+select *
+  from (select r.*,
+               o.orgshowname,
+               o.order_key deptorderkey,
+               case
+                 when type2 like '%年' then
+                  TO_CHAR(to_date(factdate, 'yyyyMM'), 'yyyy')
+                 when type2 like '%季度' then
+                  TO_CHAR(to_date(factdate, 'yyyyMM'), 'yyyyQ')
+                 when type2 like '%月' then
+                  TO_CHAR(to_date(factdate, 'yyyyMM'), 'yyyyQMM')
+               END periodorderkey,
+               case
+                 when target_name like '%亩%' then
+                  '亩'
+                 else
+                  '万平'
+               end targetunit,
+               case
+                 when target_name like '%亩%' then
+                  1
+                 else
+                  2
+               end targetorder
+          from result r, org o
+         where r.org_id = o.org_id) res
+ order by res.deptorderkey,res.periodorderkey,res.order_key,res.targetorder
+]]></Query>
+</TableData>
+</TableDataMap>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[723900,723900,723900,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,4305300,3086100,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="1" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="1" s="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" cs="5" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="TYPE2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="1"/>
+</C>
+<C c="1" r="2" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="ORGSHOWNAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="TARGETUNIT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="3" r="2" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="TARGET_VAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="VAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="TARGET_RATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="LST_VAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="0">
+<O t="DSColumn">
+<Attributes dsName="ds1" columnName="RATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+</ReportSettings>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="true" windowPosition="1" align="0" useParamsTemplate="true"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+</ReportParameterAttr>
+<StyleList>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1"/>
+<Bottom style="1"/>
+<Left style="1"/>
+<Right style="1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="0f00fdd1-4d3a-4593-8528-88bfcdd03072"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="45e91146-2812-4117-a78f-329899601058"/>
+</TemplateIdAttMark>
+</WorkBook>

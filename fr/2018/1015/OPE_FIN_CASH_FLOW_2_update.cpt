@@ -1,0 +1,2819 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="现金流" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[全口径]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="timecode"/>
+<O>
+<![CDATA[2018-06]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+WITH org_ys AS(
+SELECT org_sname AS org_classify_id
+      ,org_id
+      ,org_id || '1' AS classify_id
+      ,'环京' AS org_classify
+      ,order_key + 1 AS order_key
+      ,org_code
+  FROM dim_org
+ WHERE org_type = '集团'
+   AND org_id NOT IN ('E0A3D386-D5C8-FB22-18DE-4424D49363B2'
+                     ,'7F1F77EC-7E86-4753-9916-E87EEA54A754'
+                     ,'E0A3D386-D5C8-FB22-18DE-4424D49363B4'
+                     ,'E0A3D386-D5C8-FB22-18DE-4424D49363B5')
+UNION ALL
+SELECT org_sname AS org_classify_id
+      ,org_id
+      ,org_id || '2' AS classify_id
+      ,'外埠' AS org_classify
+      ,order_key + 2 AS order_key
+      ,org_code
+  FROM dim_org
+ WHERE org_type = '集团'
+   AND org_id NOT IN ('E0A3D386-D5C8-FB22-18DE-4424D49363B2'
+                     ,'7F1F77EC-7E86-4753-9916-E87EEA54A754'
+                     ,'E0A3D386-D5C8-FB22-18DE-4424D49363B4'
+                     ,'E0A3D386-D5C8-FB22-18DE-4424D49363B5')
+
+),
+--二级父级替换
+FATHER_org as (
+SELECT 
+b.ORG_ID,
+CASE WHEN a.CLASSIFY_id IS NULL THEN b.FATHER_ID ELSE a.CLASSIFY_id END as FATHER_ID,
+b.ORG_NAME,
+b.ORG_SNAME,
+b.ORG_EN_NAME,
+b.ORG_LEVEL,
+b.ORDER_KEY,
+b.ORG_TYPE_ID,
+b.ORG_TYPE,
+b.ORG_CLASSIFY_ID,
+b.ORG_CLASSIFY,
+b.LONGITUDE,
+b.LATITUDE,
+b.ORG_SRC_CODE,
+b.START_DATE,
+b.END_DATE,
+b.START_FLAG,
+b.ORG_AREA_ID,
+b.ORG_AREA,
+b.ORG_CY,
+b.ORG_CODE
+FROM DIM_ORG  b
+LEFT JOIN org_ys a
+ON a.ORG_ID=b.FATHER_ID
+AND a.ORG_CLASSIFY=b.ORG_CLASSIFY
+),
+--增加环京外埠
+HW_Z AS (
+SELECT 
+CLASSIFY_id AS ORG_ID,
+ORG_ID AS FATHER_ID,
+ORG_CLASSIFY AS ORG_NAME,
+ORG_CLASSIFY AS ORG_SNAME,
+NULL AS ORG_EN_NAME,
+NULL AS ORG_LEVEL,
+ORDER_KEY,
+NULL AS ORG_TYPE_ID,
+NULL AS ORG_TYPE,
+ORG_CLASSIFY_ID,
+ORG_CLASSIFY,
+NULL AS LONGITUDE,
+NULL AS LATITUDE,
+NULL AS ORG_SRC_CODE,
+NULL AS START_DATE,
+NULL AS END_DATE,
+NULL AS START_FLAG,
+NULL AS ORG_AREA_ID,
+NULL AS ORG_AREA,
+NULL AS ORG_CY,
+ORG_CODE
+FROM org_ys
+),
+
+
+
+hw_org_res as (select * from FATHER_org o where o.father_id  in  (select  org_id from HW_Z))
+
+select DM.*,
+CASE WHEN 1=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0))
+     WHEN 2=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0) )
+     WHEN 3=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0)+nvl(DM.MONTH3_ACTUAL,0))
+     WHEN 4=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0)+nvl(DM.MONTH3_ACTUAL,0)+nvl(DM.MONTH4_ACTUAL,0))
+     WHEN 5=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0)+nvl(DM.MONTH3_ACTUAL,0)+nvl(DM.MONTH4_ACTUAL,0)+nvl(DM.MONTH5_ACTUAL,0))
+     WHEN 6=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0)+nvl(DM.MONTH3_ACTUAL,0)+nvl(DM.MONTH4_ACTUAL,0)+nvl(DM.MONTH5_ACTUAL,0)+nvl(DM.MONTH6_ACTUAL,0))
+     WHEN 7=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0)+nvl(DM.MONTH3_ACTUAL,0)+nvl(DM.MONTH4_ACTUAL,0)+nvl(DM.MONTH5_ACTUAL,0)+nvl(DM.MONTH6_ACTUAL,0)+nvl(DM.MONTH7_ACTUAL,0) )
+     WHEN 8=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0)+nvl(DM.MONTH3_ACTUAL,0)+nvl(DM.MONTH4_ACTUAL,0)+nvl(DM.MONTH5_ACTUAL,0)+nvl(DM.MONTH6_ACTUAL,0)+nvl(DM.MONTH7_ACTUAL,0)+nvl(DM.MONTH8_ACTUAL,0))
+     WHEN 9=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0)+nvl(DM.MONTH3_ACTUAL,0)+nvl(DM.MONTH4_ACTUAL,0)+nvl(DM.MONTH5_ACTUAL,0)+nvl(DM.MONTH6_ACTUAL,0)+nvl(DM.MONTH7_ACTUAL,0)+nvl(DM.MONTH8_ACTUAL,0)+nvl(DM.MONTH9_ACTUAL,0))
+     WHEN 10=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0)+nvl(DM.MONTH3_ACTUAL,0)+nvl(DM.MONTH4_ACTUAL,0)+nvl(DM.MONTH5_ACTUAL,0)+nvl(DM.MONTH6_ACTUAL,0)+nvl(DM.MONTH7_ACTUAL,0)+nvl(DM.MONTH8_ACTUAL,0)+nvl(DM.MONTH9_ACTUAL,0)+nvl(DM.MONTH10_ACTUAL,0))
+     WHEN 11=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0)+nvl(DM.MONTH3_ACTUAL,0)+nvl(DM.MONTH4_ACTUAL,0)+nvl(DM.MONTH5_ACTUAL,0)+nvl(DM.MONTH6_ACTUAL,0)+nvl(DM.MONTH7_ACTUAL,0)+nvl(DM.MONTH8_ACTUAL,0)+nvl(DM.MONTH9_ACTUAL,0)+nvl(DM.MONTH10_ACTUAL,0)+nvl(DM.MONTH11_ACTUAL,0) )
+     when 12=to_number(substr('${timecode}',6,7)) THEN (nvl(DM.MONTH1_ACTUAL,0)+nvl(DM.MONTH2_ACTUAL,0)+nvl(DM.MONTH3_ACTUAL,0)+nvl(DM.MONTH4_ACTUAL,0)+nvl(DM.MONTH5_ACTUAL,0)+nvl(DM.MONTH6_ACTUAL,0)+nvl(DM.MONTH7_ACTUAL,0)+nvl(DM.MONTH8_ACTUAL,0)+nvl(DM.MONTH9_ACTUAL,0)+nvl(DM.MONTH10_ACTUAL,0)+nvl(DM.MONTH11_ACTUAL,0)+nvl(DM.MONTH12_ACTUAL,0))
+END as  nleiji
+from(
+select  DMF.ORGID ORG_ID,
+ DMF.TOTAL_ACTUAL,
+ DMF.YEAR_ACTUAL,
+ DMF.MONTH1_ACTUAL,
+ DMF.MONTH2_ACTUAL,
+ DMF.MONTH3_ACTUAL,
+ DMF.MONTH4_ACTUAL,
+ DMF.MONTH5_ACTUAL,
+ DMF.MONTH6_ACTUAL,
+ DMF.MONTH7_ACTUAL,
+ DMF.MONTH8_ACTUAL,
+ DMF.MONTH9_ACTUAL,
+ DMF.MONTH10_ACTUAL,
+ DMF.MONTH11_ACTUAL,
+ DMF.MONTH12_ACTUAL from DM_MCL_FLOW dmf where dmf.data_year= substr('${timecode}',0,4) 
+ ${if(len(org)=0,"and type='股份公司'",if(org="股份公司","and type='股份公司'",
+if(org="全口径","and type = '全口径'",
+if(org="产业新城","and type = '其他'",
+if(org="其他_住宅","and type='其他' ",
+if(org="其他_小镇","and type='其他' ",""))))))}
+ --and dmf.order_code='${org}'
+union all 
+select  O.FATHER_ID ORG_ID,
+ sum(DMF.TOTAL_ACTUAL) TOTAL_ACTUAL,
+ sum(DMF.YEAR_ACTUAL) YEAR_ACTUAL,
+ sum(DMF.MONTH1_ACTUAL) MONTH1_ACTUAL,
+ sum(DMF.MONTH2_ACTUAL) MONTH2_ACTUAL,
+ sum(DMF.MONTH3_ACTUAL) MONTH3_ACTUAL,
+ sum(DMF.MONTH4_ACTUAL) MONTH4_ACTUAL,
+ sum(DMF.MONTH5_ACTUAL) MONTH5_ACTUAL,
+ sum(DMF.MONTH6_ACTUAL) MONTH6_ACTUAL,
+ sum(DMF.MONTH7_ACTUAL) MONTH7_ACTUAL,
+ sum(DMF.MONTH8_ACTUAL) MONTH8_ACTUAL,
+ sum(DMF.MONTH9_ACTUAL) MONTH9_ACTUAL,
+ sum(DMF.MONTH10_ACTUAL) MONTH10_ACTUAL,
+ sum(DMF.MONTH11_ACTUAL) MONTH11_ACTUAL,
+ sum(DMF.MONTH12_ACTUAL) MONTH12_ACTUAL from  DM_MCL_FLOW dmf ,hw_org_res o
+where dmf.orgid=o.org_id
+AND dmf.data_year= substr('${timecode}',0,4) 
+${if(len(org)=0,"and type='股份公司'",if(org="股份公司","and type='股份公司'",
+if(org="全口径","and type = '全口径'",
+if(org="产业新城","and type = '其他'",
+if(org="其他_住宅","and type='其他' ",
+if(org="其他_小镇","and type='其他' ",""))))))}
+--and dmf.order_code='${org}'
+group by O.FATHER_ID) DM]]></Query>
+</TableData>
+<TableData name="orglist" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="orgcode"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH org_ys AS(
+SELECT org_sname AS org_classify_id
+      ,org_id
+      ,org_id || '1' AS classify_id
+      ,'环京' AS org_classify
+      ,order_key + 1 AS order_key
+      ,org_code
+  FROM dim_org
+ WHERE org_type = '集团'
+   AND org_id NOT IN ('E0A3D386-D5C8-FB22-18DE-4424D49363B2'
+                     ,'7F1F77EC-7E86-4753-9916-E87EEA54A754'
+                     ,'E0A3D386-D5C8-FB22-18DE-4424D49363B4'
+                     ,'E0A3D386-D5C8-FB22-18DE-4424D49363B5')
+UNION ALL
+SELECT org_sname AS org_classify_id
+      ,org_id
+      ,org_id || '2' AS classify_id
+      ,'外埠' AS org_classify
+      ,order_key + 2 AS order_key
+      ,org_code
+  FROM dim_org
+ WHERE org_type = '集团'
+   AND org_id NOT IN ('E0A3D386-D5C8-FB22-18DE-4424D49363B2'
+                     ,'7F1F77EC-7E86-4753-9916-E87EEA54A754'
+                     ,'E0A3D386-D5C8-FB22-18DE-4424D49363B4'
+                     ,'E0A3D386-D5C8-FB22-18DE-4424D49363B5')
+
+),
+--二级父级替换
+FATHER_org as (
+SELECT 
+b.ORG_ID,
+CASE WHEN a.CLASSIFY_id IS NULL THEN b.FATHER_ID ELSE a.CLASSIFY_id END as FATHER_ID,
+b.ORG_NAME,
+b.ORG_SNAME,
+b.ORG_EN_NAME,
+b.ORG_LEVEL,
+b.ORDER_KEY,
+b.ORG_TYPE_ID,
+b.ORG_TYPE,
+b.ORG_CLASSIFY_ID,
+b.ORG_CLASSIFY,
+b.LONGITUDE,
+b.LATITUDE,
+b.ORG_SRC_CODE,
+b.START_DATE,
+b.END_DATE,
+b.START_FLAG,
+b.ORG_AREA_ID,
+b.ORG_AREA,
+b.ORG_CY,
+b.ORG_CODE
+FROM DIM_ORG  b
+LEFT JOIN org_ys a
+ON a.ORG_ID=b.FATHER_ID
+AND a.ORG_CLASSIFY=b.ORG_CLASSIFY
+),
+--增加环京外埠
+HW_Z AS (
+SELECT 
+CLASSIFY_id AS ORG_ID,
+ORG_ID AS FATHER_ID,
+ORG_CLASSIFY AS ORG_NAME,
+ORG_CLASSIFY AS ORG_SNAME,
+NULL AS ORG_EN_NAME,
+NULL AS ORG_LEVEL,
+ORDER_KEY,
+NULL AS ORG_TYPE_ID,
+NULL AS ORG_TYPE,
+ORG_CLASSIFY_ID,
+ORG_CLASSIFY,
+NULL AS LONGITUDE,
+NULL AS LATITUDE,
+NULL AS ORG_SRC_CODE,
+NULL AS START_DATE,
+NULL AS END_DATE,
+NULL AS START_FLAG,
+NULL AS ORG_AREA_ID,
+NULL AS ORG_AREA,
+NULL AS ORG_CY,
+ORG_CODE
+FROM org_ys
+),
+org_x as(
+SELECT * FROM FATHER_org 
+/*where org_id in (select org_id from DM_MCL_FLOW 
+where 1=1
+${if(len(org)=0,"and type='股份公司'",if(org="股份公司","and type='股份公司'",
+if(org="全口径","and type = '全口径'",
+if(org="产业新城","and type = '其他'",
+if(org="其他_住宅","and type='其他' ",
+if(org="其他_小镇","and type='其他' ","and type='股份公司"))))))}
+)*/
+UNION ALL
+SELECT * FROM HW_Z
+)
+select ORG_ID,
+       CASE
+         when ORG_ID = '5FB62123-5DF2-0750-0F82-F04B251EA55E' THEN
+           'E0A3D386-D5C8-FB22-18DE-4424D49363B31'
+         ELSE
+          FATHER_ID
+       END FATHER_ID,
+       ORG_NAME,
+       ORG_SNAME,
+       org_level,
+       ORDER_KEY,
+       org_classify_id,
+       org_classify,
+       ORG_CODE from (
+select  * from org_x x  where 1=1
+${if(len(orgcode)=0,if(org="股份公司"," and x.org_code like 'HXCYXC%' and x.order_key < 1790",
+if(org="全口径","and x.org_code like 'HXCYXC%' and x.order_key < 1790
+--union all select * from org_x where org_code like 'HXKQCZZ%'
+",
+if(org="产业新城","and x.org_code like 'HXCYXC%' and x.order_key < 1790 ",
+if(org="其他_住宅","and x.org_code like 'HXKQCZZ%'",
+if(org="其他_小镇","and x.org_code like 'HXCYXZ%' "," and x.org_code like 'HXCYXC%' "))))),"and x.org_code like '"+orgcode+"%' and x.org_code not like 'HXCYXCGJ0_%'
+ and x.org_code not like 'HXCYXCGJ1_%'")})
+ where  org_id !='9E3CFC37-AA68-46AB-96AA-C9BE391C37C6'
+order by order_key ]]></Query>
+</TableData>
+<TableData name="orgTree" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[orglist]]></originalTableDataName>
+</TableData>
+<TableData name="Tree1" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[4]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[组织3]]></originalTableDataName>
+</TableData>
+<TableData name="组织3" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[${if(org ="全口径","select org_id , org_code , org_name , case org_code when 'HXCYXC' then null else father_id end father_id  from DIM_ORG where org_code like 'HXCYXC%' and order_key < 1790  order by order_key",
+if(org ="产业新城","select org_id , org_code , org_name , order_key,case org_code when 'HXCYXC' then null else father_id end father_id  from DIM_ORG where org_code like 'HXCYXC%' and order_key < 1790 order by order_key",
+if(org ="其他_住宅","select org_id , org_code , org_name ,order_key, case org_code when 'HXKQCZZ' then null else father_id end father_id  from DIM_ORG where org_code like 'HXKQCZZ%' order by order_key",
+if(org ="其他_小镇","select org_id , org_code , org_name ,order_key, case org_code when 'HXCYXZ' then null else father_id end father_id  from DIM_ORG where org_code like 'HXCYXZ%' order by order_key","select org_id , org_code , org_name ,order_key, case org_code when 'HXCYXC' then null else father_id end father_id from DIM_ORG where org_code like 'HXCYXC%' and order_key < 1790 order by order_key"
+)
+)
+)
+)}]]></Query>
+</TableData>
+<TableData name="统计" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="orgcode"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH org_ys AS(
+SELECT DISTINCT 
+  a.ORG_CLASSIFY_ID,
+  b.ORG_ID,
+  decode(a.ORG_CLASSIFY,'环京',b.ORG_ID||'1','外埠',b.ORG_ID||'2') as CLASSIFY_id,
+  a.ORG_CLASSIFY ,
+ case a.ORG_CLASSIFY  when '环京'  then  b.ORDER_KEY+1 when '外埠' then b.ORDER_KEY+2 else b.ORDER_KEY end ORDER_KEY ,
+
+  b.ORG_CODE
+FROM dim_org a
+LEFT JOIN dim_org b
+ON a.ORG_CLASSIFY_ID=b.ORG_NAME
+WHERE a.ORG_CLASSIFY_ID is not NULL
+AND a.ORG_CLASSIFY is not NULL
+
+),
+--二级父级替换
+FATHER_org as (
+SELECT 
+b.ORG_ID,
+CASE WHEN a.CLASSIFY_id IS NULL THEN b.FATHER_ID ELSE a.CLASSIFY_id END as FATHER_ID,
+b.ORG_NAME,
+b.ORG_SNAME,
+b.ORG_EN_NAME,
+b.ORG_LEVEL,
+b.ORDER_KEY,
+b.ORG_TYPE_ID,
+b.ORG_TYPE,
+b.ORG_CLASSIFY_ID,
+b.ORG_CLASSIFY,
+b.LONGITUDE,
+b.LATITUDE,
+b.ORG_SRC_CODE,
+b.START_DATE,
+b.END_DATE,
+b.START_FLAG,
+b.ORG_AREA_ID,
+b.ORG_AREA,
+b.ORG_CY,
+b.ORG_CODE
+FROM DIM_ORG  b
+LEFT JOIN org_ys a
+ON a.ORG_ID=b.FATHER_ID
+AND a.ORG_CLASSIFY=b.ORG_CLASSIFY
+),
+--增加环京外埠
+HW_Z AS (
+SELECT 
+CLASSIFY_id AS ORG_ID,
+ORG_ID AS FATHER_ID,
+ORG_CLASSIFY AS ORG_NAME,
+ORG_CLASSIFY AS ORG_SNAME,
+NULL AS ORG_EN_NAME,
+NULL AS ORG_LEVEL,
+ORDER_KEY,
+NULL AS ORG_TYPE_ID,
+NULL AS ORG_TYPE,
+ORG_CLASSIFY_ID,
+ORG_CLASSIFY,
+NULL AS LONGITUDE,
+NULL AS LATITUDE,
+NULL AS ORG_SRC_CODE,
+NULL AS START_DATE,
+NULL AS END_DATE,
+NULL AS START_FLAG,
+NULL AS ORG_AREA_ID,
+NULL AS ORG_AREA,
+NULL AS ORG_CY,
+ORG_CODE
+FROM org_ys
+),
+org_x as(
+SELECT * FROM FATHER_org 
+/*where org_id in (select org_id from DM_MCL_FLOW 
+where 1=1
+${if(len(org)=0,"and type='股份公司'",if(org="股份公司","and type='股份公司'",
+if(org="全口径","and type = '全口径'",
+if(org="产业新城","and type = '其他'",
+if(org="其他_住宅","and type='其他' ",
+if(org="其他_小镇","and type='其他' ","and type='股份公司"))))))}
+)*/
+UNION ALL
+SELECT * FROM HW_Z
+)
+select count(*) from (
+select  * from org_x x  where 1=1
+${if(len(orgcode)=0,if(org="股份公司"," and x.org_code like 'HXCYXC%' and x.order_key < 1780",
+if(org="全口径","and x.org_code like 'HXCYXC%' and x.order_key < 1780
+--union all select * from org_x where org_code like 'HXKQCZZ%'
+",
+if(org="产业新城","and x.org_code like 'HXCYXC%' and x.order_key < 1780 ",
+if(org="其他_住宅","and x.org_code like 'HXKQCZZ%'",
+if(org="其他_小镇","and x.org_code like 'HXCYXZ%' "," and x.org_code like 'HXCYXC%' "))))),"and x.org_code like '"+orgcode+"%' and x.org_code not like 'HXCYXCGJ0_%'
+ and x.org_code not like 'HXCYXCGJ1_%'")})
+order by order_key ]]></Query>
+</TableData>
+<TableData name="现金流_1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="timecode"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+WITH org_ys AS(
+SELECT DISTINCT 
+  a.ORG_CLASSIFY_ID,
+  b.ORG_ID,
+  decode(a.ORG_CLASSIFY,'环京',b.ORG_ID||'1','外埠',b.ORG_ID||'2') as CLASSIFY_id,
+  a.ORG_CLASSIFY ,
+  b.ORDER_KEY,
+  b.ORG_CODE
+FROM dim_org a
+LEFT JOIN dim_org b
+ON a.ORG_CLASSIFY_ID=b.ORG_NAME
+WHERE a.ORG_CLASSIFY_ID is not NULL
+AND a.ORG_CLASSIFY is not NULL
+
+),
+--二级父级替换
+FATHER_org as (
+SELECT 
+b.ORG_ID,
+CASE WHEN a.CLASSIFY_id IS NULL THEN b.FATHER_ID ELSE a.CLASSIFY_id END as FATHER_ID,
+b.ORG_NAME,
+b.ORG_SNAME,
+b.ORG_EN_NAME,
+b.ORG_LEVEL,
+b.ORDER_KEY,
+b.ORG_TYPE_ID,
+b.ORG_TYPE,
+b.ORG_CLASSIFY_ID,
+b.ORG_CLASSIFY,
+b.LONGITUDE,
+b.LATITUDE,
+b.ORG_SRC_CODE,
+b.START_DATE,
+b.END_DATE,
+b.START_FLAG,
+b.ORG_AREA_ID,
+b.ORG_AREA,
+b.ORG_CY,
+b.ORG_CODE
+FROM DIM_ORG  b
+LEFT JOIN org_ys a
+ON a.ORG_ID=b.FATHER_ID
+AND a.ORG_CLASSIFY=b.ORG_CLASSIFY
+),
+--增加环京外埠
+HW_Z AS (
+SELECT 
+CLASSIFY_id AS ORG_ID,
+ORG_ID AS FATHER_ID,
+ORG_CLASSIFY AS ORG_NAME,
+ORG_CLASSIFY AS ORG_SNAME,
+NULL AS ORG_EN_NAME,
+NULL AS ORG_LEVEL,
+ORDER_KEY,
+NULL AS ORG_TYPE_ID,
+NULL AS ORG_TYPE,
+ORG_CLASSIFY_ID,
+ORG_CLASSIFY,
+NULL AS LONGITUDE,
+NULL AS LATITUDE,
+NULL AS ORG_SRC_CODE,
+NULL AS START_DATE,
+NULL AS END_DATE,
+NULL AS START_FLAG,
+NULL AS ORG_AREA_ID,
+NULL AS ORG_AREA,
+NULL AS ORG_CY,
+ORG_CODE
+FROM org_ys
+),
+
+
+
+hw_org_res as (select * from FATHER_org o where o.father_id  in  (select  org_id from HW_Z))
+
+
+select  DMF.ORGID ORG_ID,
+ DMF.TOTAL_ACTUAL,
+ CASE WHEN 1=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0))
+     WHEN 2=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0) )
+     WHEN 3=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0))
+     WHEN 4=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0))
+     WHEN 5=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0))
+     WHEN 6=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0))
+     WHEN 7=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0) )
+     WHEN 8=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0)+nvl(DMF.MONTH8_ACTUAL,0))
+     WHEN 9=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0)+nvl(DMF.MONTH8_ACTUAL,0)+nvl(DMF.MONTH9_ACTUAL,0))
+     WHEN 10=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0)+nvl(DMF.MONTH8_ACTUAL,0)+nvl(DMF.MONTH9_ACTUAL,0)+nvl(DMF.MONTH10_ACTUAL,0))
+     WHEN 11=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0)+nvl(DMF.MONTH8_ACTUAL,0)+nvl(DMF.MONTH9_ACTUAL,0)+nvl(DMF.MONTH10_ACTUAL,0)+nvl(DMF.MONTH11_ACTUAL,0) )
+     when 12=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0)+nvl(DMF.MONTH8_ACTUAL,0)+nvl(DMF.MONTH9_ACTUAL,0)+nvl(DMF.MONTH10_ACTUAL,0)+nvl(DMF.MONTH11_ACTUAL,0)+nvl(DMF.MONTH12_ACTUAL,0))
+END as  nleiji,
+ DMF.YEAR_ACTUAL,
+ DMF.MONTH1_ACTUAL,
+ DMF.MONTH2_ACTUAL,
+ DMF.MONTH3_ACTUAL,
+ DMF.MONTH4_ACTUAL,
+ DMF.MONTH5_ACTUAL,
+ DMF.MONTH6_ACTUAL,
+ DMF.MONTH7_ACTUAL,
+ DMF.MONTH8_ACTUAL,
+ DMF.MONTH9_ACTUAL,
+ DMF.MONTH10_ACTUAL,
+ DMF.MONTH11_ACTUAL,
+ DMF.MONTH12_ACTUAL from DM_MCL_FLOW dmf where dmf.data_year= substr('${timecode}',0,4) 
+ ${if(len(org)=0,"and type='股份公司'",if(org="股份公司","and type='股份公司'",
+if(org="全口径","and type = '全口径'",
+if(org="产业新城","and type = '其他'",
+if(org="其他_住宅","and type='其他' ",
+if(org="其他_小镇","and type='其他' ",""))))))}
+ --and dmf.order_code='${org}'
+union all 
+select  O.FATHER_ID ORG_ID,
+ sum(DMF.TOTAL_ACTUAL) TOTAL_ACTUAL,
+ CASE WHEN 1=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0))
+     WHEN 2=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0) )
+     WHEN 3=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0))
+     WHEN 4=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0))
+     WHEN 5=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0))
+     WHEN 6=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0))
+     WHEN 7=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0) )
+     WHEN 8=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0)+nvl(DMF.MONTH8_ACTUAL,0))
+     WHEN 9=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0)+nvl(DMF.MONTH8_ACTUAL,0)+nvl(DMF.MONTH9_ACTUAL,0))
+     WHEN 10=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0)+nvl(DMF.MONTH8_ACTUAL,0)+nvl(DMF.MONTH9_ACTUAL,0)+nvl(DMF.MONTH10_ACTUAL,0))
+     WHEN 11=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0)+nvl(DMF.MONTH8_ACTUAL,0)+nvl(DMF.MONTH9_ACTUAL,0)+nvl(DMF.MONTH10_ACTUAL,0)+nvl(DMF.MONTH11_ACTUAL,0) )
+     when 12=to_number(substr('${timecode}',5,6)) THEN (nvl(DMF.MONTH1_ACTUAL,0)+nvl(DMF.MONTH2_ACTUAL,0)+nvl(DMF.MONTH3_ACTUAL,0)+nvl(DMF.MONTH4_ACTUAL,0)+nvl(DMF.MONTH5_ACTUAL,0)+nvl(DMF.MONTH6_ACTUAL,0)+nvl(DMF.MONTH7_ACTUAL,0)+nvl(DMF.MONTH8_ACTUAL,0)+nvl(DMF.MONTH9_ACTUAL,0)+nvl(DMF.MONTH10_ACTUAL,0)+nvl(DMF.MONTH11_ACTUAL,0)+nvl(DMF.MONTH12_ACTUAL,0))
+END as  nleiji,
+ sum(DMF.YEAR_ACTUAL) YEAR_ACTUAL,
+ sum(DMF.MONTH1_ACTUAL) MONTH1_ACTUAL,
+ sum(DMF.MONTH2_ACTUAL) MONTH2_ACTUAL,
+ sum(DMF.MONTH3_ACTUAL) MONTH3_ACTUAL,
+ sum(DMF.MONTH4_ACTUAL) MONTH4_ACTUAL,
+ sum(DMF.MONTH5_ACTUAL) MONTH5_ACTUAL,
+ sum(DMF.MONTH6_ACTUAL) MONTH6_ACTUAL,
+ sum(DMF.MONTH7_ACTUAL) MONTH7_ACTUAL,
+ sum(DMF.MONTH8_ACTUAL) MONTH8_ACTUAL,
+ sum(DMF.MONTH9_ACTUAL) MONTH9_ACTUAL,
+ sum(DMF.MONTH10_ACTUAL) MONTH10_ACTUAL,
+ sum(DMF.MONTH11_ACTUAL) MONTH11_ACTUAL,
+ sum(DMF.MONTH12_ACTUAL) MONTH12_ACTUAL from  DM_MCL_FLOW dmf ,hw_org_res o
+where dmf.orgid=o.org_id
+AND dmf.data_year= substr('${timecode}',0,4) 
+${if(len(org)=0,"and type='股份公司'",if(org="股份公司","and type='股份公司'",
+if(org="全口径","and type = '全口径'",
+if(org="产业新城","and type = '其他'",
+if(org="其他_住宅","and type='其他' ",
+if(org="其他_小镇","and type='其他' ",""))))))}
+--and dmf.order_code='${org}'
+group by O.FATHER_ID]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[净现金流]]></Title>
+<ServerPrinter/>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[//展开的最大节点级值  
+//var t = 1;   
+//for(var m = 1; m <= t; m++) {  
+//循环执行“+”号展开  
+//$('.x-treenode-unexpand').trigger('click');  
+//$('.parameter-container-collapseimg-up').remove();
+
+//展开的最大节点级值  
+var t = 4;   
+for(var m = 1; m <= t; m++) {  
+    //循环执行“+”号展开  
+    $('.x-treenode-unexpand').trigger('click');  
+}
+
+$('.parameter-container-collapseimg-up').remove();
+
+var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.slimScrollBarY').css('width','15px'); //Y轴宽
+$('.slimScrollBarX').css('height','15px');//X轴高
+$('.slimScrollBarX').css('background','#000000');//X轴颜色
+$('.slimScrollBarX').css('opacity','0.65');//X轴透明度
+$('.slimScrollBarY').css('background','#000000');//Y轴颜色
+$('.slimScrollBarY').css('opacity','0.65');//Y轴透明度]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportWebAttr>
+<ReportExportAttr>
+<ExcelExportAttr hideColumn="false"/>
+<PDFExportAttr/>
+<HTMLExportAttr/>
+<WordExportAttr/>
+</ReportExportAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="净现金流">
+<ReportPageAttr>
+<HR F="0" T="0"/>
+<FR/>
+<HC/>
+<FC/>
+<UPFCR COLUMN="false" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[1152000,864000,864000,864000,864000,864000,864000,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[1524000,576000,8458200,3505200,3581400,2736000,2736000,2736000,2736000,2736000,2736000,2736000,2736000,2736000,2736000,2736000,2736000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="DSColumn">
+<Attributes dsName="统计" columnName="COUNT(*)"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="1" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="0" s="0">
+<O>
+<![CDATA[组织机构]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="0" s="0">
+<O>
+<![CDATA[累计净现金流]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org = "其他_住宅"]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="4" r="0" s="0">
+<O>
+<![CDATA[当年净现金流]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="5" r="0" s="0">
+<O>
+<![CDATA[1月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="6" r="0" s="0">
+<O>
+<![CDATA[2月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 2]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="7" r="0" s="0">
+<O>
+<![CDATA[3月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 3]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="8" r="0" s="0">
+<O>
+<![CDATA[4月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 4]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="9" r="0" s="0">
+<O>
+<![CDATA[5月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 5]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="10" r="0" s="0">
+<O>
+<![CDATA[6月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 6]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="11" r="0" s="0">
+<O>
+<![CDATA[7月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 7]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="12" r="0" s="0">
+<O>
+<![CDATA[8月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 8]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="13" r="0" s="0">
+<O>
+<![CDATA[9月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 9]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="14" r="0" s="0">
+<O>
+<![CDATA[10月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 10]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="15" r="0" s="0">
+<O>
+<![CDATA[11月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 11]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="16" r="0" s="0">
+<O>
+<![CDATA[12月]]></O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[month(CONCATENATE($timecode, "-01")) < 12]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="2" r="1" s="1">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_0"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-8355712"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglist]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" upParentDefault="false"/>
+</C>
+<C c="3" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="TOTAL_ACTUAL"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="1"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C2"/>
+</C>
+<C c="4" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="NLEIJI"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH1_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH2_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH3_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH4_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="9" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH5_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH6_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH7_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH8_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH9_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="14" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH10_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH11_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="1" s="2">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH12_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="2" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_1"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-6710887"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglist]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C2" upParentDefault="false"/>
+</C>
+<C c="3" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="TOTAL_ACTUAL"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C3"/>
+</C>
+<C c="4" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="NLEIJI"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH1_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH2_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH3_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH4_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="9" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH5_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH6_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH7_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH8_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH9_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="14" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH10_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH11_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH12_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="2" r="3" s="5">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-3355444"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglist]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C3" upParentDefault="false"/>
+</C>
+<C c="3" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="TOTAL_ACTUAL"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="3"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C4"/>
+</C>
+<C c="4" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="NLEIJI"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH1_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH2_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH3_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH4_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="9" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH5_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH6_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH7_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH8_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH9_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="14" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH10_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH11_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="3" s="6">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH12_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="2" r="4" s="7">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-1644826"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglist]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C4" upParentDefault="false"/>
+</C>
+<C c="3" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="TOTAL_ACTUAL"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="4"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C5"/>
+</C>
+<C c="4" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="NLEIJI"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH1_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH2_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH3_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH4_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="9" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH5_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH6_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH7_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH8_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH9_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="14" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH10_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH11_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH12_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="2" r="5" s="9">
+<O t="DSColumn">
+<Attributes dsName="orgTree" columnName="FR_GEN_4"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-1644826"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[orglist]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C5" upParentDefault="false"/>
+</C>
+<C c="3" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="TOTAL_ACTUAL"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="5"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C6"/>
+</C>
+<C c="4" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="NLEIJI"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH1_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH2_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH3_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH4_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="9" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH5_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH6_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH7_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH8_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH9_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="14" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH10_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH11_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="5" s="8">
+<O t="DSColumn">
+<Attributes dsName="现金流" columnName="MONTH12_ACTUAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellGUIAttr adjustmode="2"/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if($$$ = isnull  ,'-',if($$$ = 0,'-',$$$))]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="2" r="6">
+<O>
+<![CDATA[ ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+<Background name="NullBackground"/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<LayerReportAttr isPageQuery="true" countPerPage="30"/>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0" useParamsTemplate="false"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1380618"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[组织：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="159" y="34" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label2_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[（单位：亿元）]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72" foreground="-13421773"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="87" y="10" width="231" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[日期：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="378" y="34" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[口径：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="34" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label3_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[净现金流]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="96" foreground="-6877671"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="5" width="67" height="29"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
+<WidgetName name="orgcode"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr selectLeafOnly="false"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="false"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_CODE" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[Tree1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[HXCYXC]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="199" y="34" width="170" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="formSubmit0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-6877671"/>
+</initial>
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="517" y="34" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="timecode"/>
+<LabelName name="日期："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr format="yyyy-MM"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=today()]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="418" y="34" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboBox">
+<Listener event="afteredit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[/*var orgcode = this.options.form.getWidgetByName("orgcode");
+var org = this.options.form.getWidgetByName("org").getValue();
+if(org = '其他_小镇') {
+    orgcode.setValue('HXCYXZ');
+} else {
+    orgcode.setValue('HXCYXC');
+}*/]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="org"/>
+<LabelName name="口径："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<allowBlank>
+<![CDATA[false]]></allowBlank>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="股份公司" value="股份公司"/>
+<Dict key="全口径" value="新城全口径"/>
+<Dict key="产业新城" value="产业新城"/>
+<Dict key="其他_住宅" value="住宅"/>
+<Dict key="其他_小镇" value="小镇"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[股份公司]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="60" y="34" width="90" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="org"/>
+<Widget widgetName="orgcode"/>
+<Widget widgetName="timecode"/>
+<Widget widgetName="formSubmit0"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<UseParamsTemplate use="false"/>
+<Position position="0"/>
+<Design_Width design_width="960"/>
+<NameTagModified>
+<TagModified tag="orgcode" modified="true"/>
+</NameTagModified>
+<WidgetNameTagMap>
+<NameTag name="org" tag="口径："/>
+<NameTag name="timecode" tag="日期："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="960" height="59"/>
+</ParameterUI>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6877671"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="12">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingLeft="7" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="22">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingLeft="12" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="32">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingLeft="17" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1" paddingLeft="42">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="e4655e1e-c2b5-4407-9ec9-0557ddc371a9"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="6ea84c54-eb51-4aba-bf47-9023844488bc"/>
+</TemplateIdAttMark>
+</WorkBook>

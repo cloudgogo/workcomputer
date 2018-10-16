@@ -1,0 +1,3429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="org" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select ORG_ID,
+       CASE
+         WHEN ORG_ID = 'E0A3D386-D5C8-FB22-18DE-4424D49363B2' THEN
+          NULL
+         when ORG_ID = '5FB62123-5DF2-0750-0F82-F04B251EA55E' THEN
+           'E0A3D386-D5C8-FB22-18DE-4424D49363B3'
+         ELSE
+          FATHER_ID
+       END FATHER_ID,
+       ORG_NAME,
+       ORG_SNAME,
+       org_level,
+       ORDER_KEY,
+       org_classify_id,
+       org_classify,
+       ORG_CODE
+  from dim_org
+ WHERE ORG_CODE LIKE 'HXCYXC%'
+   and org_id !='9E3CFC37-AA68-46AB-96AA-C9BE391C37C6'
+   and (org_code not like 'HXCYXCGJ%' OR org_code = 'HXCYXCGJ')
+ ORDER BY order_key
+]]></Query>
+</TableData>
+<TableData name="orgtree" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[6]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[income]]></originalTableDataName>
+</TableData>
+<TableData name="income" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="timecode"/>
+<O>
+<![CDATA[2018-06]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select a.org_id,a.org_name,a.org_sname,a.org_level,a.order_key,a.ORG_CODE,
+a.father_id,target_year,actual_year,actual_gd_year,actual_wx_year,
+case when target_year=0 then 0 else actual_year/target_year end lv_year,
+target_quarter,actual_quarter,actual_gd_quarter,actual_wx_quarter,
+case when target_quarter=0 then 0 else actual_quarter/target_quarter end lv_quarter,
+target_month,actual_month,actual_gd_month,actual_wx_month,
+case when target_month=0 then 0 else actual_month/target_month end lv_month,
+amount,case when a.org_name in ('环京','外埠') and target_quarter<>0 then amount/target_quarter
+when a.org_name in ('环京','外埠') and target_quarter=0 then 0 else completionrate end completionrate,
+case when a.org_name in ('环京','外埠') then amount-target_quarter else predictdifference end predictdifference,yearonyeargrowth,reasondifference
+from 
+(select a.org_id,a.org_name,a.org_sname,a.org_level,a.order_key,a.ORG_CODE,a.father_id,
+sum(target_year) target_year,sum(actual_year) actual_year,sum(actual_gd_year) actual_gd_year,sum(actual_wx_year) actual_wx_year,
+sum(target_quarter) target_quarter,sum(actual_quarter) actual_quarter,sum(actual_gd_quarter) actual_gd_quarter,sum(actual_wx_quarter) actual_wx_quarter,
+sum(target_month) target_month,sum(actual_month) actual_month,sum(actual_gd_month) actual_gd_month,sum(actual_wx_month) actual_wx_month
+from
+(
+
+select b.org_id,b.org_name,b.org_sname,case when b.org_type='集团' then b.org_level-1 else b.org_level end org_level,b.order_key,ORG_CODE,
+case when b.org_type='事业部' and B.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' 
+when b.org_type='事业部' and B.ORG_CLASSIFY='外埠' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' else b.father_id end  father_id,0 target_year,
+sum(case when a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.y_p_value else 0 end) actual_year,
+sum(case when a.targetid='dedc936e00f64bad95af2ca3b1c8adc7' then a.y_p_value else 0 end) actual_gd_year,
+sum(case when a.targetid='0b551c99b8c045ddac7576e66bd51e98' then a.y_p_value else 0 end) actual_wx_year,
+0 target_quarter,0 actual_quarter,0 actual_gd_quarter,0 actual_wx_quarter,0 target_month,0 actual_month,0 actual_gd_month,0 actual_wx_month
+from bass_ods.ods_mcl_factsum a inner join bass_ods.ods_mcl_mdmorg c on a.orgid=c.id inner join dim_org b on c.sourceid=b.org_id
+where a.targetid in ('bcdc0e84a15a4b82831fa8ef7daad520','dedc936e00f64bad95af2ca3b1c8adc7','0b551c99b8c045ddac7576e66bd51e98') and 
+to_char(a.factdate,'yyyy')=substr(replace('${timecode}','-',''),1,4) and to_char(a.factdate,'yyyymm')<=replace('${timecode}','-','') and
+org_code like 'HXCYXC%' and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+group by b.org_id,b.org_name,b.org_sname,b.org_level,b.order_key,ORG_CODE,org_type,father_id,ORG_CLASSIFY
+union all
+select b.org_id,b.org_name,b.org_sname,case when b.org_type='集团' then b.org_level-1 else b.org_level end org_level,b.order_key,ORG_CODE,
+case when b.org_type='事业部' and B.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' 
+when b.org_type='事业部' and B.ORG_CLASSIFY='外埠' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' else b.father_id end  father_id,
+sum(case when a.factdate=substr(replace('${timecode}','-',''),1,4) and a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.amount else 0 end) target_year,
+0 actual_year,0 actual_gd_year,0 actual_wx_year,
+sum(case when a.factdate=substr(replace('${timecode}','-',''),1,4)||'Q'||to_char(to_date(replace('${timecode}','-','')||'01','yyyymmdd'),'q') and a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.amount else 0 end) target_quarter,
+0 actual_quarter,0 actual_gd_quarter,0 actual_wx_quarter,
+sum(case when a.factdate=substr(replace('${timecode}','-',''),1,4)||'M'||to_char(to_number(substr(replace('${timecode}','-',''),5,2))) and a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.amount else 0 end) target_month,
+0 actual_month,0 actual_gd_month,0 actual_wx_month
+from bass_ods.ods_mcl_target a inner join bass_ods.ods_mcl_mdmorg c on a.orgid=c.id inner join dim_org b on c.sourceid=b.org_id
+where a.targetid in ('bcdc0e84a15a4b82831fa8ef7daad520') and 
+org_code like 'HXCYXC%' and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+group by b.org_id,b.org_name,b.org_sname,b.org_level,b.order_key,ORG_CODE,org_type,father_id,ORG_CLASSIFY
+union all
+select b.org_id,b.org_name,b.org_sname,case when b.org_type='集团' then b.org_level-1 else b.org_level end org_level,b.order_key,ORG_CODE,
+case when b.org_type='事业部' and B.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' 
+when b.org_type='事业部' and B.ORG_CLASSIFY='外埠' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' else b.father_id end  father_id,
+0 target_year,0 actual_year,0 actual_gd_year,0 actual_wx_year,0 target_quarter,
+sum(case when a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.y_p_value else 0 end) actual_quarter,
+sum(case when a.targetid='dedc936e00f64bad95af2ca3b1c8adc7' then a.y_p_value else 0 end) actual_gd_quarter,
+sum(case when a.targetid='0b551c99b8c045ddac7576e66bd51e98' then a.y_p_value else 0 end) actual_wx_quarter,
+0 target_month,0 actual_month,0 actual_gd_month,0 actual_wx_month
+from bass_ods.ods_mcl_factsum a inner join bass_ods.ods_mcl_mdmorg c on a.orgid=c.id inner join dim_org b on c.sourceid=b.org_id
+where a.targetid in ('bcdc0e84a15a4b82831fa8ef7daad520','dedc936e00f64bad95af2ca3b1c8adc7','0b551c99b8c045ddac7576e66bd51e98') and 
+to_char(a.factdate,'yyyyq')=to_char(to_date(replace('${timecode}','-',''),'yyyymm'),'yyyyq') and to_char(a.factdate,'yyyymm')<=replace('${timecode}','-','') and 
+org_code like 'HXCYXC%'
+and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+group by b.org_id,b.org_name,b.org_sname,b.org_level,b.order_key,ORG_CODE,org_type,father_id,ORG_CLASSIFY
+union all
+select b.org_id,b.org_name,b.org_sname,case when b.org_type='集团' then b.org_level-1 else b.org_level end org_level,b.order_key,ORG_CODE,
+case when b.org_type='事业部' and B.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' 
+when b.org_type='事业部' and B.ORG_CLASSIFY='外埠' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' else b.father_id end  father_id,
+0 target_year,0 actual_year,0 actual_gd_year,0 actual_wx_year,0 target_quarter,
+0 actual_quarter,0 actual_gd_quarter,0 actual_wx_quarter,0 target_month,
+sum(case when a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.y_p_value else 0 end) actual_month,
+sum(case when a.targetid='dedc936e00f64bad95af2ca3b1c8adc7' then a.y_p_value else 0 end) actual_gd_month,
+sum(case when a.targetid='0b551c99b8c045ddac7576e66bd51e98' then a.y_p_value else 0 end) actual_wx_month
+from bass_ods.ods_mcl_factsum a inner join bass_ods.ods_mcl_mdmorg c on a.orgid=c.id inner join dim_org b on c.sourceid=b.org_id
+where a.targetid in ('bcdc0e84a15a4b82831fa8ef7daad520','dedc936e00f64bad95af2ca3b1c8adc7','0b551c99b8c045ddac7576e66bd51e98') and 
+to_char(a.factdate,'yyyymm')=replace('${timecode}','-','') and 
+org_code like 'HXCYXC%'
+and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+group by b.org_id,b.org_name,b.org_sname,b.org_level,b.order_key,ORG_CODE,org_type,father_id,ORG_CLASSIFY
+UNION ALL
+select CASE WHEN B.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' else 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' end org_id,
+b.ORG_CLASSIFY org_name,b.ORG_CLASSIFY org_sname,3 org_level,CASE WHEN B.ORG_CLASSIFY='环京' then 35 else 345 end order_key,
+CASE WHEN B.ORG_CLASSIFY='环京' then 'HXCYXCGNHJ' ELSE 'HXCYXCGNWB' END ORG_CODE,'E0A3D386-D5C8-FB22-18DE-4424D49363B3' father_id,0 target_year,
+sum(case when a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.y_p_value else 0 end) actual_year,
+sum(case when a.targetid='dedc936e00f64bad95af2ca3b1c8adc7' then a.y_p_value else 0 end) actual_gd_year,
+sum(case when a.targetid='0b551c99b8c045ddac7576e66bd51e98' then a.y_p_value else 0 end) actual_wx_year,
+0 target_quarter,0 actual_quarter,0 actual_gd_quarter,0 actual_wx_quarter,0 target_month,0 actual_month,0 actual_gd_month,0 actual_wx_month
+from bass_ods.ods_mcl_factsum a inner join bass_ods.ods_mcl_mdmorg c on a.orgid=c.id inner join dim_org b on c.sourceid=b.org_id
+where a.targetid in ('bcdc0e84a15a4b82831fa8ef7daad520','dedc936e00f64bad95af2ca3b1c8adc7','0b551c99b8c045ddac7576e66bd51e98') and 
+to_char(a.factdate,'yyyy')=substr(replace('${timecode}','-',''),1,4) and to_char(a.factdate,'yyyymm')<=replace('${timecode}','-','') and 
+org_code like 'HXCYXC%' AND B.ORG_TYPE='区域'
+and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+group by b.ORG_CLASSIFY
+union all
+select CASE WHEN B.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' else 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' end org_id,
+b.ORG_CLASSIFY org_name,b.ORG_CLASSIFY org_sname,3 org_level,CASE WHEN B.ORG_CLASSIFY='环京' then 35 else 345 end order_key,
+CASE WHEN B.ORG_CLASSIFY='环京' then 'HXCYXCGNHJ' ELSE 'HXCYXCGNWB' END ORG_CODE,'E0A3D386-D5C8-FB22-18DE-4424D49363B3' father_id,
+sum(case when a.factdate=substr(replace('${timecode}','-',''),1,4) and a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.amount else 0 end) target_year,
+0 actual_year,0 actual_gd_year,0 actual_wx_year,
+sum(case when a.factdate=substr(replace('${timecode}','-',''),1,4)||'Q'||to_char(to_date(replace('${timecode}','-','')||'01','yyyymmdd'),'q') and a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.amount else 0 end) target_quarter,
+0 actual_quarter,0 actual_gd_quarter,0 actual_wx_quarter,
+sum(case when a.factdate=substr(replace('${timecode}','-',''),1,4)||'M'||to_char(to_number(substr(replace('${timecode}','-',''),5,2))) and a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.amount else 0 end) target_month,
+0 actual_month,0 actual_gd_month,0 actual_wx_month
+from bass_ods.ods_mcl_target a inner join bass_ods.ods_mcl_mdmorg c on a.orgid=c.id inner join dim_org b on c.sourceid=b.org_id
+where a.targetid in ('bcdc0e84a15a4b82831fa8ef7daad520') and 
+org_code like 'HXCYXC%' AND B.ORG_TYPE='区域'
+and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+group by b.ORG_CLASSIFY
+union all
+select CASE WHEN B.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' else 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' end org_id,
+b.ORG_CLASSIFY org_name,b.ORG_CLASSIFY org_sname,3 org_level,CASE WHEN B.ORG_CLASSIFY='环京' then 35 else 345 end order_key,
+CASE WHEN B.ORG_CLASSIFY='环京' then 'HXCYXCGNHJ' ELSE 'HXCYXCGNWB' END ORG_CODE,'E0A3D386-D5C8-FB22-18DE-4424D49363B3' father_id,
+0 target_year,0 actual_year,0 actual_gd_year,0 actual_wx_year,0 target_quarter,
+sum(case when a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.y_p_value else 0 end) actual_quarter,
+sum(case when a.targetid='dedc936e00f64bad95af2ca3b1c8adc7' then a.y_p_value else 0 end) actual_gd_quarter,
+sum(case when a.targetid='0b551c99b8c045ddac7576e66bd51e98' then a.y_p_value else 0 end) actual_wx_quarter,
+0 target_month,0 actual_month,0 actual_gd_month,0 actual_wx_month
+from bass_ods.ods_mcl_factsum a inner join bass_ods.ods_mcl_mdmorg c on a.orgid=c.id inner join dim_org b on c.sourceid=b.org_id
+where a.targetid in ('bcdc0e84a15a4b82831fa8ef7daad520','dedc936e00f64bad95af2ca3b1c8adc7','0b551c99b8c045ddac7576e66bd51e98') and 
+to_char(a.factdate,'yyyyq')=to_char(to_date(replace('${timecode}','-',''),'yyyymm'),'yyyyq') and to_char(a.factdate,'yyyymm')<=replace('${timecode}','-','') and 
+org_code like 'HXCYXC%' AND B.ORG_TYPE='区域'
+and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+group by b.ORG_CLASSIFY
+union all
+select CASE WHEN B.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' else 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' end org_id,
+b.ORG_CLASSIFY org_name,b.ORG_CLASSIFY org_sname,3 org_level,CASE WHEN B.ORG_CLASSIFY='环京' then 35 else 345 end order_key,
+CASE WHEN B.ORG_CLASSIFY='环京' then 'HXCYXCGNHJ' ELSE 'HXCYXCGNWB' END ORG_CODE,'E0A3D386-D5C8-FB22-18DE-4424D49363B3' father_id,
+0 target_year,0 actual_year,0 actual_gd_year,0 actual_wx_year,0 target_quarter,
+0 actual_quarter,0 actual_gd_quarter,0 actual_wx_quarter,0 target_month,
+sum(case when a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.y_p_value else 0 end) actual_month,
+sum(case when a.targetid='dedc936e00f64bad95af2ca3b1c8adc7' then a.y_p_value else 0 end) actual_gd_month,
+sum(case when a.targetid='0b551c99b8c045ddac7576e66bd51e98' then a.y_p_value else 0 end) actual_wx_month
+from bass_ods.ods_mcl_factsum a inner join bass_ods.ods_mcl_mdmorg c on a.orgid=c.id inner join dim_org b on c.sourceid=b.org_id
+where a.targetid in ('bcdc0e84a15a4b82831fa8ef7daad520','dedc936e00f64bad95af2ca3b1c8adc7','0b551c99b8c045ddac7576e66bd51e98') and 
+to_char(a.factdate,'yyyymm')=replace('${timecode}','-','') and 
+org_code like 'HXCYXC%' AND B.ORG_TYPE='区域'
+and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+group by b.ORG_CLASSIFY) a group by a.org_id,a.org_name,a.org_sname,a.org_level,a.order_key,a.ORG_CODE,a.father_id
+) a left join (select c.org_id,c.org_name,c.org_sname,case when c.org_type='集团' then c.org_level-1 else c.org_level end org_level,c.order_key,ORG_CODE,
+case when c.org_type='事业部' and c.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' 
+when c.org_type='事业部' and c.ORG_CLASSIFY='外埠' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' else c.father_id end  father_id, 
+a.amount,a.completionrate,a.predictdifference,a.yearonyeargrowth,a.reasondifference
+from bass_ods.ods_mcl_predict a inner join bass_ods.ods_mcl_mdmorg b on a.orgid=b.id inner join dim_org c on b.sourceid=c.org_id
+where factdate=substr(replace('${timecode}','-',''),1,4)||'Q'||to_char(to_date(replace('${timecode}','-','')||'01','yyyymmdd'),'q') and targetid='bcdc0e84a15a4b82831fa8ef7daad520'
+and org_code like 'HXCYXC%'
+and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+union all
+select org_id,org_name,org_sname,org_level,order_key,ORG_CODE,father_id,
+sum(amount) amount,0 completionrate,0 predictdifference,
+case when sum(lamount)=0 then 0 else sum(amount)/sum(lamount)-1 end yearonyeargrowth,reasondifference
+from
+(select CASE WHEN c.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' else 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' end org_id,
+c.ORG_CLASSIFY org_name,c.ORG_CLASSIFY org_sname,3 org_level,CASE WHEN c.ORG_CLASSIFY='环京' then 35 else 345 end order_key,
+CASE WHEN c.ORG_CLASSIFY='环京' then 'HXCYXCGNHJ' ELSE 'HXCYXCGNWB' END ORG_CODE,'E0A3D386-D5C8-FB22-18DE-4424D49363B3' father_id, 
+sum(a.amount) amount,0 lamount,null reasondifference
+from bass_ods.ods_mcl_predict a inner join bass_ods.ods_mcl_mdmorg b on a.orgid=b.id inner join dim_org c on b.sourceid=c.org_id
+where factdate=substr(replace('${timecode}','-',''),1,4)||'Q'||to_char(to_date(replace('${timecode}','-','')||'01','yyyymmdd'),'q') and targetid='bcdc0e84a15a4b82831fa8ef7daad520'
+and org_code like 'HXCYXC%' AND c.ORG_TYPE='区域'
+and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+group by c.ORG_CLASSIFY
+union all
+select CASE WHEN B.ORG_CLASSIFY='环京' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B7' else 'E0A3D386-D5C8-FB22-18DE-4424D49363B8' end org_id,
+b.ORG_CLASSIFY org_name,b.ORG_CLASSIFY org_sname,3 org_level,CASE WHEN B.ORG_CLASSIFY='环京' then 35 else 345 end order_key,
+CASE WHEN B.ORG_CLASSIFY='环京' then 'HXCYXCGNHJ' ELSE 'HXCYXCGNWB' END ORG_CODE,'E0A3D386-D5C8-FB22-18DE-4424D49363B3' father_id,
+0 as amount,
+sum(case when a.targetid='bcdc0e84a15a4b82831fa8ef7daad520' then a.y_p_value else 0 end) lamount,null reasondifference
+from bass_ods.ods_mcl_factsum a inner join bass_ods.ods_mcl_mdmorg c on a.orgid=c.id inner join dim_org b on c.sourceid=b.org_id
+where a.targetid in ('bcdc0e84a15a4b82831fa8ef7daad520','dedc936e00f64bad95af2ca3b1c8adc7','0b551c99b8c045ddac7576e66bd51e98') and 
+to_char(a.factdate,'yyyyq')=to_char(to_date(replace('${timecode}','-','')-100,'yyyymm'),'yyyyq') and to_char(a.factdate,'yyyymm')-100<=replace('${timecode}','-','')-100 and 
+org_code like 'HXCYXC%' AND B.ORG_TYPE='事业部'
+and ( org_code not like 'HXCYXCGJ%' OR org_code='HXCYXCGJ')
+group by b.ORG_CLASSIFY) a
+group by org_id,org_name,org_sname,org_level,order_key,ORG_CODE,father_id,reasondifference) b on a.org_id=b.org_id
+where  a.org_code like  (select org_code||'%' from dim_org ${if(len(org)=0,"where org_id='E0A3D386-D5C8-FB22-18DE-4424D49363B2'"," where org_id='"+org+"'")})
+and a.org_name is not null
+--group by org_id,org_name,org_sname,org_level,order_key,ORG_CODE,father_id,completionrate,reasondifference
+order by a.order_key]]></Query>
+</TableData>
+<TableData name="Tree1" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[org]]></originalTableDataName>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[产服收入]]></Title>
+<ServerPrinter/>
+<WebPageContent>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.page.First">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-First')}]]></Text>
+<IconName>
+<![CDATA[first]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Previous">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Previous')}]]></Text>
+<IconName>
+<![CDATA[previous]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.PageNavi">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Next">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Next')}]]></Text>
+<IconName>
+<![CDATA[next]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.page.Last">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('ReportServerP-Last')}]]></Text>
+<IconName>
+<![CDATA[last]]></IconName>
+</Widget>
+<Widget class="com.fr.report.web.button.Export">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('Export')}]]></Text>
+<IconName>
+<![CDATA[export]]></IconName>
+<Buttons pdf="true" excelP="true" excelO="true" excelS="true" word="true" image="true" html="true"/>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<WebPage isPage="false" isShowAsImage="false" isAutoScale="false" isTDHeavy="false"/>
+</WebPageContent>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();
+//展开的最大节点级值  
+var t = 3;   
+for(var m = 1; m <= t; m++) {  
+    //循环执行“+”号展开  
+    $('.x-treenode-unexpand').trigger('click');  
+}]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+//获取A1单元格的值]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.slimScrollBarY').css('width','15px'); //Y轴宽
+$('.slimScrollBarX').css('height','15px');//X轴高
+$('.slimScrollBarX').css('background','#000000');//X轴颜色
+$('.slimScrollBarX').css('opacity','0.65');//X轴透明度
+$('.slimScrollBarY').css('background','#000000');//Y轴颜色
+$('.slimScrollBarY').css('opacity','0.65');//Y轴透明度]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportWebAttr>
+<ElementCaseMobileAttr>
+<ElementCaseMobileAttrProvider horizontal="1" vertical="1" zoom="true" refresh="false" isUseHTML="false" isMobileCanvasSize="false"/>
+</ElementCaseMobileAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="产服收入">
+<ReportPageAttr>
+<HR F="0" T="2"/>
+<FR/>
+<HC/>
+<FC/>
+<UPFCR COLUMN="false" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[1152000,1152000,1152000,864000,864000,864000,864000,864000,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[2743200,576000,7200000,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,14400000,576000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(A4:A8)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="1" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="2" r="0" rs="3" s="0">
+<O>
+<![CDATA[区域/事业部]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="0" cs="5" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=left($timecode, 4) + "年"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="0" cs="5" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(or(N1 = "M1", N1 = "M2", N1 = "M3"), "Q1", if(or(N1 = "M4", N1 = "M5", N1 = "M6"), "Q2", if(or(N1 = "M7", N1 = "M8", N1 = "M9"), "Q3", "Q4")))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="Q1" value="一季度"/>
+<Dict key="Q2" value="二季度"/>
+<Dict key="Q3" value="三季度"/>
+<Dict key="Q4" value="四季度"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand/>
+</C>
+<C c="13" r="0" cs="5" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=CONCATENATE("M", format(right($timecode, 2), "#"))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="M1" value="一月"/>
+<Dict key="M2" value="二月"/>
+<Dict key="M3" value="三月"/>
+<Dict key="M4" value="四月"/>
+<Dict key="M5" value="五月"/>
+<Dict key="M6" value="六月"/>
+<Dict key="M7" value="七月"/>
+<Dict key="M8" value="八月"/>
+<Dict key="M9" value="九月"/>
+<Dict key="M10" value="十月"/>
+<Dict key="M11" value="十一月"/>
+<Dict key="M12" value="十二月"/>
+</CustomDictAttr>
+</Dictionary>
+</Present>
+<Expand/>
+</C>
+<C c="18" r="0" cs="5" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(or(right($timecode,2) = "01", right($timecode,2) = "02", right($timecode,2) = "03"), "一季度业绩预估", if(or(right($timecode,2) = "04", right($timecode,2) = "05", right($timecode,2) = "06"), "二季度业绩预估", if(or(right($timecode,2) = "07", right($timecode,2) = "08", right($timecode,2) = "09"), "三季度业绩预估", "四季度业绩预估")))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$is_show = "N"]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="23" r="0">
+<O>
+<![CDATA[ ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" rs="2" s="0">
+<O>
+<![CDATA[目标]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" cs="3" s="0">
+<O>
+<![CDATA[实际完成]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="1" rs="2" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" rs="2" s="0">
+<O>
+<![CDATA[目标]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" cs="3" s="0">
+<O>
+<![CDATA[实际完成]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="1" rs="2" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="1" rs="2" s="0">
+<O>
+<![CDATA[目标]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="1" cs="3" s="0">
+<O>
+<![CDATA[实际完成]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="1" rs="2" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="18" r="1" rs="2" s="0">
+<O>
+<![CDATA[预估完成]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="19" r="1" rs="2" s="0">
+<O>
+<![CDATA[预估完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="1" rs="2" s="0">
+<O>
+<![CDATA[差异]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="21" r="1" rs="2" s="0">
+<O>
+<![CDATA[同比增长]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="1" rs="2" s="0">
+<O>
+<![CDATA[差异原因]]></O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="4" r="2" s="0">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="2" s="0">
+<O>
+<![CDATA[固定资产]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="2" s="0">
+<O>
+<![CDATA[无形资产]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="2" s="0">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="2" s="0">
+<O>
+<![CDATA[固定资产]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="2" s="0">
+<O>
+<![CDATA[无形资产]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="2" s="0">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="2" s="0">
+<O>
+<![CDATA[固定资产]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="2" s="0">
+<O>
+<![CDATA[无形资产]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(C4) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C4"/>
+</C>
+<C c="1" r="3" s="1">
+<PrivilegeControl/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="2" r="3" s="2">
+<O t="DSColumn">
+<Attributes dsName="orgtree" columnName="FR_GEN_0"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[income]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="3" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="3"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="4" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_QUARTER"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="3"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C4"/>
+</C>
+<C c="9" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_MONTH"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="3"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C4"/>
+</C>
+<C c="14" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="17" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="18" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="AMOUNT"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="3"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C4"/>
+</C>
+<C c="19" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="COMPLETIONRATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="20" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="PREDICTDIFFERENCE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="21" r="3" s="4">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="YEARONYEARGROWTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="22" r="3" s="5">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="REASONDIFFERENCE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="23" r="3">
+<PrivilegeControl/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="0" r="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(C5) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C5"/>
+</C>
+<C c="1" r="4" s="6">
+<PrivilegeControl/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="2" r="4" s="7">
+<O t="DSColumn">
+<Attributes dsName="orgtree" columnName="FR_GEN_1"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[income]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C4"/>
+</C>
+<C c="3" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="4"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="4" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(E6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(F6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(G6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="4" s="9">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(or(len(D5) = 0, D5 = 0), 0, round(E5 / D5, 2) * 100 + "%")]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_QUARTER"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="4"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(I6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C5"/>
+</C>
+<C c="9" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(I6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(I6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(I6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="4" s="9">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(or(len(H5) = 0, H5 = 0), 0, round(H5 / H5, 2) * 100 + "%")]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_MONTH"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="4"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(I6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C5"/>
+</C>
+<C c="14" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(I6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(I6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(I6)]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="17" r="4" s="9">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B32"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[C5 = "E0A3D386-D5C8-FB22-18DE-4424D49363B31"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(or(len(H5) = 0, H5 = 0), 0, round(H5 / H5, 2) * 100 + "%")]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="18" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="AMOUNT"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="4"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C5"/>
+</C>
+<C c="19" r="4" s="9">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="COMPLETIONRATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="20" r="4" s="8">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="PREDICTDIFFERENCE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="21" r="4" s="9">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="YEARONYEARGROWTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="22" r="4" s="10">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="REASONDIFFERENCE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="23" r="4" s="6">
+<PrivilegeControl/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="0" r="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(C6) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C6"/>
+</C>
+<C c="1" r="5">
+<PrivilegeControl/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="2" r="5" s="11">
+<O t="DSColumn">
+<Attributes dsName="orgtree" columnName="FR_GEN_2"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[income]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C5"/>
+</C>
+<C c="3" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="5"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="4" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_QUARTER"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="5"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C6"/>
+</C>
+<C c="9" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_MONTH"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="5"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C6"/>
+</C>
+<C c="14" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="17" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="18" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="AMOUNT"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="5"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C6"/>
+</C>
+<C c="19" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="COMPLETIONRATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="20" r="5" s="12">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="PREDICTDIFFERENCE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="21" r="5" s="13">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="YEARONYEARGROWTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="22" r="5" s="14">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="REASONDIFFERENCE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="23" r="5">
+<PrivilegeControl/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="0" r="6">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(C7) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C7"/>
+</C>
+<C c="1" r="6">
+<PrivilegeControl/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="2" r="6" s="15">
+<O t="DSColumn">
+<Attributes dsName="orgtree" columnName="FR_GEN_3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[income]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C6"/>
+</C>
+<C c="3" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="6"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="4" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="6" s="17">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_QUARTER"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="6"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C7"/>
+</C>
+<C c="9" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="6" s="17">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_MONTH"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="6"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C7"/>
+</C>
+<C c="14" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="17" r="6" s="17">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<CellPageAttr/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="18" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="AMOUNT"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="6"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C7"/>
+</C>
+<C c="19" r="6" s="17">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="COMPLETIONRATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="20" r="6" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="PREDICTDIFFERENCE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="21" r="6" s="17">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="YEARONYEARGROWTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="22" r="6" s="18">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="REASONDIFFERENCE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="23" r="6">
+<PrivilegeControl/>
+<CellPageAttr/>
+<Expand/>
+</C>
+<C c="0" r="7">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(C8) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="C8"/>
+</C>
+<C c="2" r="7" s="19">
+<O t="DSColumn">
+<Attributes dsName="orgtree" columnName="FR_GEN_4"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[income]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C7"/>
+</C>
+<C c="3" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_YEAR"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="7"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="4" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_YEAR"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="5" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="6" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="7" r="7" s="17">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_QUARTER"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="7"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C8"/>
+</C>
+<C c="9" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="10" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="11" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="12" r="7" s="17">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="13" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="TARGET_MONTH"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="7"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="C8"/>
+</C>
+<C c="14" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="15" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_GD_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="16" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="ACTUAL_WX_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="17" r="7" s="17">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="LV_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="18" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="AMOUNT"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="2" row="7"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0" extendable="1" leftParentDefault="false" left="C8"/>
+</C>
+<C c="19" r="7" s="17">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="COMPLETIONRATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="20" r="7" s="16">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="PREDICTDIFFERENCE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="21" r="7" s="17">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="YEARONYEARGROWTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="22" r="7" s="18">
+<O t="DSColumn">
+<Attributes dsName="income" columnName="REASONDIFFERENCE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=if(or($$$ = isnull,$$$=0),'-',$$$)]]></Content>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="2" r="8">
+<PrivilegeControl/>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<FrozenColumnRow columnrow="A4"/>
+<PaperSetting>
+<PaperSize width="46080000" height="42768000"/>
+<Margin top="986400" left="2743200" bottom="986400" right="2743200"/>
+</PaperSetting>
+<Background name="NullBackground"/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0" useParamsTemplate="false"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1380618"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label3"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[产服收入 ]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="96" foreground="-6877671"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="5" width="71" height="29"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label2"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[（单位：亿元）]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72" foreground="-13421773"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="85" y="9" width="86" height="25"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
+<WidgetName name="org"/>
+<LabelName name="组织："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr selectLeafOnly="false"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="false"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[Tree1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<databinding>
+<![CDATA[{Name:Tree1,Key:ORG_ID}]]></databinding>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="60" y="34" width="170" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<Listener event="afterinit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var el = this.element.children();// 获取当前控件
+el.css('background', '#970e19'); //赋值默认值]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="formSubmit0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-6877671"/>
+</initial>
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="380" y="34" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="timecode"/>
+<LabelName name="日期："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr format="yyyy-MM"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=TODAY()]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="280" y="34" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label1"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[日期：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="240" y="34" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[组织：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="34" width="40" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="org"/>
+<Widget widgetName="timecode"/>
+<Widget widgetName="formSubmit0"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<UseParamsTemplate use="false"/>
+<Position position="0"/>
+<Design_Width design_width="960"/>
+<NameTagModified/>
+<WidgetNameTagMap>
+<NameTag name="org" tag="组织："/>
+<NameTag name="timecode" tag="日期："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="960" height="61"/>
+</ParameterUI>
+<Parameter>
+<Attributes name="is_show"/>
+<O>
+<![CDATA[Y]]></O>
+</Parameter>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6877671"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="0" size="72" foreground="-1"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="NullBackground"/>
+<Border/>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="12">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="22">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="32">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1" paddingRight="4">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="42">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="1"/>
+<TemplateID TemplateID="004437f7-6084-44de-b604-9970b77d6962"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="6ea84c54-eb51-4aba-bf47-9023844488bc"/>
+</TemplateIdAttMark>
+</WorkBook>

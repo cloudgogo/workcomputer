@@ -129,10 +129,8 @@ select * from dim_org where org_code like 'HXCYXC%' and org_id =
 
 select ORG_ID,
        CASE
-         WHEN ORG_ID = 'E0A3D386-D5C8-FB22-18DE-4424D49363B2' THEN
-          NULL
          when ORG_ID = '5FB62123-5DF2-0750-0F82-F04B251EA55E' THEN
-           'E0A3D386-D5C8-FB22-18DE-4424D49363B3'
+           'E0A3D386-D5C8-FB22-18DE-4424D49363B31'
          ELSE
           FATHER_ID
        END FATHER_ID,

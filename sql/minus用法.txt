@@ -1,0 +1,78 @@
+Oracle Minus关键字
+　　SQL中的MINUS关键字
+　　SQL中有一个MINUS关键字，它运用在两个SQL语句上，它先找出第一条SQL语句所产生的结果，然后看这些结果有没有在第二个SQL语句的结果 中。如果有的话，那这一笔记录就被去除，而不会在最后的结果中出现。如果第二个SQL语句所产生的结果并没有存在于第一个SQL语句所产生的结果内，那这 笔资料就被抛弃，其语法如下：
+　　[SQL Segment 1]
+　　MINUS
+　　[SQL Segment 2]
+--------------------------------------------
+//创建表1
+create table test1
+(
+ name varchar(10),
+ sex varchar(10),
+);
+
+insert into test1 values('test','female');
+insert into test1 values('test1','female');
+insert into test1 values('test1','female');
+insert into test1 values('test11','female');
+insert into test1 values('test111','female');
+
+//创建表2
+create table test2
+(
+ name varchar(10),
+ sex varchar(10),
+);
+insert into test1 values('test','female');
+insert into test1 values('test2','female');
+insert into test1 values('test2','female');
+insert into test1 values('test22','female');
+insert into test1 values('test222','female');
+-------------------------------------------
+
+select * from test1 minus select * from test2;
+
+结果：
+
+NAME       SEX            
+---------- ---------- 
+test1      female             
+test11     female  
+test111    female 
+-----------------------------------------------------------
+
+select * from test2 minus select * from test1;
+
+结果:
+
+NAME       SEX            
+---------- ---------- 
+test2      female             
+test22     female  
+test222    female
+
+结论：Minus返回的总是左边表中的数据，它返回的是差集。注意：minus有剃重作用
+
+==========================================================
+　下面是我做的实验，很明显能够看出MINUS的效率，made_order共23万笔记录，charge_detail共17万笔记录
+
+性能比较:
+　　SELECT order_id FROM made_order
+　　MINUS
+　　SELECT order_id FROM charge_detail
+　　1.14 sec
+　　
+　　SELECT a.order_id FROM made_order a
+　　WHERE NOT exists (
+　　 SELECT order_id
+　　 FROM charge_detail
+　　 WHERE order_id = a.order_id
+　　 )
+　　18.19 sec
+　　
+　　SELECT order_id FROM made_order
+　　WHERE order_id NOT in (
+　　 SELECT order_id
+　　 FROM charge_detail
+　　 )

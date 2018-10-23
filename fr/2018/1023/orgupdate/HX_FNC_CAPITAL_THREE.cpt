@@ -20,8 +20,7 @@
 <![CDATA[oracle_test]]></DatabaseName>
 </Connection>
 <Query>
-<![CDATA[
-with role as
+<![CDATA[with role as
  (select regexp_substr(role, '[^,]A+', 1, level, 'i') as role
     from (select '${fr_authority}' role from dual)
   connect by level <=
@@ -50,7 +49,9 @@ du as
                      end flag
                 from dm_hx_data_aut
                where userid = '${fr_username}'
-                 ), 1) ),
+                 ), 1 )
+                 
+                 ),
 du2 as (
 select regexp_substr(orgid, '[^,]A+', 1, level, 'i') as orgid
     from (select orgid  from du)
@@ -62,14 +63,19 @@ select regexp_substr(orgid, '[^,]A+', 1, level, 'i') as orgid
 
 ORG_JG AS(
 select ORG_ID,
-       PARENTID as FATHER_ID,
+       case when ORG_ID = '5FB62123-5DF2-0750-0F82-F04B251EA55E'
+       then  'E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+       else PARENTID end      as FATHER_ID,
        ORG_NAME,
        ORG_SHORTNAME as ORG_SNAME,
        ORG_NUM as ORDER_KEY,
        org_level,
        ORG_CODE
-  from dim_org_jxjl where isshow=1   and   org_id <> 'E0A3D386-D5C8-FB22-18DE-4424D49363B1'
-   start with ORG_ID in (SELECT ORG_ID FROM DIM_ORG WHERE ORG_ID IN (select orgid from du2) )
+  from dim_org_jxjl where isshow=1   
+  and   org_id <> 'E0A3D386-D5C8-FB22-18DE-4424D49363B1'	--华夏幸福
+  and   org_id <> '9E3CFC37-AA68-46AB-96AA-C9BE391C37C6'	--产业新城直属区域事业部
+
+   start with ORG_ID in(select orgid from du2)
 connect by prior org_id =PARENTID
 --where   ORG_ID in (select orgid from du2)
  --or FATHER_ID in (select orgid from du2)
@@ -1383,7 +1389,7 @@ wiget.setText(deptname) ;]]></Content>
 </StyleList>
 <DesignerVersion DesignerVersion="JAA"/>
 <PreviewType PreviewType="2"/>
-<TemplateID TemplateID="dfe2235a-c9a4-40bf-803a-5f0b2af0f803"/>
+<TemplateID TemplateID="d6e9f768-40bc-4443-bbae-368a07908634"/>
 <TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
 <TemplateIdAttMark TemplateId="c74d7698-c28d-4413-b0bb-ed4fd28eb8b5"/>
 </TemplateIdAttMark>

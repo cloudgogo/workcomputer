@@ -2444,6 +2444,10 @@ $('.slimScrollBarY').css('opacity','0.99');//Y轴透明度
 <Parameters/>
 </O>
 <PrivilegeControl/>
+<Present class="com.fr.base.present.FormulaPresent">
+<Content>
+<![CDATA[=replace($$$,"SX","受限")]]></Content>
+</Present>
 <Expand dir="0"/>
 </C>
 <C c="3" r="3" s="3">
@@ -10124,7 +10128,7 @@ Pada"r:7#2)RCtOL%hX_ZdZCr3bI4)2e(4@-;0<3BA$9tWoBd+lNbq]A6qUp]A0+oE(QVc(LN-
 </Layout>
 <DesignerVersion DesignerVersion="JAA"/>
 <PreviewType PreviewType="0"/>
-<TemplateID TemplateID="217c2ec9-68de-497f-a78f-5b095d7191b6"/>
+<TemplateID TemplateID="48abd305-55b6-4f14-bdea-49e1b919581f"/>
 <TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
 <TemplateIdAttMark TemplateId="c25c5864-3a1c-4e3e-ab97-58c34c70b87d"/>
 </TemplateIdAttMark>

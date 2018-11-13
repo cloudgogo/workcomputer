@@ -98,7 +98,7 @@ RES AS
          PAY_DATE,
          RETURN_RATIO,
          RETURN_VALUE
-    FROM DM_RES_PROJECT_DETAIL
+    FROM DM_RES_PROJECT_gdqd gdqd DETAIL
    WHERE 1 = 1
   
   ),

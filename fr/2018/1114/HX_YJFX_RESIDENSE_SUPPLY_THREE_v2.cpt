@@ -1,0 +1,3130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="tree_1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="fr_authority"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="fr_username"/>
+<O>
+<![CDATA[heyanfei1]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with role as
+ (select regexp_substr(role, '[^,]A+', 1, level, 'i') as role
+    from (select '${fr_authority}' role from dual)
+  connect by level <=
+             length(role) - length(regexp_replace(role, ',', '')) + 1),
+             
+du as
+ ( --查询用户组织权限
+  select orgid
+    from dm_hx_data_aut du
+   where 1 = 1
+     and du.userid = '${fr_username}'
+     and du.orgid is not null
+  
+  union all
+  
+  --如果用户组织权限为空，则组织权限为对应的角色的权限
+  select orgid
+    from dm_hx_data_aut du
+   where 1 = 1
+     and du.rolename in (select * from role)
+     and 1 = nvl((select case
+                       when orgid is null then
+                        1
+                       else
+                        0
+                     end flag
+                from dm_hx_data_aut
+               where userid = '${fr_username}'
+                 ), 1 )
+                 
+                 ),
+du2 as (
+select regexp_substr(orgid, '[^,]A+', 1, level, 'i') as orgid
+    from (select orgid  from du)
+  connect by level <=
+             length(orgid) - length(regexp_replace(orgid, ',', '')) + 1
+
+
+),
+
+ORG_JG AS(
+select ORG_ID,
+       case when ORG_ID = '5FB62123-5DF2-0750-0F82-F04B251EA55E'
+       then  'E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+       else PARENTID end      as FATHER_ID,
+       ORG_NAME,
+       ORG_SHORTNAME as ORG_SNAME,
+       ORG_NUM as ORDER_KEY,
+       org_level,
+       ORG_CODE
+  from dim_org_jxjl where isshow=1   
+  --and   org_id <> 'E0A3D386-D5C8-FB22-18DE-4424D49363B1'	--华夏幸福
+  and   org_id <> '9E3CFC37-AA68-46AB-96AA-C9BE391C37C6'	--产业新城直属区域事业部
+  and   org_code not like 'HXCYXCGN20%'
+  and   org_code not like 'HXCYXCGN06%'
+   start with ORG_ID in(select orgid from du2)
+connect by prior org_id =PARENTID
+--where   ORG_ID in (select orgid from du2)
+ --or FATHER_ID in (select orgid from du2)
+ )
+
+SELECT 
+    ORG_ID,
+    null  FATHER_ID,
+    ORG_NAME,
+    ORG_SNAME,
+    ORDER_KEY,
+    org_level,
+    ORG_CODE
+FROM ORG_JG where ORG_ID in(select ORG_ID from dim_org_jxjl where org_level=(select min(org_level) from  ORG_JG ))
+UNION ALL
+SELECT * FROM ORG_JG where ORG_ID not in(select ORG_ID from dim_org_jxjl where org_level=(select min(org_level) from  ORG_JG ))
+order by order_key]]></Query>
+</TableData>
+<TableData name="Tree2" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[tree_2]]></originalTableDataName>
+</TableData>
+<TableData name="tree_2" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with org_rs as
+ (select ORG_ID,
+         PARENTID      as FATHER_ID,
+         ORG_NAME,
+         ORG_SHORTNAME as ORG_SNAME,
+         ORG_NUM       as ORDER_KEY,
+         org_level,
+         org_type,
+         ORG_CODE
+    from dim_org_jxjl
+   where org_id <> '9E3CFC37-AA68-46AB-96AA-C9BE391C37C6'
+     and isshow = 1
+  
+   order by order_key),
+   
+org_alpha as (
+select ORG_ID,
+       FATHER_ID,
+       ORG_NAME,
+       ORG_SNAME,
+       ORDER_KEY,
+       case
+         when org_level = 1 then
+          1
+         else
+          org_level + 1
+       end org_level,
+       ORG_CODE
+  from org_rs
+ WHERE ORG_id = 'E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+    or FATHER_ID != 'E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+union all
+
+select ORG_ID,
+       
+       case
+         when org_type = '环京' then
+          'E0A3D386-D5C8-FB22-18DE-4424D49363B1H'
+         WHEN org_type = '外埠' then
+          'E0A3D386-D5C8-FB22-18DE-4424D49363B1W'
+       END FATHER_ID,
+       ORG_NAME,
+       ORG_SNAME,
+       ORDER_KEY,
+       org_level + 1 org_level,
+       ORG_CODE
+  from org_rs
+ WHERE FATHER_ID = 'E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+
+UNION ALL
+select 'E0A3D386-D5C8-FB22-18DE-4424D49363B1H' ORG_ID,
+       'E0A3D386-D5C8-FB22-18DE-4424D49363B1' FATHER_ID,
+       '环京' ORG_NAME,
+       '环京' ORG_SNAME,
+       11 ORDER_KEY,
+       2 org_level,
+       'HXH' ORG_CODE
+  FROM DUAL
+UNION ALL
+select 'E0A3D386-D5C8-FB22-18DE-4424D49363B1W' ORG_ID,
+       'E0A3D386-D5C8-FB22-18DE-4424D49363B1' FATHER_ID,
+       '外埠' ORG_NAME,
+       '外埠' ORG_SNAME,
+       12 ORDER_KEY,
+       2 org_level,
+       'HXW' ORG_CODE
+  FROM DUAL)
+  
+  select * from org_alpha where   org_code like  (select org_code||'%' from dim_org_jxjl ${if(len(org)=0,"where org_id='E0A3D386-D5C8-FB22-18DE-4424D49363B1'"," where org_id='"+org+"'")})
+
+  order by order_key
+
+]]></Query>
+</TableData>
+<TableData name="Tree1" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[2]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[tree_1]]></originalTableDataName>
+</TableData>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="hangdatestart"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="dealdateend"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="dealdatestart"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="statustype"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="hangdateend"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select 1 from dual 
+where 1='${org}'
+and 1='${hangdatestart}'
+and 1='${hangdateend}'
+and 1='${dealdatestart}'
+and 1='${dealdateend}'
+and 1='${statustype}']]></Query>
+</TableData>
+<TableData name="res" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="hangdatestart"/>
+<O>
+<![CDATA[2018-10]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="dealdateend"/>
+<O>
+<![CDATA[2018-11]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="dealdatestart"/>
+<O>
+<![CDATA[2018-10]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="statustype"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="hangdateend"/>
+<O>
+<![CDATA[2018-11]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH ORG_RS AS
+ (SELECT ORG_ID,
+         PARENTID      AS FATHER_ID,
+         ORG_NAME,
+         ORG_SHORTNAME AS ORG_SNAME,
+         ORG_NUM       AS ORDER_KEY,
+         ORG_LEVEL,
+         ORG_TYPE,
+         ORG_CODE
+    FROM DIM_ORG_JXJL
+   WHERE ORG_ID <> '9E3CFC37-AA68-46AB-96AA-C9BE391C37C6'
+     AND ISSHOW = 1
+  
+   ORDER BY ORDER_KEY),
+
+ORG_ALPHA AS
+ (SELECT ORG_ID,
+         FATHER_ID,
+         ORG_NAME,
+         ORG_SNAME,
+         ORDER_KEY,
+         CASE
+           WHEN ORG_LEVEL = 1 THEN
+            1
+           ELSE
+            ORG_LEVEL + 1
+         END ORG_LEVEL,
+         ORG_CODE
+    FROM ORG_RS
+   WHERE ORG_ID = 'E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+      OR FATHER_ID != 'E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+  UNION ALL
+  
+  SELECT ORG_ID,
+         
+         CASE
+           WHEN ORG_TYPE = '环京' THEN
+            'E0A3D386-D5C8-FB22-18DE-4424D49363B1H'
+           WHEN ORG_TYPE = '外埠' THEN
+            'E0A3D386-D5C8-FB22-18DE-4424D49363B1W'
+         END FATHER_ID,
+         ORG_NAME,
+         ORG_SNAME,
+         ORDER_KEY,
+         ORG_LEVEL + 1 ORG_LEVEL,
+         ORG_CODE
+    FROM ORG_RS
+   WHERE FATHER_ID = 'E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+  
+  UNION ALL
+  SELECT 'E0A3D386-D5C8-FB22-18DE-4424D49363B1H' ORG_ID,
+         'E0A3D386-D5C8-FB22-18DE-4424D49363B1' FATHER_ID,
+         '环京' ORG_NAME,
+         '环京' ORG_SNAME,
+         11 ORDER_KEY,
+         2 ORG_LEVEL,
+         'HXH' ORG_CODE
+    FROM DUAL
+  UNION ALL
+  SELECT 'E0A3D386-D5C8-FB22-18DE-4424D49363B1W' ORG_ID,
+         'E0A3D386-D5C8-FB22-18DE-4424D49363B1' FATHER_ID,
+         '外埠' ORG_NAME,
+         '外埠' ORG_SNAME,
+         12 ORDER_KEY,
+         2 ORG_LEVEL,
+         'HXW' ORG_CODE
+    FROM DUAL),
+ORG AS
+ (SELECT *
+    FROM ORG_ALPHA
+   WHERE ORG_CODE LIKE
+        (SELECT ORG_CODE || '%'
+        FROM DIM_ORG_JXJL ${IF(LEN(org) = 0, "where org_id='E0A3D386-D5C8-FB22-18DE-4424D49363B1'", " where org_id='" + org + "'") })
+         ),
+RES AS
+ (SELECT ORG_ID,
+         ORG_NAME,
+         STATUS,
+         PLOT_ID,
+         PLOT_NAME,
+         LAND_SUPPLY,
+         PLOT_RATIO,
+         ACREAGE,
+         AREA_PRICE,
+         AREA_TOTAL,
+         SECURITY_DEPOSIT,
+         ZJXQ_NOW,
+         ZJXQ_A,
+         ZJXQ_B,
+         ZJXQ_C,
+         CARGO_VALUE,
+         LISTING_DATE,
+         DELISTING_DATE,
+         GDQFK_NOW,
+         GDQFK_A,
+         GDQFK_B,
+         GDQFK_C,
+         PAY_DATE,
+         RETURN_RATIO,
+         RETURN_VALUE
+    FROM DM_RES_PROJECT_DETAIL
+   WHERE 1 = 1
+   AND gdqd='GD'
+
+   ${if(len(hangdatestart)=0,""," and to_char(LISTING_DATE,'yyyy-MM')>='"+hangdatestart+"' ")}
+   
+   ${if(len(hangdateend)=0,""," and to_char(LISTING_DATE,'yyyy-MM')<='"+hangdateend+"' ")}
+   ${if(len(dealdatestart)=0,""," and to_char(DELISTING_DATE,'yyyy-MM')>='"+dealdatestart+"' ")}
+   ${if(len(dealdateend)=0,""," and to_char(DELISTING_DATE,'yyyy-MM')<='"+dealdateend+"' ")}
+  
+/*   and  to_char(LISTING_DATE,'yyyy-MM') between '${hangdatestart}' and '${hangdateend}'
+   and  TO_CHAR(DELISTING_DATE,'yyyy-MM')  between '${dealdatestart}' and  '${dealdateend}'
+   */
+   and STATUS in ${if(len(statustype)=0,"('已挂牌未摘牌','已摘牌','计划挂牌')","('"+statustype+"')")}
+   
+  ),
+
+--4级结果
+RES_4 AS
+ (SELECT O.ORG_ID,
+         O.ORG_NAME,
+         R.STATUS,
+         R.PLOT_ID,
+         R.PLOT_NAME,
+         R.LAND_SUPPLY,
+         R.PLOT_RATIO,
+         R.ACREAGE,
+         R.AREA_PRICE,
+         R.AREA_TOTAL,
+         R.SECURITY_DEPOSIT,
+         R.ZJXQ_NOW,
+         R.ZJXQ_A,
+         R.ZJXQ_B,
+         R.ZJXQ_C,
+         R.CARGO_VALUE,
+         R.LISTING_DATE,
+         R.DELISTING_DATE,
+         R.GDQFK_NOW,
+         R.GDQFK_A,
+         R.GDQFK_B,
+         R.GDQFK_C,
+         R.PAY_DATE,
+         R.RETURN_RATIO,
+         R.RETURN_VALUE,
+         O.FATHER_ID,
+         O.ORG_SNAME,
+         O.ORG_LEVEL,
+         O.ORDER_KEY,
+         O.ORG_CODE
+    FROM (SELECT * FROM ORG WHERE ORG_LEVEL = 4) O, RES R
+   WHERE R.ORG_ID = O.ORG_ID),
+-- 4级合计
+
+RES_4_S AS
+ (SELECT O.ORG_ID,
+         O.ORG_NAME,
+         '合计' STATUS,
+         NULL PLOT_ID,
+         TO_CHAR(COUNT(R.PLOT_ID)) PLOT_NAME,
+         SUM(R.LAND_SUPPLY) LAND_SUPPLY,
+         NULL PLOT_RATIO,
+         SUM(R.ACREAGE) ACREAGE,
+         NULL AREA_PRICE,
+         SUM(R.AREA_TOTAL) AREA_TOTAL,
+         NULL SECURITY_DEPOSIT,
+         SUM(R.ZJXQ_NOW) ZJXQ_NOW,
+         SUM(R.ZJXQ_A) ZJXQ_A,
+         SUM(R.ZJXQ_B) ZJXQ_B,
+         SUM(R.ZJXQ_C) ZJXQ_C,
+         SUM(R.CARGO_VALUE) CARGO_VALUE,
+         NULL LISTING_DATE,
+         NULL DELISTING_DATE,
+         SUM(R.GDQFK_NOW) GDQFK_NOW,
+         SUM(R.GDQFK_A) GDQFK_A,
+         SUM(R.GDQFK_B) GDQFK_B,
+         SUM(R.GDQFK_C) GDQFK_C,
+         NULL PAY_DATE,
+         NULL RETURN_RATIO,
+         SUM(R.RETURN_VALUE) RETURN_VALUE,
+         O.FATHER_ID,
+         O.ORG_SNAME,
+         O.ORG_LEVEL,
+         O.ORDER_KEY,
+         O.ORG_CODE
+    FROM (SELECT * FROM ORG WHERE ORG_LEVEL = 4) O, RES R
+   WHERE R.ORG_ID = O.ORG_ID
+   GROUP BY O.ORG_ID,
+            O.ORG_NAME,
+            O.FATHER_ID,
+            O.ORG_SNAME,
+            O.ORG_LEVEL,
+            O.ORDER_KEY,
+            O.ORG_CODE),
+
+--3级结果(由4级合计)
+RES_3_OTHER AS
+ (SELECT F.ORG_ID,
+         F.ORG_NAME,
+         '合计' STATUS,
+         NULL PLOT_ID,
+         TO_CHAR(COUNT(R.PLOT_ID)) PLOT_NAME,
+         SUM(R.LAND_SUPPLY) LAND_SUPPLY,
+         NULL PLOT_RATIO,
+         SUM(R.ACREAGE) ACREAGE,
+         NULL AREA_PRICE,
+         SUM(R.AREA_TOTAL) AREA_TOTAL,
+         NULL SECURITY_DEPOSIT,
+         SUM(R.ZJXQ_NOW) ZJXQ_NOW,
+         SUM(R.ZJXQ_A) ZJXQ_A,
+         SUM(R.ZJXQ_B) ZJXQ_B,
+         SUM(R.ZJXQ_C) ZJXQ_C,
+         SUM(R.CARGO_VALUE) CARGO_VALUE,
+         NULL LISTING_DATE,
+         NULL DELISTING_DATE,
+         SUM(R.GDQFK_NOW) GDQFK_NOW,
+         SUM(R.GDQFK_A) GDQFK_A,
+         SUM(R.GDQFK_B) GDQFK_B,
+         SUM(R.GDQFK_C) GDQFK_C,
+         NULL PAY_DATE,
+         NULL RETURN_RATIO,
+         SUM(R.RETURN_VALUE) RETURN_VALUE,
+         F.FATHER_ID,
+         F.ORG_SNAME,
+         F.ORG_LEVEL,
+         F.ORDER_KEY,
+         F.ORG_CODE
+    FROM RES_4 R, ORG F, ORG S
+   WHERE S.FATHER_ID = F.ORG_ID
+     AND R.ORG_ID = S.ORG_ID
+     AND F.ORG_LEVEL = 3
+   GROUP BY F.ORG_ID,
+            F.ORG_NAME,
+            F.FATHER_ID,
+            F.ORG_SNAME,
+            F.ORG_LEVEL,
+            F.ORDER_KEY,
+            F.ORG_CODE
+  
+  ),
+
+--三级
+RES_3 AS
+ (SELECT O.ORG_ID,
+         O.ORG_NAME,
+         R.STATUS,
+         R.PLOT_ID,
+         R.PLOT_NAME,
+         R.LAND_SUPPLY,
+         R.PLOT_RATIO,
+         R.ACREAGE,
+         R.AREA_PRICE,
+         R.AREA_TOTAL,
+         R.SECURITY_DEPOSIT,
+         R.ZJXQ_NOW,
+         R.ZJXQ_A,
+         R.ZJXQ_B,
+         R.ZJXQ_C,
+         R.CARGO_VALUE,
+         R.LISTING_DATE,
+         R.DELISTING_DATE,
+         R.GDQFK_NOW,
+         R.GDQFK_A,
+         R.GDQFK_B,
+         R.GDQFK_C,
+         R.PAY_DATE,
+         R.RETURN_RATIO,
+         R.RETURN_VALUE,
+         O.FATHER_ID,
+         O.ORG_SNAME,
+         O.ORG_LEVEL,
+         O.ORDER_KEY,
+         O.ORG_CODE
+    FROM (SELECT * FROM ORG WHERE ORG_LEVEL = 3) O, RES R
+   WHERE R.ORG_ID = O.ORG_ID),
+-- 3级合计
+
+RES_3_S AS
+ (SELECT O.ORG_ID,
+         O.ORG_NAME,
+         '合计' STATUS,
+         NULL PLOT_ID,
+         TO_CHAR(COUNT(R.PLOT_ID)) PLOT_NAME,
+         SUM(R.LAND_SUPPLY) LAND_SUPPLY,
+         NULL PLOT_RATIO,
+         SUM(R.ACREAGE) ACREAGE,
+         NULL AREA_PRICE,
+         SUM(R.AREA_TOTAL) AREA_TOTAL,
+         NULL SECURITY_DEPOSIT,
+         SUM(R.ZJXQ_NOW) ZJXQ_NOW,
+         SUM(R.ZJXQ_A) ZJXQ_A,
+         SUM(R.ZJXQ_B) ZJXQ_B,
+         SUM(R.ZJXQ_C) ZJXQ_C,
+         SUM(R.CARGO_VALUE) CARGO_VALUE,
+         NULL LISTING_DATE,
+         NULL DELISTING_DATE,
+         SUM(R.GDQFK_NOW) GDQFK_NOW,
+         SUM(R.GDQFK_A) GDQFK_A,
+         SUM(R.GDQFK_B) GDQFK_B,
+         SUM(R.GDQFK_C) GDQFK_C,
+         NULL PAY_DATE,
+         NULL RETURN_RATIO,
+         SUM(R.RETURN_VALUE) RETURN_VALUE,
+         O.FATHER_ID,
+         O.ORG_SNAME,
+         O.ORG_LEVEL,
+         O.ORDER_KEY,
+         O.ORG_CODE
+    FROM (SELECT * FROM ORG WHERE ORG_LEVEL = 3) O, RES R
+   WHERE R.ORG_ID = O.ORG_ID
+   GROUP BY O.ORG_ID,
+            O.ORG_NAME,
+            O.FATHER_ID,
+            O.ORG_SNAME,
+            O.ORG_LEVEL,
+            O.ORDER_KEY,
+            O.ORG_CODE),
+-- 2级结果
+RES_2 AS
+ (SELECT F.ORG_ID,
+         F.ORG_NAME,
+         '合计' STATUS,
+         NULL PLOT_ID,
+         TO_CHAR(SUM(TO_NUMBER(NVL(R.PLOT_NAME, 0)))) PLOT_NAME,
+         SUM(R.LAND_SUPPLY) LAND_SUPPLY,
+         NULL PLOT_RATIO,
+         SUM(R.ACREAGE) ACREAGE,
+         NULL AREA_PRICE,
+         SUM(R.AREA_TOTAL) AREA_TOTAL,
+         NULL SECURITY_DEPOSIT,
+         SUM(R.ZJXQ_NOW) ZJXQ_NOW,
+         SUM(R.ZJXQ_A) ZJXQ_A,
+         SUM(R.ZJXQ_B) ZJXQ_B,
+         SUM(R.ZJXQ_C) ZJXQ_C,
+         SUM(R.CARGO_VALUE) CARGO_VALUE,
+         NULL LISTING_DATE,
+         NULL DELISTING_DATE,
+         SUM(R.GDQFK_NOW) GDQFK_NOW,
+         SUM(R.GDQFK_A) GDQFK_A,
+         SUM(R.GDQFK_B) GDQFK_B,
+         SUM(R.GDQFK_C) GDQFK_C,
+         NULL PAY_DATE,
+         NULL RETURN_RATIO,
+         SUM(R.RETURN_VALUE) RETURN_VALUE,
+         F.FATHER_ID,
+         F.ORG_SNAME,
+         F.ORG_LEVEL,
+         F.ORDER_KEY,
+         F.ORG_CODE
+    FROM (SELECT * FROM RES_3_S UNION ALL SELECT * FROM RES_3_OTHER) R,
+         ORG F,
+         ORG S
+   WHERE S.FATHER_ID = F.ORG_ID
+     AND R.ORG_ID = S.ORG_ID
+     AND F.ORG_LEVEL = 2
+   GROUP BY F.ORG_ID,
+            F.ORG_NAME,
+            F.FATHER_ID,
+            F.ORG_SNAME,
+            F.ORG_LEVEL,
+            F.ORDER_KEY,
+            F.ORG_CODE),
+-- 1级结果 
+
+RES_1 AS
+ (SELECT F.ORG_ID,
+         F.ORG_NAME,
+         '合计' STATUS,
+         NULL PLOT_ID,
+         TO_CHAR(SUM(TO_NUMBER(NVL(R.PLOT_NAME, 0)))) PLOT_NAME,
+         SUM(R.LAND_SUPPLY) LAND_SUPPLY,
+         NULL PLOT_RATIO,
+         SUM(R.ACREAGE) ACREAGE,
+         NULL AREA_PRICE,
+         SUM(R.AREA_TOTAL) AREA_TOTAL,
+         NULL SECURITY_DEPOSIT,
+         SUM(R.ZJXQ_NOW) ZJXQ_NOW,
+         SUM(R.ZJXQ_A) ZJXQ_A,
+         SUM(R.ZJXQ_B) ZJXQ_B,
+         SUM(R.ZJXQ_C) ZJXQ_C,
+         SUM(R.CARGO_VALUE) CARGO_VALUE,
+         NULL LISTING_DATE,
+         NULL DELISTING_DATE,
+         SUM(R.GDQFK_NOW) GDQFK_NOW,
+         SUM(R.GDQFK_A) GDQFK_A,
+         SUM(R.GDQFK_B) GDQFK_B,
+         SUM(R.GDQFK_C) GDQFK_C,
+         NULL PAY_DATE,
+         NULL RETURN_RATIO,
+         SUM(R.RETURN_VALUE) RETURN_VALUE,
+         F.FATHER_ID,
+         F.ORG_SNAME,
+         F.ORG_LEVEL,
+         F.ORDER_KEY,
+         F.ORG_CODE
+    FROM RES_2 R, ORG F, ORG S
+   WHERE S.FATHER_ID = F.ORG_ID
+     AND R.ORG_ID = S.ORG_ID
+     AND F.ORG_LEVEL = 1
+   GROUP BY F.ORG_ID,
+            F.ORG_NAME,
+            F.FATHER_ID,
+            F.ORG_SNAME,
+            F.ORG_LEVEL,
+            F.ORDER_KEY,
+            F.ORG_CODE)
+,res2 as (
+SELECT *
+  FROM RES_1
+UNION ALL
+SELECT *
+  FROM RES_2
+UNION ALL
+SELECT *
+  FROM RES_3_S
+UNION ALL
+SELECT *
+  FROM RES_3
+UNION ALL
+SELECT *
+  FROM RES_3_OTHER
+UNION ALL
+SELECT *
+  FROM RES_4_S
+UNION ALL
+SELECT * FROM RES_4
+)
+
+select r.*, case when status ='合计' then '共'||PLOT_NAME||'个项目' else PLOT_NAME end newname from res2 r
+]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<Title>
+<![CDATA[住宅供地地块项目明细表 ]]></Title>
+<ServerPrinter/>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="a1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=A1]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[/*//展开的最大节点级值  
+var t = 4;   
+for(var m = 1; m <= t; m++) {  
+    //循环执行“+”号展开  
+    $('.x-treenode-unexpand').trigger('click');  
+}  */
+
+$("#content-container").find("tr").has(".x-treenode-unexpand").each(function(){  
+if($(this).children().eq(0).text()==1){ //eq（0）表示最左边的单元格；text（）==1，表示内容为1的单元格  
+$(this).find(".x-treenode-unexpand").trigger('click');}}) 
+
+
+var totalnumber=a1;
+//alert(a1);
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+//获取A1单元格的值]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.slimScrollBarY').css('width','15px'); //Y轴宽
+$('.slimScrollBarX').css('height','15px');//X轴高
+$('.slimScrollBarX').css('background','#000000');//X轴颜色
+$('.slimScrollBarX').css('opacity','0.65');//X轴透明度
+$('.slimScrollBarY').css('background','#000000');//Y轴颜色
+$('.slimScrollBarY').css('opacity','0.65');//Y轴透明度]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="startload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[//参数赋值  注：加 '###' 为手动需要修改的地方
+
+    var baobiaomokuai = "全口径业绩";//### 添加模块名称
+    var fangwenlujing=FR.remoteEvaluate('=$reportName');    
+    var fangwenwenjian = FR.remoteEvaluate('=INDEXOFARRAY(SPLIT(reportName,"/"),count(SPLIT(reportName,"/")))');
+    var wenjianmingcheng = "受限资金净提取完成情况明细表 ";//###
+    var canshuming = "org;times;"; //参数en  ###
+    var canshu = FR.remoteEvaluate('=if(len($org)=0,"",$org_name+";")+$times'); //参数zh  ###
+
+    var canshumingyucanshu = FR.remoteEvaluate('=if(len($org)=0,"","org:"+$org_name+";")+$times'); // 参数组合  ###
+    
+    var daochu="否";    //###
+    var shifoudianjilianjie = "否";
+    var lianjiecanshuming = "";
+    var lianjiecanshu = "";
+    var lianjiemingyucanshu = "";
+            
+    FR.ajax({
+        url: "${servletURL}" + "?reportlet=HX_JurisdictionAndLog/loginsert.cpt&op=write&format=submit",
+        data: {
+            "baobiaomokuai": baobiaomokuai,
+            "fangwenlujing": fangwenlujing,
+            "fangwenwenjian": fangwenwenjian,
+            "wenjianmingcheng": wenjianmingcheng,
+            "canshuming": canshuming,
+            "canshu": canshu,
+            "canshumingyucanshu": canshumingyucanshu,
+            "shifoudianjilianjie": shifoudianjilianjie,
+            "lianjiecanshuming": lianjiecanshuming,
+            "lianjiecanshu": lianjiecanshu,
+            "lianjiemingyucanshu": lianjiemingyucanshu,
+            "daochu":daochu
+        }
+    }
+    );]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="aftertoexcel">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[//参数赋值  注：加 '###' 为手动需要修改的地方
+
+    var baobiaomokuai = "全口径业绩";//###
+    var fangwenlujing=FR.remoteEvaluate('=$reportName');    
+    var fangwenwenjian = FR.remoteEvaluate('=INDEXOFARRAY(SPLIT(reportName,"/"),count(SPLIT(reportName,"/")))');
+    var wenjianmingcheng = "受限资金净提取完成情况明细表 ";//###
+    var canshuming = "org;times;"; //参数en  ###
+    var canshu = FR.remoteEvaluate('=if(len($org)=0,"",$org_name+";")+$times'); //参数zh  ###
+
+    var canshumingyucanshu = FR.remoteEvaluate('=if(len($org)=0,"","org:"+$org_name+";")+$times'); // 参数组合  ###
+    
+    var daochu="是";    //###
+    var shifoudianjilianjie = "否";
+    var lianjiecanshuming = "";
+    var lianjiecanshu = "";
+    var lianjiemingyucanshu = "";
+            
+    FR.ajax({
+        url: "${servletURL}" + "?reportlet=HX_JurisdictionAndLog/loginsert.cpt&op=write&format=submit",
+        data: {
+            "baobiaomokuai": baobiaomokuai,
+            "fangwenlujing": fangwenlujing,
+            "fangwenwenjian": fangwenwenjian,
+            "wenjianmingcheng": wenjianmingcheng,
+            "canshuming": canshuming,
+            "canshu": canshu,
+            "canshumingyucanshu": canshumingyucanshu,
+            "shifoudianjilianjie": shifoudianjilianjie,
+            "lianjiecanshuming": lianjiecanshuming,
+            "lianjiecanshu": lianjiecanshu,
+            "lianjiemingyucanshu": lianjiemingyucanshu,
+            "daochu":daochu
+        }
+    }
+    );]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="startload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="export1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(value("hx_aut",2,1))=0,1,if(StringFind(value("hx_aut",2,1),"no")<>-1,0,if(StringFind(value("hx_aut",2,1),"jyzycd001")<>-1,1,0)))]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[    //导出  
+if (export1 == 0) {
+
+    var item = contentPane.toolbar.getWidgetByName("ExcelO").setVisible(false);
+}]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportWebAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="住宅供地地块项目明细表 ">
+<ReportPageAttr>
+<HR F="0" T="1"/>
+<FR/>
+<HC/>
+<FC/>
+<UPFCR COLUMN="false" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[720000,723900,864000,864000,864000,864000,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[1333440,1333440,493920,7315200,2743200,2743200,8458200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,2743200,720000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=SUM(B3:B6)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="1" r="0">
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="3" r="0" rs="2" s="0">
+<O>
+<![CDATA[事业部]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="0">
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="5" r="0" rs="2" s="0">
+<O>
+<![CDATA[挂牌状态]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="0" rs="2" s="0">
+<O>
+<![CDATA[项目名称]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="0" rs="2" s="0">
+<O>
+<![CDATA[供地亩数]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="0" rs="2" s="0">
+<O>
+<![CDATA[容积率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="0" rs="2" s="0">
+<O>
+<![CDATA[计容建面\\n(万平)]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="10" r="0" rs="2" s="0">
+<O>
+<![CDATA[亩单价 \\n（万/亩）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="0" rs="2" s="0">
+<O>
+<![CDATA[总地价\\n（万）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="0" rs="2" s="0">
+<O>
+<![CDATA[保证金比例]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="0" cs="5" s="0">
+<O>
+<![CDATA[资金需求（拍地）]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[if(len($statustype)=0,1=0,and(find("计划挂牌",$statustype)=0,find("已挂牌未摘牌",$statustype)=0))]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="18" r="0" rs="2" s="0">
+<O>
+<![CDATA[货值]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="19" r="0" rs="2" s="0">
+<O>
+<![CDATA[挂牌时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="0" rs="2" s="0">
+<O>
+<![CDATA[摘牌时间]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="21" r="0" cs="5" s="0">
+<O>
+<![CDATA[挂地前付款]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[if(len($statustype)=0,1=0,find("计划挂牌",$statustype)=0)]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="26" r="0" rs="2" s="0">
+<O>
+<![CDATA[支付日期]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="27" r="0" rs="2" s="0">
+<O>
+<![CDATA[产业新城回款比例]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="28" r="0" rs="2" s="0">
+<O>
+<![CDATA[回款金额\\n（万元）]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="29" r="0">
+<O>
+<![CDATA[ ]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="1">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1">
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="13" r="1" s="0">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("oracle_test","select to_number(to_char(add_months(sysdate,0),'mm'))||'月' value from dual",1,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("oracle_test","select to_number(to_char(add_months(sysdate,1),'mm'))||'月' value from dual",1,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("oracle_test","select to_number(to_char(add_months(sysdate,2),'mm'))||'月' value from dual",1,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("oracle_test","select to_number(to_char(add_months(sysdate,3),'mm'))||'月' value from dual",1,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="21" r="1" s="0">
+<O>
+<![CDATA[合计]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("oracle_test","select to_number(to_char(add_months(sysdate,0),'mm'))||'月' value from dual",1,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("oracle_test","select to_number(to_char(add_months(sysdate,1),'mm'))||'月' value from dual",1,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("oracle_test","select to_number(to_char(add_months(sysdate,2),'mm'))||'月' value from dual",1,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="25" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sql("oracle_test","select to_number(to_char(add_months(sysdate,3),'mm'))||'月' value from dual",1,1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2">
+<O t="I">
+<![CDATA[1]]></O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D3"/>
+</C>
+<C c="1" r="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(D3) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D3"/>
+</C>
+<C c="3" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="Tree2" columnName="FR_GEN_0"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[tree_2]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2">
+<O t="DSColumn">
+<Attributes dsName="Tree2" columnName="ORG_LEVEL"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="STATUS"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="2"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="NEWNAME"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" extendable="3"/>
+</C>
+<C c="7" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="LAND_SUPPLY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="PLOT_RATIO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ACREAGE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="AREA_PRICE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="AREA_TOTAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="SECURITY_DEPOSIT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="2" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(O3:R3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="14" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_NOW"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="M3"/>
+</C>
+<C c="15" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_A"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_B"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_C"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="CARGO_VALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="LISTING_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="DELISTING_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="2" s="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(W3:Z3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="22" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_NOW"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="U3"/>
+</C>
+<C c="23" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_A"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_B"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_C"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="2" s="6">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="PAY_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="RETURN_RATIO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="RETURN_VALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(e4<3,"1","")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D4"/>
+</C>
+<C c="1" r="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(D4) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D4"/>
+</C>
+<C c="3" r="3" s="7">
+<O t="DSColumn">
+<Attributes dsName="Tree2" columnName="FR_GEN_1"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[tree_2]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="D3"/>
+</C>
+<C c="4" r="3">
+<O t="DSColumn">
+<Attributes dsName="Tree2" columnName="ORG_LEVEL"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="3"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="STATUS"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="3"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="3" s="8">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="NEWNAME"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" extendable="3"/>
+</C>
+<C c="7" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="LAND_SUPPLY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="3" s="10">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="PLOT_RATIO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ACREAGE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="AREA_PRICE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="AREA_TOTAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="3" s="11">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="SECURITY_DEPOSIT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="3" s="9">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(O4:R4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_NOW"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="M4"/>
+</C>
+<C c="15" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_A"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_B"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_C"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="CARGO_VALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="3" s="12">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="LISTING_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="3" s="12">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="DELISTING_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="3" s="9">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(W4:Z4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_NOW"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="U4"/>
+</C>
+<C c="23" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_A"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="3" s="11">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_B"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="3" s="11">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_C"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="3" s="13">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="PAY_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="3" s="11">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="RETURN_RATIO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="3" s="9">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="RETURN_VALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="0" r="4">
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D5"/>
+</C>
+<C c="1" r="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(D5) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D5"/>
+</C>
+<C c="3" r="4" s="14">
+<O t="DSColumn">
+<Attributes dsName="Tree2" columnName="FR_GEN_2"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Widget class="com.fr.report.web.button.form.TreeNodeToggleButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+</Widget>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[tree_2]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="D4"/>
+</C>
+<C c="4" r="4">
+<O t="DSColumn">
+<Attributes dsName="Tree2" columnName="ORG_LEVEL"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="4"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="4" s="15">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="STATUS"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=D5]]></Attributes>
+</O>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="4" s="15">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="NEWNAME"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" extendable="3"/>
+</C>
+<C c="7" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="LAND_SUPPLY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="4" s="17">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="PLOT_RATIO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ACREAGE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="AREA_PRICE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="AREA_TOTAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="4" s="18">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="SECURITY_DEPOSIT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="4" s="16">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(O5:R5)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_NOW"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="M5"/>
+</C>
+<C c="15" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_A"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_B"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_C"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="CARGO_VALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="4" s="19">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="LISTING_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="4" s="19">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="DELISTING_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="4" s="16">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(W5:Z5)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_NOW"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="U5"/>
+</C>
+<C c="23" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_A"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="4" s="18">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_B"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="4" s="18">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_C"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="4" s="20">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="PAY_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="4" s="18">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="RETURN_RATIO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="4" s="16">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="RETURN_VALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="1" r="5">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(D6) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="5" s="21">
+<O t="DSColumn">
+<Attributes dsName="Tree2" columnName="FR_GEN_3"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[len($$$) = 0]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[tree_2]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false" left="D5"/>
+</C>
+<C c="4" r="5">
+<O t="DSColumn">
+<Attributes dsName="Tree2" columnName="ORG_LEVEL"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="5"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="5" s="22">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="STATUS"/>
+<Condition class="com.fr.data.condition.CommonCondition">
+<CNUMBER>
+<![CDATA[0]]></CNUMBER>
+<CNAME>
+<![CDATA[ORG_ID]]></CNAME>
+<Compare op="0">
+<ColumnRow column="3" row="5"/>
+</Compare>
+</Condition>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="5" s="22">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="NEWNAME"/>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Result>
+<![CDATA[$$$]]></Result>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" extendable="3"/>
+</C>
+<C c="7" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="LAND_SUPPLY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="8" r="5" s="24">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="PLOT_RATIO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="9" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ACREAGE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="10" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="AREA_PRICE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="11" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="AREA_TOTAL"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="12" r="5" s="25">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="SECURITY_DEPOSIT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="13" r="5" s="23">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(O6:R6)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="14" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_NOW"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="M6"/>
+</C>
+<C c="15" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_A"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="16" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_B"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="17" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="ZJXQ_C"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="18" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="CARGO_VALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="19" r="5" s="26">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="LISTING_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="20" r="5" s="26">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="DELISTING_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="21" r="5" s="23">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(W6:Z6)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_NOW"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0" leftParentDefault="false" left="U6"/>
+</C>
+<C c="23" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_A"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="24" r="5" s="25">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_B"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="25" r="5" s="25">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="GDQFK_C"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="26" r="5" s="27">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="PAY_DATE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="27" r="5" s="25">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="RETURN_RATIO"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="28" r="5" s="23">
+<O t="DSColumn">
+<Attributes dsName="res" columnName="RETURN_VALUE"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+<Background name="ImageBackground" specifiedImageWidth="-1.0" specifiedImageHeight="-1.0" layout="1"/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0" useParamsTemplate="false"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1380618"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="statustype"/>
+<LabelName name="挂牌状态:"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Dictionary class="com.fr.data.impl.CustomDictionary">
+<CustomDictAttr>
+<Dict key="已挂牌未摘牌" value="已挂牌未摘牌"/>
+<Dict key="已摘牌" value="已摘牌"/>
+<Dict key="计划挂牌" value="计划挂牌"/>
+</CustomDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="301" y="35" width="144" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="hangdateend"/>
+<LabelName name="至"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr format="yyyy-MM" startdatefm="=$hangdatestart"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=today()]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="633" y="35" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelhangdateend"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[至]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="609" y="35" width="24" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="dealdateend"/>
+<LabelName name="至"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr format="yyyy-MM" startdatefm="=$dealdatestart"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=today()]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="911" y="35" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labeldealdateend"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[至]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="887" y="35" width="24" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelstatustype"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[挂牌状态:]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="243" y="35" width="58" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="dealdatestart"/>
+<LabelName name="摘牌时间从"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr format="yyyy-MM"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=  SQL("oracle_test","select TO_CHAR(TO_DATE(TO_CHAR(sysdate,'YYYY-MM'),'YYYY-MM') - INTERVAL '1' MONTH,'YYYY-MM') MONTHDATE FROM DUAL",1,1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="807" y="35" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labeldealdatestart"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[摘牌时间从]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="727" y="35" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="hangdatestart"/>
+<LabelName name="挂牌时间从"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr format="yyyy-MM"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=  SQL("oracle_test","select TO_CHAR(TO_DATE(TO_CHAR(sysdate,'YYYY-MM'),'YYYY-MM') - INTERVAL '1' MONTH,'YYYY-MM') MONTHDATE FROM DUAL",1,1)]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="529" y="35" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelhangdatestart"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[挂牌时间从]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="455" y="35" width="74" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0_c_c_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[住宅供地地块项目明细表 ]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="96" foreground="-6877671"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="15" y="6" width="265" height="29"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="Search_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-6877671"/>
+</initial>
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="1006" y="35" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
+<Listener event="afterinit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var wiget= this.options.form.getWidgetByName("org");
+var deptcode=wiget.getValue();
+var sql=" select org_name from dim_org where org_id ='"+deptcode+"'";
+var  deptname=FR.remoteEvaluate('sql("oracle_test","'+sql+'",1,1)');
+wiget.setText(deptname) ;]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="org"/>
+<LabelName name="组织："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr selectLeafOnly="false"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="false"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_ID" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[Tree1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<databinding>
+<![CDATA[{Name:Tree1,Key:ORG_ID}]]></databinding>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="55" y="35" width="175" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="Labelorg"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[组织：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="15" y="35" width="40" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="org"/>
+<Widget widgetName="statustype"/>
+<Widget widgetName="hangdatestart"/>
+<Widget widgetName="hangdateend"/>
+<Widget widgetName="dealdatestart"/>
+<Widget widgetName="dealdateend"/>
+<Widget widgetName="Search_c"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<UseParamsTemplate use="false"/>
+<Position position="0"/>
+<Design_Width design_width="1105"/>
+<NameTagModified/>
+<WidgetNameTagMap>
+<NameTag name="hangdatestart" tag="挂牌时间从"/>
+<NameTag name="dealdateend" tag="至"/>
+<NameTag name="dealdatestart" tag="摘牌时间从"/>
+<NameTag name="org" tag="组织："/>
+<NameTag name="statustype" tag="挂牌状态:"/>
+<NameTag name="hangdateend" tag="至"/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="1105" height="59"/>
+</ParameterUI>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6877671"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0#]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="12">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0#]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-6710887"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="22">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0#]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-3355444"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1" paddingLeft="32">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.0#]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="4" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0%]]></Format>
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-1644826"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="87769063-0e3a-4bdb-8a6c-3037dfd66ab4"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="c74d7698-c28d-4413-b0bb-ed4fd28eb8b5"/>
+</TemplateIdAttMark>
+</WorkBook>

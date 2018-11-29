@@ -1,0 +1,2848 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="SHUJU" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="org"/>
+<O>
+<![CDATA[HXCYXC]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="time"/>
+<O>
+<![CDATA[20181029]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+select 
+CASE WHEN a.targetid='f5a902805e95474188d11ae291940323' THEN 'E0A3D386-D5C8-FB22-18DE-4424D49363B4' ELSE a.org_id END org_id,
+CASE WHEN a.targetid='f5a902805e95474188d11ae291940323' THEN '其他业务回款' ELSE a.org_name END org_name,
+CASE WHEN a.targetid='f5a902805e95474188d11ae291940323' THEN '其他业务回款' ELSE a.org_sname END org_sname,
+CASE WHEN a.targetid='f5a902805e95474188d11ae291940323' THEN 2 ELSE a.org_level END org_level,
+CASE WHEN a.targetid='f5a902805e95474188d11ae291940323' THEN 2769 ELSE a.order_key END order_key,
+CASE WHEN a.targetid='f5a902805e95474188d11ae291940323' THEN 'HXWY' ELSE a.org_code END org_code,a.targetid,
+${if(len(org)=0,"a.name",if(org="HX","CASE WHEN a.name='合作签约' THEN '合作签约'   WHEN a.targetid='f5a902805e95474188d11ae291940323' THEN '其他业务回款'
+ELSE a.org_sname END AS name","
+a.name"))},a.unit,${if(len(org)=0,"a.levelid",if(org="HX","CASE WHEN a.name='合作签约' THEN 3 ELSE a.org_level END AS levelid","a.levelid"))},a.orderpath,sum(nvl(target_year,0)) target_year,
+sum(nvl(actual_year,0)) actual_year,sum(nvl(actual_lyear,0)) actual_lyear,sum(nvl(target_quarter,0)) target_quarter,sum(nvl(actual_quarter,0)) actual_quarter,
+sum(nvl(actual_lquarter,0)) actual_lquarter,sum(nvl(target_month,0)) target_month,sum(nvl(actual_month,0)) actual_month,sum(nvl(actual_lmonth,0)) actual_lmonth,
+sum(nvl(actual_yg,0)) actual_yg,sum(nvl(rate_yg,0)) rate_yg,sum(nvl(actual_ygcy,0)) actual_ygcy,sum(nvl(rate_tb,0)) rate_tb
+from 
+(select a.org_id,a.org_name,a.org_sname,a.org_level,a.order_key,a.org_code,b.id orgid,d.targetid,d.name,d.unit,d.levelid,d.orderpath
+from dim_org a inner join bass_ods.ods_mcl_mdmorg b on a.org_id=b.sourceid inner join bass_ods.ods_fact_jyfx_orgtargetgroup c on b.id=c.orgid
+inner join  bass_ods.ods_tobusinessgroupdetail_jyfx d on c.targetgroupid=d.groupid where 1=1
+${IF(LEN(org)=0,"",IF(org="HX","AND a.org_code LIKE 'HX%'","AND a.org_code ='"+ org +"'"))}  and 
+SUBSTR(IDFULLPATH,1,32) IN ('fe3bc1c1c8c2464da6af76f9da07a160','24c7071d7e5e4024ae7106e240835d7f','0aeb16099ded4450beb128c574456b54')
+
+${if(len(org)=0,"",if(org="HX","UNION ALL
+SELECT  
+	a.org_id, 
+	a.org_name,
+	'其他业务回款' AS org_sname,
+	a.org_level,
+	a.order_key,
+	a.org_code,
+	'8c3a03b9d6bc47b5933940de64958e41' as orgid,
+	'f5a902805e95474188d11ae291940323' as targetid,
+	'其他业务回款' as name,
+  '亿元' as unit,
+	1 as levelid,
+	'001' as orderpath
+FROM 
+(SELECT * FROM dim_org where ORG_ID ='E0A3D386-D5C8-FB22-18DE-4424D49363B4') a
+LEFT JOIN bass_ods.ods_mcl_mdmorg b
+ON a.org_id=b.sourceid
+UNION ALL
+SELECT  
+  a.org_id,
+  
+  a.org_name,
+  '足球' AS org_sname,
+  a.org_level,
+  a.order_key,
+  a.org_code,
+  'cfd10b703c9b47d0869d3da15ccdce43' as orgid,
+  'd7897a74165141ee938dea8c5aafdf9b' as targetid,
+  '足球' as name,
+  '亿元' as unit,
+  1 as levelid,
+  '001' as orderpath
+FROM 
+(SELECT * FROM dim_org where ORG_ID ='E0A3D386-D5C8-FB22-18DE-4424D49363B6') a
+LEFT JOIN bass_ods.ods_mcl_mdmorg b
+ON a.org_id=b.sourceid
+UNION ALL
+SELECT  
+	a.org_id, 
+	a.org_name,
+	'产业新城安置房' AS org_sname,
+	2 as org_level,
+	999999 as order_key,
+	a.org_code,
+	'8c3a03b9d6bc47b5933940de64958e41' as orgid,
+	'bddac6b289f547d5a3961b65a87b7fb6' as targetid,
+	'产业新城安置房' as name,
+  '亿元' as unit,
+	1 as levelid,
+	'001' as orderpath
+FROM 
+(SELECT * FROM dim_org where ORG_ID ='E0A3D386-D5C8-FB22-18DE-4424D49363B2') a
+LEFT JOIN bass_ods.ods_mcl_mdmorg b
+ON a.org_id=b.sourceid
+UNION ALL
+SELECT  
+	a.org_id, 
+	a.org_name,
+	'回款' AS org_sname,
+	1 as org_level,
+	1 as order_key,
+	a.org_code,
+	'0972d31c170d41b2b778d6b2ab203b7e' as orgid,
+	'd7897a74165141ee938dea8c5aafdf9b' as targetid,
+	'回款' as name,
+  '亿元' as unit,
+	1 as levelid,
+	'001' as orderpath
+FROM 
+(SELECT * FROM dim_org where ORG_ID ='E0A3D386-D5C8-FB22-18DE-4424D49363B1') a
+LEFT JOIN bass_ods.ods_mcl_mdmorg b
+ON a.org_id=b.sourceid
+",if(org="HXWY","UNION ALL
+SELECT  
+	a.org_id, 
+	a.org_name,
+	'其他业务回款' AS org_sname,
+	a.org_level,
+	a.order_key,
+	a.org_code,
+	'8c3a03b9d6bc47b5933940de64958e41' as orgid,
+	'f5a902805e95474188d11ae291940323' as targetid,
+	'其他业务回款' as name,
+  '亿元' as unit,
+	1 as levelid,
+	'001' as orderpath
+FROM 
+(SELECT * FROM dim_org where ORG_ID ='E0A3D386-D5C8-FB22-18DE-4424D49363B4') a
+LEFT JOIN bass_ods.ods_mcl_mdmorg b
+ON a.org_id=b.sourceid",
+if(org="HXZQ","UNION ALL
+SELECT  
+  a.org_id, 
+  a.org_name,
+  '足球' AS org_sname,
+  a.org_level,
+  a.order_key,
+  a.org_code,
+  'cfd10b703c9b47d0869d3da15ccdce43' as orgid,
+  'd7897a74165141ee938dea8c5aafdf9b' as targetid,
+  '足球' as name,
+  '亿元' as unit,
+  1 as levelid,
+  '001' as orderpath
+FROM 
+(SELECT * FROM dim_org where ORG_ID ='E0A3D386-D5C8-FB22-18DE-4424D49363B6') a
+LEFT JOIN bass_ods.ods_mcl_mdmorg b
+ON a.org_id=b.sourceid",""))))}
+) a left join 
+(--年
+select  distinct a.orgid,c.targetid,a.amount target_year,0 actual_year,0 actual_lyear,0 target_quarter,
+0 actual_quarter,0 actual_lquarter,0 target_month,0 actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_target a INNER join  bass_ods.ods_fact_jyfx_orgtargetgroup b on a.orgid=b.orgid
+INNER join  bass_ods.ods_tobusinessgroupdetail_jyfx c on b.targetgroupid=c.groupid and a.targetid=c.totargetid
+where factdate=substr('${time}',1,4)
+--
+union all
+select a.orgid,a.targetid,a.amount target_year,0 actual_year,0 actual_lyear,0 target_quarter,
+0 actual_quarter,0 actual_lquarter,0 target_month,0 actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_target a 
+where factdate=substr('${time}',1,4) and a.orgid='0972d31c170d41b2b778d6b2ab203b7e' and a.targetid='d7897a74165141ee938dea8c5aafdf9b'
+union all
+select a.orgid,a.targetid,0 target_year,sum(nvl(a.y_p_value,0)) actual_year,0 actual_lyear,0 target_quarter,
+0 actual_quarter,0 actual_lquarter,0 target_month,0 actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_factsum a 
+where to_char(a.factdate,'yyyy')=substr('${time}',1,4) and to_char(factdate,'yyyymmdd')<='${time}'
+group by  a.orgid,a.targetid
+union all
+select a.orgid,a.targetid,0 target_year,0 actual_year,sum(nvl(a.y_p_value,0)) actual_lyear,0 target_quarter,
+0 actual_quarter,0 actual_lquarter,0 target_month,0 actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_factsum a 
+where to_char(a.factdate,'yyyy')=to_char(to_number(substr('${time}',1,4))-1) and 
+to_char(factdate,'yyyymmdd')<=to_char(to_number(substr('${time}',1,4))-1)||substr('${time}',5,4) 
+group by  a.orgid,a.targetid
+union all
+--季
+select distinct a.orgid,c.targetid,0 target_year,0 actual_year,0 actual_lyear,a.amount target_quarter,
+0 actual_quarter,0 actual_lquarter,0 target_month,0 actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_target a INNER join  bass_ods.ods_fact_jyfx_orgtargetgroup b on a.orgid=b.orgid
+INNER join  bass_ods.ods_tobusinessgroupdetail_jyfx c on b.targetgroupid=c.groupid and a.targetid=c.totargetid
+where factdate=substr('${time}',1,4)||'Q'||to_char(to_date('${time}','yyyymmdd'),'q')
+union all
+select a.orgid,a.targetid,0 target_year,0 actual_year,0 actual_lyear,a.amount target_quarter,
+0 actual_quarter,0 actual_lquarter,0 target_month,0 actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_target a 
+where factdate=substr('${time}',1,4)||'Q'||to_char(to_date('${time}','yyyymmdd'),'q') 
+and a.orgid='0972d31c170d41b2b778d6b2ab203b7e' and a.targetid='d7897a74165141ee938dea8c5aafdf9b'
+union all
+select a.orgid,a.targetid,0 target_year,0 actual_year,0 actual_lyear,0 target_quarter,
+sum(nvl(a.y_p_value,0)) actual_quarter,0 actual_lquarter,0 target_month,0 actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_factsum a 
+where to_char(a.factdate,'yyyy')||'Q'||to_char(a.factdate,'q')=substr('${time}',1,4)||'Q'||to_char(to_date('${time}','yyyymmdd'),'q') 
+and to_char(factdate,'yyyymmdd')<='${time}'  
+group by  a.orgid,a.targetid
+union all
+select a.orgid,a.targetid,0 target_year,0 actual_year,0 actual_lyear,0 target_quarter,
+0 actual_quarter,sum(nvl(a.y_p_value,0)) actual_lquarter,0 target_month,0 actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_factsum a 
+where to_char(a.factdate,'yyyy')||'Q'||to_char(a.factdate,'q')=to_char(to_number(substr('${time}',1,4))-1)||'Q'||to_char(to_date('${time}','yyyymmdd'),'q') and 
+to_char(factdate,'yyyymmdd')<=to_char(to_number(substr('${time}',1,4))-1)||substr('${time}',5,4) 
+group by  a.orgid,a.targetid
+union all
+--月
+select DISTINCT a.orgid,d.targetid,0 target_year,0 actual_year,0 actual_lyear,0 target_quarter,
+0 actual_quarter,0 actual_lquarter,a.amount target_month,0 actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_target a inner join bass_ods.ods_mcl_mdmorg b on a.orgid=b.id inner join bass_ods.ods_fact_jyfx_orgtargetgroup c on a.orgid=c.orgid
+left join bass_ods.ods_tobusinessgroupdetail_jyfx d on a.targetid=d.totargetid and c.targetgroupid=d.groupid
+where factdate=substr('${time}',1,4)||'M'||to_char(to_number(substr('${time}',5,2)))
+union all
+select a.orgid,a.targetid,0 target_year,0 actual_year,0 actual_lyear,0 target_quarter,
+0 actual_quarter,0 actual_lquarter,a.amount target_month,0 actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_target a 
+where factdate=substr('${time}',1,4)||'M'||to_char(to_number(substr('${time}',5,2)))
+and a.orgid='0972d31c170d41b2b778d6b2ab203b7e' and a.targetid='d7897a74165141ee938dea8c5aafdf9b'
+union all
+select a.orgid,a.targetid,0 target_year,0 actual_year,0 actual_lyear,0 target_quarter,
+0 actual_quarter,0 actual_lquarter,0 target_month,sum(nvl(a.y_p_value,0)) actual_month,0 actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_factsum a 
+where to_char(a.factdate,'yyyymm')=substr('${time}',1,6) and to_char(factdate,'yyyymmdd')<='${time}'
+group by  a.orgid,a.targetid 
+union all
+select a.orgid,a.targetid,0 target_year,0 actual_year,0 actual_lyear,0 target_quarter,
+0 actual_quarter,0 actual_lquarter,0 target_month,0 actual_month,sum(nvl(a.y_p_value,0)) actual_lmonth,0 actual_yg,0 rate_yg,0 actual_ygcy,0 rate_tb
+from bass_ods.ods_mcl_factsum a 
+where to_char(a.factdate,'yyyymm')=to_char(to_number(substr('${time}',1,4))-1)||substr('${time}',5,2)  and 
+to_char(factdate,'yyyymmdd')<=to_char(to_number(substr('${time}',1,4))-1)||substr('${time}',5,4) 
+group by  a.orgid,a.targetid
+union all
+--预估
+select a.orgid,a.targetid,0 target_year,0 actual_year,0 actual_lyear,0 target_quarter,
+0 actual_quarter,0 actual_lquarter,0 target_month,0 actual_month,0 actual_lmonth,
+case when targetid='f5a902805e95474188d11ae291940323' then 
+case when nvl(amount,0)=0 then 0 else amount/2 end else  
+case when targetid='1e263f8064fd4f25ba6a9c2f95e17efd' then
+case when nvl(amount,0)=0 then 0 else amount/2 end else 
+amount end end actual_yg,
+ 
+case when targetid='f5a902805e95474188d11ae291940323' then 
+case when nvl(completionrate,0)=0 then 0 else completionrate/2 end else  
+case when targetid='1e263f8064fd4f25ba6a9c2f95e17efd' then
+case when nvl(completionrate,0)=0 then 0 else completionrate/2 end else 
+completionrate end  end  rate_yg,
+
+case when targetid='f5a902805e95474188d11ae291940323' then 
+case when nvl(predictdifference,0)=0 then 0 else predictdifference/2 end else  
+case when targetid='1e263f8064fd4f25ba6a9c2f95e17efd' then
+case when nvl(predictdifference,0)=0 then 0 else predictdifference/2 end else 
+predictdifference end  end  actual_ygcy,
+ 
+case when targetid='f5a902805e95474188d11ae291940323' then 
+case when nvl(yearonyeargrowth,0)=0 then 0 else yearonyeargrowth/2 end else  
+case when targetid='1e263f8064fd4f25ba6a9c2f95e17efd' then
+case when nvl(yearonyeargrowth,0)=0 then 0 else yearonyeargrowth/2 end else 
+yearonyeargrowth end  end rate_tb
+from bass_ods.ods_mcl_predict a 
+where factdate=substr('${time}',1,4)||'Q'||to_char(to_date('${time}','yyyymmdd'),'q')) b on a.orgid=b.orgid and a.targetid=b.targetid 
+${if(len(org)=0,"",IF(org="HX","WHERE A.ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B1' AND A.TARGETID='054878caa2b9466b853cab410f59437a'--华夏幸福签约
+OR A.ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B1' AND A.TARGETID='d7897a74165141ee938dea8c5aafdf9b'--华夏幸福回款
+--OR A.ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B2' AND A.TARGETID='bddac6b289f547d5a3961b65a87b7fb6'--华夏幸福安置房签约
+and a.org_sname<>'产业新城'
+OR A.ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B2' AND A.TARGETID='3e927b5caa3a4d38b51a2bae096d73d3'--产业新城签约
+OR A.ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B2' AND A.TARGETID='8af4664d0837409a9b63736bb1630c9e'--产业新城回款
+OR A.ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B3' AND A.TARGETID='3e927b5caa3a4d38b51a2bae096d73d3'--产业新城（国内）签约
+OR A.ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B3' AND A.TARGETID='8af4664d0837409a9b63736bb1630c9e'--产业新城（国内）回款
+OR A.ORG_ID='7F1F77EC-7E86-4753-9916-E87EEA54A754' AND A.TARGETID='3e927b5caa3a4d38b51a2bae096d73d3'--产业新城（国际）签约
+OR A.ORG_ID='7F1F77EC-7E86-4753-9916-E87EEA54A754' AND A.TARGETID='8af4664d0837409a9b63736bb1630c9e'--产业新城（国际）回款
+OR A.ORG_ID='170D757F-2757-43FF-831A-89F2A44BA854' AND A.TARGETID='1fda2d72c69f44548352829912efc61e'--产业小镇签约
+OR A.ORG_ID='170D757F-2757-43FF-831A-89F2A44BA854' AND A.TARGETID='52b770193098401f89a13059f37a2dcf'--产业小镇回款
+OR A.ORG_ID='54720271-A741-423A-BE20-E593A168EC88' AND A.TARGETID='950a32bd2049444692f2db5d7ddbfafc'--孔雀城签约
+OR A.ORG_ID='54720271-A741-423A-BE20-E593A168EC88' AND A.TARGETID='86194f8be66641089909932d90f07fcc'--孔雀城回款
+OR A.ORG_ID='54720271-A741-423A-BE20-E593A168EC88' AND A.TARGETID='0d68a52298c94dcca8dd8740526df0a7'--孔雀城新合作签约
+OR A.ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B4' AND A.TARGETID='054878caa2b9466b853cab410f59437a'--物业签约
+OR A.ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B2' AND A.TARGETID='f5a902805e95474188d11ae291940323'--物业回款
+OR A.ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B6' AND A.TARGETID='d7897a74165141ee938dea8c5aafdf9b'--足球回款
+",""))}
+group by a.org_id,a.org_name,a.org_sname,a.org_level,a.order_key,a.org_code,a.targetid,a.name,a.unit,a.levelid,a.orderpath
+order by CASE WHEN a.targetid='f5a902805e95474188d11ae291940323' THEN 2769 ELSE a.order_key END ,a.orderpath
+--组织树传参的 华夏幸福 org_code 改动 在组织表 org 中，没有改变此文件原逻辑
+--华夏幸福 org_code 由 'HX' 改为 'HXCYXC']]></Query>
+</TableData>
+<TableData name="ORG" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="fr_authority"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="fr_username"/>
+<O>
+<![CDATA[hongxiaoyu]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[with role as
+ (select regexp_substr(role, '[^,]A+', 1, level, 'i') as role
+    from (select '${fr_authority}' role from dual)
+  connect by level <=
+             length(role) - length(regexp_replace(role, ',', '')) + 1),
+             
+du as
+ ( --查询用户组织权限
+  select orgid
+    from dm_hx_data_aut du
+   where 1 = 1
+     and du.userid = '${fr_username}'
+     and du.orgid is not null
+  
+  union all
+  
+  --如果用户组织权限为空，则组织权限为对应的角色的权限
+  select orgid
+    from dm_hx_data_aut du
+   where 1 = 1
+     and du.rolename in (select * from role)
+     and 1 = nvl((select case
+                       when orgid is null then
+                        1
+                       else
+                        0
+                     end flag
+                from dm_hx_data_aut
+               where userid = '${fr_username}'
+                 ), 1 )
+                 
+                 ),
+du2 as (
+select regexp_substr(orgid, '[^,]A+', 1, level, 'i') as orgid
+    from (select orgid  from du)
+  connect by level <=
+             length(orgid) - length(regexp_replace(orgid, ',', '')) + 1
+
+
+),
+
+ORG_JG AS(
+select ORG_ID,
+       case when ORG_ID = '5FB62123-5DF2-0750-0F82-F04B251EA55E'
+       then  'E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+       else PARENTID end      as FATHER_ID,
+       ORG_NAME,
+       ORG_SHORTNAME as ORG_SNAME,
+       ORG_NUM as ORDER_KEY,
+       org_level,
+       ORG_CODE
+  from dim_org_jxjl where isshow=1   
+ -- and   org_id <> 'E0A3D386-D5C8-FB22-18DE-4424D49363B1'	--华夏幸福
+  and   org_id <> '9E3CFC37-AA68-46AB-96AA-C9BE391C37C6'	--产业新城直属区域事业部
+
+   start with ORG_ID in(select orgid from du2)
+connect by prior org_id =PARENTID
+--where   ORG_ID in (select orgid from du2)
+ --or FATHER_ID in (select orgid from du2)
+ )
+
+SELECT 
+    case when ORG_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B1' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B2' else ORG_ID end ORG_ID,
+    null  FATHER_ID,
+    ORG_NAME,
+    ORG_SNAME,
+    ORDER_KEY,
+    org_level,
+     case when  ORG_CODE='HX' then 'HXCYXC' else org_code end org_code 
+FROM ORG_JG where ORG_ID in(select ORG_ID from dim_org_jxjl where org_level=(select min(org_level) from  ORG_JG ))
+UNION ALL
+SELECT
+ ORG_ID,
+     case when FATHER_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B1' then 'E0A3D386-D5C8-FB22-18DE-4424D49363B2' else FATHER_ID end FATHER_ID,
+    ORG_NAME,
+    ORG_SNAME,
+    ORDER_KEY,
+    org_level,
+    case when  ORG_CODE='HX' then 'HXCYXC' else org_code end org_code 
+FROM ORG_JG where ORG_ID not in(select ORG_ID from dim_org_jxjl where org_level=(select min(org_level) from  ORG_JG ))
+order by order_key
+--华夏幸福的 org_code 有改动]]></Query>
+</TableData>
+<TableData name="ORG_TREE" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ORG_ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[FATHER_ID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[ORG]]></originalTableDataName>
+</TableData>
+<TableData name="ds1" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="time"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH DIM_DATEKJ AS
+ (SELECT PERIOD_YEAR AS CALIBER --找到我当前时间参数口径（当年、当季、当月）
+    FROM DIM_PERIOD --时间维度
+   WHERE PERIOD_KEY = to_char(to_date('${time}','YYYYMMDD'), 'yyyyMMdd')), --当前时间口径 年、季度、月份
+
+DIM_DATEMX AS
+ (SELECT DISTINCT PERIOD_YEAR AS DIM_CALIBER, --口径
+               
+                     PERIOD_QUARTER AS DIM_CALIBER_S --口径2
+    FROM DIM_PERIOD --时间维度
+  ), --时间口径维度
+DIM_DATES AS
+ (/*SELECT CALIBER,
+         CASE
+           WHEN '"+periodtype+"'  = '当年' THEN
+            substr(CALIBER, 1, 4)
+           WHEN '"+periodtype+"'  = '当季' THEN
+            substr(to_char(to_date('"+yearmonth+"','YYYYMMDD'), 'yyyyMMdd'), 1, 4) || 'Q0' ||
+            substr(CALIBER, 1, 1)
+           WHEN '"+periodtype+"'  = '当月' THEN
+            substr(to_char(to_date('"+yearmonth+"','YYYYMMDD'), 'yyyyMMdd'), 1, 4) || 'M' ||
+            substr(CALIBER, 1, 2)
+         END as Statistical_time,
+         1 ordernum
+    FROM DIM_DATEKJ
+  UNION ALL*/
+  SELECT b.DIM_CALIBER_S as CALIBER,
+         
+            substr(to_char(to_date('${time}','YYYYMMDD'), 'yyyyMMdd'), 1, 4) || 'Q0' ||
+            substr(b.DIM_CALIBER_S, 1, 1)
+          as Statistical_time,
+         
+         case when substr(b.DIM_CALIBER_S,2,1)='季' then cast (substr(b.DIM_CALIBER_S,1,1) as number)+1 
+           when substr(b.DIM_CALIBER_S,3,1)='月' then cast (substr(b.DIM_CALIBER_S,1,2) as number)+1 
+           when substr(b.DIM_CALIBER_S,3,1)='周' then cast (substr(b.DIM_CALIBER_S,2,1) as number)+1 
+         end ordernum
+    FROM DIM_DATEKJ a
+    LEFT JOIN DIM_DATEMX b
+      ON a.CALIBER = b.DIM_CALIBER) --整理时间维度
+ ,W1 AS (
+SELECT 
+ACC.PERIOD_TYPE_ID,
+sum(TARGET_VALUE ) as TARGET_VALUE ,
+round(sum(ACTUAL_VALUE), 1)  as  ACTUAL_VALUE
+FROM  DM_MCL_ACCT ACC 
+
+WHERE  ACC.INDEX_ID ='487d7036834c4cf6947b7ceb45004dac' and acc.org_id='E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+group by ACC.PERIOD_TYPE_ID
+)
+
+ SELECT 
+ T1.CALIBER,
+ T1.ORDERNUM,
+ T1.STATISTICAL_TIME,
+ nvl(W1.TARGET_VALUE,0) TARGET_VALUE ,
+ round(nvl( W1.ACTUAL_VALUE,0), 1) ACTUAL_VALUE,
+case when nvl(W1.TARGET_VALUE,0)=0 then 0 
+when nvl( W1.ACTUAL_VALUE,0)/ nvl(W1.TARGET_VALUE,0)<0.005
+then 0
+else nvl( W1.ACTUAL_VALUE,0)/ nvl(W1.TARGET_VALUE,0) end rate
+ FROM DIM_DATES T1
+ LEFT JOIN W1 ON T1.STATISTICAL_TIME = W1.PERIOD_TYPE_ID
+ order by ORDERNUM]]></Query>
+</TableData>
+<TableData name="ds2" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="time"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[WITH DIM_DATEKJ AS
+ (SELECT  PERIOD_QUARTER AS CALIBER --找到我当前时间参数口径（当年、当季、当月）
+    FROM DIM_PERIOD --时间维度
+   WHERE PERIOD_KEY = to_char(to_date('${time}','YYYYMMDD'), 'yyyyMMdd')), --当前时间口径 年、季度、月份
+
+DIM_DATEMX AS
+ (SELECT DISTINCT  PERIOD_QUARTER
+                  AS DIM_CALIBER, --口径
+                  PERIOD_MONTH
+                   AS DIM_CALIBER_S --口径2
+    FROM DIM_PERIOD --时间维度
+  ), --时间口径维度
+DIM_DATES AS
+ (/*SELECT CALIBER,
+         CASE
+           WHEN '"+periodtype+"'  = '当年' THEN
+            substr(CALIBER, 1, 4)
+           WHEN '"+periodtype+"'  = '当季' THEN
+            substr(to_char(to_date('"+yearmonth+"','YYYYMMDD'), 'yyyyMMdd'), 1, 4) || 'Q0' ||
+            substr(CALIBER, 1, 1)
+           WHEN '"+periodtype+"'  = '当月' THEN
+            substr(to_char(to_date('"+yearmonth+"','YYYYMMDD'), 'yyyyMMdd'), 1, 4) || 'M' ||
+            substr(CALIBER, 1, 2)
+         END as Statistical_time,
+         1 ordernum
+    FROM DIM_DATEKJ
+  UNION ALL*/
+  SELECT b.DIM_CALIBER_S as CALIBER,
+          substr(to_char(to_date('${time}','YYYYMMDD'), 'yyyyMMdd'), 1, 4) || 'M' ||
+            substr(b.DIM_CALIBER_S, 1, 2)
+           as Statistical_time,
+         
+         case when substr(b.DIM_CALIBER_S,2,1)='季' then cast (substr(b.DIM_CALIBER_S,1,1) as number)+1 
+           when substr(b.DIM_CALIBER_S,3,1)='月' then cast (substr(b.DIM_CALIBER_S,1,2) as number)+1 
+           when substr(b.DIM_CALIBER_S,3,1)='周' then cast (substr(b.DIM_CALIBER_S,2,1) as number)+1 
+         end ordernum
+    FROM DIM_DATEKJ a
+    LEFT JOIN DIM_DATEMX b
+      ON a.CALIBER = b.DIM_CALIBER) --整理时间维度
+ ,W1 AS (
+SELECT 
+ACC.PERIOD_TYPE_ID,
+sum(TARGET_VALUE ) as TARGET_VALUE ,
+round(sum(ACTUAL_VALUE), 1)  as  ACTUAL_VALUE
+FROM  DM_MCL_ACCT ACC 
+
+WHERE  ACC.INDEX_ID ='487d7036834c4cf6947b7ceb45004dac' and acc.org_id='E0A3D386-D5C8-FB22-18DE-4424D49363B1'
+group by ACC.PERIOD_TYPE_ID
+)
+
+ SELECT 
+ T1.CALIBER,
+ T1.ORDERNUM,
+ T1.STATISTICAL_TIME,
+ nvl(W1.TARGET_VALUE,0) TARGET_VALUE ,
+ round(nvl( W1.ACTUAL_VALUE,0), 1) ACTUAL_VALUE,
+case when nvl(W1.TARGET_VALUE,0)=0 then 0 
+when nvl( W1.ACTUAL_VALUE,0)/ nvl(W1.TARGET_VALUE,0)<0.005
+then 0
+else nvl( W1.ACTUAL_VALUE,0)/ nvl(W1.TARGET_VALUE,0) end rate
+ FROM DIM_DATES T1
+ LEFT JOIN W1 ON T1.STATISTICAL_TIME = W1.PERIOD_TYPE_ID
+ order by ORDERNUM]]></Query>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<ServerPrinter/>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();
+//展开的最大节点级值  
+var t = 3;   
+for(var m = 1; m <= t; m++) {  
+    //循环执行“+”号展开  
+    $('.x-treenode-unexpand').trigger('click');  
+}
+
+
+$('.slimScrollBarY').css('width','15px'); //Y轴宽
+$('.slimScrollBarX').css('height','15px');//X轴高
+$('.slimScrollBarX').css('background','#000000');//X轴颜色
+$('.slimScrollBarX').css('opacity','0.65');//X轴透明度
+$('.slimScrollBarY').css('background','#000000');//Y轴颜色
+$('.slimScrollBarY').css('opacity','0.65');//Y轴透明度   ]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="export1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(value("hx_aut",2,1))=0,1,if(StringFind(value("hx_aut",2,1),"no")<>-1,0,if(StringFind(value("hx_aut",2,1),"jycwhk001")<>-1,1,0)))]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="export2"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(value("hx_aut",2,1))=0,1,if(StringFind(value("hx_aut",2,1),"no")<>-1,0,if(StringFind(value("hx_aut",2,1),"jycwhk003")<>-1,1,0)))]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="state1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$state]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="a1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=a1]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[//
+////回款详情
+if(export1==0&&state1==0){ 
+
+	$('.fr-btn-text-icon').parent().css('visibility','hidden');
+     $('.fr-btn-text-icon').parent().css("width",0);  
+      
+//回款预估
+}else if(export2==0&&state1==1){
+	
+	$('.fr-btn-text-icon').parent().css('visibility','hidden');
+     $('.fr-btn-text-icon').parent().css("width",0);  
+	
+	}
+
+//
+//var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//
+//	if(totalnumber==0){
+//	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(1).text("无数据").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		})
+//}
+//else {	
+//	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(1).text("共"+totalnumber+"条").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		});	
+//
+//}
+
+////展开的最大节点级值  
+//var t = 4;   
+//for(var m = 1; m <= t; m++) {  
+//    //循环执行“+”号展开  
+//    $('.x-treenode-unexpand').trigger('click');  
+//}  
+//
+//var totalnumber=$("tr[tridx=3]A","div.content-container").children().eq(0).text();
+////alert(totalnumber.length)
+//	if(totalnumber==0){
+//	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		})
+//}
+//else {	
+//	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		});	
+//
+//}
+//
+////获取A1单元格的值
+//
+//var totalnumber=a1
+//      //alert(totalnumber.length)
+//        if(totalnumber==0){
+//        $("div[id^='fr-btn-CustomToolBarButton']A :button").eq(1).text("无数据").css({
+//        "color":"rgb(191,0,0)",
+//        "font-weight":"800" 
+//          })
+//      }
+//      else {  
+//        $("div[id^='fr-btn-CustomToolBarButton']A :button").eq(1).text("共"+totalnumber+"条").css({
+//        "color":"rgb(191,0,0)",
+//        "font-weight":"800" 
+//          }); 
+//
+//      }
+//      //获取A1单元格的值]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="oracle_test" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="BASS_DW" name="JYGK_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("loguser",4,1)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="SYS_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$fr_username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("loguser",3,1)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="SUOSHUBUMEN" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("loguser",7,1)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="ZHIWU" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("loguser",9,1)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="BAOBIAOMOKUAI" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[事业部/区域关键指标]]></O>
+</ColumnConfig>
+<ColumnConfig name="FANGWENLUJING" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=reportName]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="FANGWENWENJIAN" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=RIGHT(reportName,INARRAY("/",REVERSEARRAY(SPLIT(reportName,"")))-1)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="WENJIANMINGCHENG" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[财务类-回款详情]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHUMING" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[org;yearmonth]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len($org)=0 ,"",$org+";")+
+if(len($yearmonth)=0 ,"",$yearmonth+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="CANSHUMINGYUCANSHU" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len($org)=0,"","org:"+$org)+"; "+
+if(len($yearmonth)=0,"","yearmonth:"+$yearmonth)+"; "]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DAOCHU" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[否]]></O>
+</ColumnConfig>
+<ColumnConfig name="SHIFOUDIANJILIANJIE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[否]]></O>
+</ColumnConfig>
+<ColumnConfig name="LIANJIECANSHUMING" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="LIANJIECANSHU" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="LIANJIEMINGYUCANSHU" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="DATA_DATE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=today()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="IP" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=GetIP()]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<Listener event="aftertoexcel">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[//excel导出后 事件在导出按钮自定义事件中]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="YEARMONTH1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$time]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="ORG1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$org]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="TIME1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$yearmonth]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="STATE1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$state]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var REPORT_URL = '/WebReport/ReportServer?reportlet=HX_CALIBER_ACHIEVEMENT%2FHX_CALIBER__SIGN_DEMO_HK.cpt&op=view&org=' + ORG1 + '&yearmonth='+ TIME1 +'&time=' + YEARMONTH1 + '&state='+ STATE1 + '&format=excel' + '&__filename__=回款详情';  
+window.location = (FR.cjkEncode(REPORT_URL));
+
+//参数赋值
+    var baobiaomokuai = "事业部/区域关键指标";
+    var fangwenlujing = "${reportName}";
+    
+    var fangwenwenjian = FR.remoteEvaluate('=INDEXOFARRAY(SPLIT(reportName,"/"),count(SPLIT(reportName,"/")))');
+    var wenjianmingcheng = "财务类-回款详情";
+    
+    var canshuming = "org;yearmonth"; //参数en
+    var canshu = FR.remoteEvaluate('=if(len($org)=0 ,"",$org+";")+if(len($yearmonth)=0 ,"",$yearmonth+";")'); //参数zh
+    var canshumingyucanshu = FR.remoteEvaluate('=if(len($org)=0,"","org:"+$org)+"; "+if(len($yearmonth)=0,"","yearmonth:"+$yearmonth)+"; "'); // 参数组合
+        
+    var shifoudianjilianjie = "否";
+    var lianjiecanshuming = "";
+    var lianjiecanshu = "";
+    var lianjiemingyucanshu = "";
+    var daochu="是";
+
+    FR.ajax({
+        url: "${servletURL}" + "?reportlet=HX_JurisdictionAndLog/loginsert.cpt&op=write&format=submit",
+        data: {
+            "baobiaomokuai": baobiaomokuai,
+            "fangwenlujing": fangwenlujing,
+            "fangwenwenjian": fangwenwenjian,
+            "wenjianmingcheng": wenjianmingcheng,
+            "canshuming": canshuming,
+            "canshu": canshu,
+            "canshumingyucanshu": canshumingyucanshu,
+            "shifoudianjilianjie": shifoudianjilianjie,
+            "lianjiecanshuming": lianjiecanshuming,
+            "lianjiecanshu": lianjiecanshu,
+            "lianjiemingyucanshu": lianjiemingyucanshu,
+            "daochu":daochu
+        }
+
+    }
+    );
+
+
+
+
+
+
+
+
+]]></Content>
+</JavaScript>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[null]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<WebWriteContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.Commit2DBJavaScript">
+<Parameters/>
+<Attributes dsName="oracle_test" name="提交1"/>
+<DMLConfig class="com.fr.write.config.IntelliDMLConfig">
+<Table schema="BASS_DW" name="JYGK_LOG_RECORD"/>
+<ColumnConfig name="ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=UUID()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME_ID" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("loguser",4,1)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="SYS_NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$fr_username]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="NAME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("loguser",3,1)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="SUOSHUBUMEN" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("loguser",7,1)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="ZHIWU" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=value("loguser",9,1)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="BAOBIAOMOKUAI" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[经营管控]]></O>
+</ColumnConfig>
+<ColumnConfig name="FANGWENLUJING" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=reportName]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="FANGWENWENJIAN" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=RIGHT(reportName,INARRAY("/",REVERSEARRAY(SPLIT(reportName,"")))-1)]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="WENJIANMINGCHENG" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[财务类-回款详情]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHUMING" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[org;yearmonth]]></O>
+</ColumnConfig>
+<ColumnConfig name="CANSHU" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len($org)=0 ,"",$org+";")+
+if(len($yearmonth)=0 ,"",$yearmonth+";")]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="CANSHUMINGYUCANSHU" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len($org)=0,"","org:"+$org)+"; "+
+if(len($yearmonth)=0,"","yearmonth:"+$yearmonth)+"; "]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="TIME" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=now()]]></Attributes>
+</O>
+</ColumnConfig>
+<ColumnConfig name="DAOCHU" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="SHIFOUDIANJILIANJIE" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="LIANJIECANSHUMING" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="LIANJIECANSHU" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="LIANJIEMINGYUCANSHU" isKey="false" skipUnmodified="false">
+<O>
+<![CDATA[]]></O>
+</ColumnConfig>
+<ColumnConfig name="DATA_DATE" isKey="false" skipUnmodified="false">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=today()]]></Attributes>
+</O>
+</ColumnConfig>
+<Condition class="com.fr.data.condition.ListCondition"/>
+</DMLConfig>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();
+//展开的最大节点级值  
+var t = 3;   
+for(var m = 1; m <= t; m++) {  
+    //循环执行“+”号展开  
+    $('.x-treenode-unexpand').trigger('click');  
+}]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="export1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(value("hx_aut",2,1))=0,1,if(StringFind(value("hx_aut",2,1),"no")<>-1,0,if(StringFind(value("hx_aut",2,1),"jycwhk001")<>-1,1,0)))]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="export2"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(value("hx_aut",2,1))=0,1,if(StringFind(value("hx_aut",2,1),"no")<>-1,0,if(StringFind(value("hx_aut",2,1),"jycwhk003")<>-1,1,0)))]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="state1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=state1]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="a1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=a1]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[//
+////回款详情
+//if(export1==0&&state1==0){ 
+//
+//	$('.fr-btn-text-icon').parent().css('visibility','hidden');
+//     $('.fr-btn-text-icon').parent().css("width",0);  
+//      
+////回款预估
+//}else if(export2==0&&state1==1){
+//	
+//	$('.fr-btn-text-icon').parent().css('visibility','hidden');
+//     $('.fr-btn-text-icon').parent().css("width",0);  
+//	
+//	}
+//
+//
+//var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//
+//	if(totalnumber==0){
+//	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(1).text("无数据").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		})
+//}
+//else {	
+//	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(1).text("共"+totalnumber+"条").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		});	
+//
+//}
+
+////展开的最大节点级值  
+//var t = 4;   
+//for(var m = 1; m <= t; m++) {  
+//    //循环执行“+”号展开  
+//    $('.x-treenode-unexpand').trigger('click');  
+//}  
+//
+//var totalnumber=$("tr[tridx=3]A","div.content-container").children().eq(0).text();
+////alert(totalnumber.length)
+//	if(totalnumber==0){
+//	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		})
+//}
+//else {	
+//	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+//	"color":"rgb(191,0,0)",
+//	"font-weight":"800"	
+//		});	
+//
+//}
+//
+////获取A1单元格的值
+
+var totalnumber=a1
+      //alert(totalnumber.length)
+        if(totalnumber==0){
+        $("div[id^='fr-btn-CustomToolBarButton']A :button").eq(1).text("无数据").css({
+        "color":"rgb(191,0,0)",
+        "font-weight":"800" 
+          })
+      }
+      else {  
+        $("div[id^='fr-btn-CustomToolBarButton']A :button").eq(1).text("共"+totalnumber+"条").css({
+        "color":"rgb(191,0,0)",
+        "font-weight":"800" 
+          }); 
+
+      }
+      //获取A1单元格的值]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[导出]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="YEARMONTH1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$time]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="ORG1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$org]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="TIME1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$yearmonth]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var REPORT_URL = '/WebReport/ReportServer?reportlet=ThreeLevelPage%2FOPE_FIN_SIGN_DEMO_HK_E.cpt&op=view&org=' + ORG1 + '&yearmonth='+ TIME1 +'&time=' + YEARMONTH1 + '&format=excel' + '&__filename__="回款"';  
+window.location = (FR.cjkEncode(REPORT_URL));  
+]]></Content>
+</JavaScript>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters>
+<Parameter>
+<Attributes name="YEARMONTH1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$time]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="ORG1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$org]]></Attributes>
+</O>
+</Parameter>
+<Parameter>
+<Attributes name="TIME1"/>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$yearmonth]]></Attributes>
+</O>
+</Parameter>
+</Parameters>
+<Content>
+<![CDATA[var REPORT_URL = '/WebReport/ReportServer?reportlet=ThreeLevelPage%2FOPE_FIN_SIGN_DEMO_HK_E.cpt&op=view&org=' + ORG1 + '&yearmonth='+ TIME1 +'&time=' + YEARMONTH1 + '&format=excel' + '&__filename__="回款"';  
+window.location = (FR.cjkEncode(REPORT_URL));  
+]]></Content>
+</JavaScript>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SelectedColor/>
+<WebWrite SheetPosition="3"/>
+<RptLocation isShowAtLeft="true"/>
+<UnloadCheck/>
+<ShowWidgets/>
+<OtherAttr isAutoStash="false"/>
+</WebWriteContent>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportWebAttr>
+<ReportExportAttr>
+<ExcelExportAttr hideColumn="false"/>
+<PDFExportAttr/>
+<HTMLExportAttr/>
+<WordExportAttr/>
+</ReportExportAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="回款明细">
+<ReportPageAttr>
+<HR F="0" T="1"/>
+<FR/>
+<HC/>
+<FC/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[1152000,1152000,864000,723900,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[576000,576000,1295400,8579520,2743200,2743200,3600000,3600000,3600000,2743200,3600000,3600000,3600000,2743200,3600000,3600000,3600000,3600000,2743200,3600000,3600000,3600000,3600000,3600000,0,3600000,576000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(A3:A3)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="2" r="0">
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="3" r="0" rs="2" s="0">
+<O>
+<![CDATA[指标]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="0">
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="5" r="0" rs="2" s="0">
+<O>
+<![CDATA[单位]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="0" cs="5" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=year($yearmonth + "-01") + "年"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="11" r="0" cs="5" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(month($yearmonth + "-01") = 1 || month($yearmonth + "-01") = 2 || month($yearmonth + "-01") = 3, "一季度", if(month($yearmonth + "-01") = 4 || month($yearmonth + "-01") = 5 || month($yearmonth + "-01") = 6, "二季度", if(month($yearmonth + "-01") = 7 || month($yearmonth + "-01") = 8 || month($yearmonth + "-01") = 9, "三季度", "四季度")))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="16" r="0" cs="5" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=month($yearmonth + "-01") + "月"]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="21" r="0" cs="5" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(month($yearmonth + "-01") = 1 || month($yearmonth + "-01") = 2 || month($yearmonth + "-01") = 3, "一季度业绩预估", if(month($yearmonth + "-01") = 4 || month($yearmonth + "-01") = 5 || month($yearmonth + "-01") = 6, "二季度业绩预估", if(month($yearmonth + "-01") = 7 || month($yearmonth + "-01") = 8 || month($yearmonth + "-01") = 9, "三季度业绩预估", "四季度业绩预估")))]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org = "HX"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$state = 0]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org <> "HX"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$state = 0]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="26" r="0">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" s="0">
+<O>
+<![CDATA[目标]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="7" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF($org = "HX", "实际", "累计完成")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1">
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="10" r="1" s="0">
+<O>
+<![CDATA[同比]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org = "HX"]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="11" r="1" s="0">
+<O>
+<![CDATA[目标]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="12" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF($org = "HX", "实际", "累计完成")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="13" r="1">
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="14" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="15" r="1" s="0">
+<O>
+<![CDATA[同比]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org = "HX"]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="16" r="1" s="0">
+<O>
+<![CDATA[目标]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="17" r="1" s="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF($org = "HX", "实际", "累计完成")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="18" r="1">
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="19" r="1" s="0">
+<O>
+<![CDATA[完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="20" r="1" s="0">
+<O>
+<![CDATA[同比]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org = "HX"]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="21" r="1" s="0">
+<O>
+<![CDATA[预估完成]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="22" r="1" s="0">
+<O>
+<![CDATA[预估完成率]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="23" r="1" s="0">
+<O>
+<![CDATA[差异]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="1" s="0">
+<O>
+<![CDATA[同比增长]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="25" r="1" s="0">
+<O>
+<![CDATA[差异原因]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="0" r="2">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(D3) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D3"/>
+</C>
+<C c="2" r="2">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="2" s="1">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="NAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[1]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[E3 = 1]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.FRFontHighlightAction">
+<Scope val="1"/>
+<FRFont name="微软雅黑" style="0" size="72"/>
+</HighlightAction>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-8355712"/>
+</HighlightAction>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[2]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[E3 = 2]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.FRFontHighlightAction">
+<FRFont name="微软雅黑" style="0" size="64"/>
+</HighlightAction>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-6710887"/>
+</HighlightAction>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.PaddingHighlightAction">
+<Padding left="14" right="0"/>
+</HighlightAction>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[3]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[E3 = 3]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.FRFontHighlightAction">
+<FRFont name="微软雅黑" style="0" size="64"/>
+</HighlightAction>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-3355444"/>
+</HighlightAction>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.PaddingHighlightAction">
+<Padding left="24" right="0"/>
+</HighlightAction>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[4]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[E3 = 4]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.FRFontHighlightAction">
+<FRFont name="微软雅黑" style="0" size="64"/>
+</HighlightAction>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-1644826"/>
+</HighlightAction>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.PaddingHighlightAction">
+<Padding left="34" right="0"/>
+</HighlightAction>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[5]]></Name>
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[E3 = 5]]></Formula>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.FRFontHighlightAction">
+<FRFont name="微软雅黑" style="0" size="64"/>
+</HighlightAction>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.BackgroundHighlightAction">
+<Scope val="1"/>
+<Background name="ColorBackground" color="-1644826"/>
+</HighlightAction>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.PaddingHighlightAction">
+<Padding left="44" right="0"/>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand dir="0"/>
+</C>
+<C c="4" r="2">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="LEVELID"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="2" s="2">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="UNIT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="TARGET_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="7" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="ACTUAL_YEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org="HX"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[D3="其他业务回款"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org="HXWY"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[D3="其他业务回款"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(VALUE("ds1",5))]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="8" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(OR(G3 = 0, LEN(G3) = 0), 0, round(H3 / G3 * 100, 2) + "%")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="9" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="ACTUAL_LYEAR"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="10" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(OR(J3 = 0, LEN(J3) = 0), 0, round((H3 - J3) / J3 * 100, 2) + "%")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="11" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="TARGET_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="12" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="ACTUAL_QUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org="HX"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[D3="其他业务回款"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org="HXWY"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[D3="其他业务回款"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(month($yearmonth + "-01") = 1 || month($yearmonth + "-01") = 2 || month($yearmonth + "-01") = 3,sum(VALUE("ds1",5,"CALIBER","1季度")), if(month($yearmonth + "-01") = 4 || month($yearmonth + "-01") = 5 || month($yearmonth + "-01") = 6, sum(VALUE("ds1",5,"CALIBER","2季度")), if(month($yearmonth + "-01") = 7 || month($yearmonth + "-01") = 8 || month($yearmonth + "-01") = 9, sum(VALUE("ds1",5,"CALIBER","3季度")), sum(VALUE("ds1",5,"CALIBER","4季度")))))]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="13" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="ACTUAL_LQUARTER"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="14" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(OR(L3 = 0, LEN(L3) = 0), 0, round(M3 / L3 * 100, 2) + "%")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="15" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(OR(N3 = 0, LEN(N3) = 0), 0, round((M3 - N3) / N3 * 100, 2) + "%")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="16" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="TARGET_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="17" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="ACTUAL_MONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性2]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org="HX"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[D3="其他业务回款"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$org="HXWY"]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[D3="其他业务回款"]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(VALUE("ds2",5,"ORDERNUM",month($yearmonth + "-01")))]]></Attributes>
+</O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="18" r="2" s="4">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="ACTUAL_LMONTH"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="19" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(OR(Q3 = 0, LEN(Q3) = 0), 0, round(R3 / Q3 * 100, 2) + "%")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="20" r="2" s="4">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=IF(OR(S3 = 0, LEN(S3) = 0), 0, round((R3 - S3) / S3 * 100, 2) + "%")]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="21" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="ACTUAL_YG"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="22" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="RATE_YG"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="23" r="2" s="3">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="ACTUAL_YGCY"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="24" r="2" s="5">
+<O t="DSColumn">
+<Attributes dsName="SHUJU" columnName="RATE_TB"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.SummaryGrouper">
+<FN>
+<![CDATA[com.fr.data.util.function.SumFunction]]></FN>
+</RG>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition">
+<JoinCondition join="0">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = isnull]]></Formula>
+</Condition>
+</JoinCondition>
+<JoinCondition join="1">
+<Condition class="com.fr.data.condition.FormulaCondition">
+<Formula>
+<![CDATA[$$$ = 0.00]]></Formula>
+</Condition>
+</JoinCondition>
+</Condition>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ValueHighlightAction">
+<O>
+<![CDATA[-]]></O>
+</HighlightAction>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="25" r="2" s="4">
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="24" r="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$state]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.RowHeightHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<FrozenColumnRow columnrow="A3"/>
+<PaperSetting/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0" useParamsTemplate="false"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1380618"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.FreeButton">
+<WidgetName name="button0_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<initial>
+<Background name="ColorBackground" color="-4670"/>
+</initial>
+<over>
+<Background name="ColorBackground" color="-1315889"/>
+</over>
+<click>
+<Background name="ColorBackground" color="-1315889"/>
+</click>
+<FRFont name="SimSun" style="0" size="72"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="206" y="0" width="930" height="17"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.FreeButton">
+<WidgetName name="button0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[注：导出数据涵盖所有组织的明细数据]]></Text>
+<initial>
+<Background name="ColorBackground" color="-4670"/>
+</initial>
+<over>
+<Background name="ColorBackground" color="-1315889"/>
+</over>
+<click>
+<Background name="ColorBackground" color="-1315889"/>
+</click>
+<FRFont name="SimSun" style="0" size="56" foreground="-10066330"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="0" y="0" width="206" height="17"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
+<Listener event="afterinit">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var wiget= this.options.form.getWidgetByName("org");
+var deptcode=wiget.getValue();
+var sql=" select case when FATHER_ID='E0A3D386-D5C8-FB22-18DE-4424D49363B1' then '华夏幸福' else org_name  end org_name  from dim_org where org_code ='"+deptcode+"'";
+var  deptname=FR.remoteEvaluate('sql("oracle_test","'+sql+'",1,1)');
+
+wiget.setText(deptname) ;
+]]></Content>
+</JavaScript>
+</Listener>
+<WidgetName name="org"/>
+<LabelName name="组织："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr async="false" selectLeafOnly="false"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="false"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ORG_CODE" viName="ORG_NAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[ORG_TREE]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[HX]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="60" y="38" width="170" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label3"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[日期：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="240" y="38" width="42" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="time"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=REPLACE($yearmonth,'-','')]]></Attributes>
+</O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="SimSun" style="0" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="381" y="84" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="formSubmit0"/>
+<LabelName name="日期："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+<initial>
+<Background name="ColorBackground" color="-6877671"/>
+</initial>
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<isCustomType isCustomType="true"/>
+</InnerWidget>
+<BoundsAttr x="422" y="38" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.DateEditor">
+<WidgetName name="yearmonth"/>
+<LabelName name="日期："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<DateAttr/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=TODAY()-1]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="282" y="38" width="124" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label1"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[组织：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="38" width="40" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[回款]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="2" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="96" foreground="-6877671"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="20" y="15" width="111" height="25"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="button0"/>
+<Widget widgetName="button0_c"/>
+<Widget widgetName="org"/>
+<Widget widgetName="yearmonth"/>
+<Widget widgetName="formSubmit0"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<UseParamsTemplate use="false"/>
+<Position position="0"/>
+<Design_Width design_width="800"/>
+<NameTagModified>
+<TagModified tag="dateEditor0" modified="true"/>
+</NameTagModified>
+<WidgetNameTagMap>
+<NameTag name="formSubmit0" tag="日期："/>
+<NameTag name="org" tag="组织："/>
+<NameTag name="yearmonth" tag="日期："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="800" height="60"/>
+</ParameterUI>
+<Background name="ColorBackground" color="-1380618"/>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="微软雅黑" style="1" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6877671"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="72"/>
+<Background name="ColorBackground" color="-8355712"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#,##0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<Format class="com.fr.base.CoreDecimalFormat">
+<![CDATA[#0.00%]]></Format>
+<FRFont name="微软雅黑" style="0" size="64"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="f5e32b96-befa-4406-af61-046bc9d33f82"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="93be6476-1f97-4fe5-931c-7084a25a3409"/>
+</TemplateIdAttMark>
+</WorkBook>

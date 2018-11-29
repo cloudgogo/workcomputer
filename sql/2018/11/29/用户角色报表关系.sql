@@ -1,0 +1,84 @@
+
+with 
+-- 取得用户角色关系
+user_role as
+ (select u."id"       id,
+         u."username" username,
+         u."password" password,
+         u."realname" realname,
+         c."id"       roleid,
+         c."rolename" rolename
+    from FR_T_USER u, "FR_T_CustomRole_User" uc, FR_T_CUSTOMROLE c
+   where u."id" = uc."Userid"
+     and uc."CustomRoleid" = c."id"),
+-- 将用户角色数据打横
+listroletable as (
+select distinct id,
+       username,
+       password,
+       realname,
+       listagg(roleid, ',') within group(order by roleid) over(partition by id) roleid,
+       listagg(rolename, ',') within group(order by roleid) over(partition by id) rolename
+  from user_role
+  order by id
+)
+
+,
+--目录树结构
+menu_tree as
+(select pa,
+       regexp_substr(pa,'[^,]+',1,1) parent,
+			 regexp_substr(pa,'[^,]+',1,regexp_count(pa,',')) son 
+	from 
+(select SYS_CONNECT_BY_PATH(t."id",',') pa       
+  from FR_FOLDERENTRY t
+	connect by prior  t."id" = t."parent"
+	)
+),
+
+-- 目录树下的所有子节点
+
+menu_relation as (
+select t.*,
+       r."id"            reportid,
+       r."name"          reportname,
+       r."reportletPath" reportletPath,
+       f."name"          name
+  from menu_tree t, FR_REPORTLETENTRY r, FR_FOLDERENTRY f
+ where t.son = r."parent"
+   and t.parent = f."id"
+   and f."parent" = -1
+),
+-- 角色对应的报表权限
+role_entry as (
+select c."roleid" roleid, c."entryid" entryid  from FR_T_CUREP c where c."view"=1
+),
+-- 将角色对应的报表权限转换为用户对应的报表权限
+user_role_entry as (
+select ur.id userid,r.entryid from role_entry r, user_role ur
+where r.roleid=ur.roleid
+
+)
+
+
+,
+
+-- 用户对应的报表权限
+user_entry as (
+select u."userid" userid,u."entryid" entryid from FR_T_UEP u
+)
+
+,
+
+-- 用户对应的所有报表权限
+
+all_user_entry as  (
+select userid,entryid from  user_role_entry
+union 
+select userid,entryid from user_entry
+)
+
+
+select dim.*,case when e.userid is not null then 'Y' ELSE NULL END licen from  (
+select * from listroletable r left join menu_relation on 1=1  ) dim left join all_user_entry e
+on e.userid=dim.id and dim.reportid=e.entryid

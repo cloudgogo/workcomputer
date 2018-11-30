@@ -1,6 +1,4 @@
 
-
---oracle 
 with
 -- 取得用户角色关系
 user_role as

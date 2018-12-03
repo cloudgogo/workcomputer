@@ -1,0 +1,546 @@
+<div class="blog-content-box">
+	<div class="article-header-box">
+		<div class="article-header">
+			<div class="article-title-box">
+				<span class="article-type type-2 float-left">转</span>				<h1 class="title-article">线上应用故障排查之一：高CPU占用</h1>
+			</div>
+			<div class="article-info-box">
+				<div class="article-bar-top">
+																				<span class="time">2017年04月06日 11:25:56</span>
+					<a class="follow-nickName" href="https://me.csdn.net/a925907195" target="_blank">a925907195</a>
+						<span class="read-count">阅读数：5293</span>
+										</div>
+				<div class="operating">
+														</div>
+			</div>
+		</div>
+	</div>
+	<article class="baidu_pl">
+		<div id="article_content" class="article_content clearfix csdn-tracking-statistics" data-pid="blog" data-mod="popu_307" data-dsm="post">
+								            <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/ck_htmledit_views-2c6a5211c9.css">
+						<div class="htmledit_views" id="content_views">
+                
+<p style="color:rgb(68,68,68);font-family:tahoma, arial, sans-serif;line-height:1.5 !important;">
+来源地址：</p>
+<p style="color:rgb(68,68,68);font-family:tahoma, arial, sans-serif;line-height:1.5 !important;">
+http://www.blogjava.net/hankchen/archive/2012/08/09/377735.html</p>
+<p style="color:rgb(68,68,68);font-family:tahoma, arial, sans-serif;line-height:1.5 !important;">
+原文内容：</p>
+<div class="postTitle" style="font-size:1.5em;font-weight:bold;clear:both;text-align:center;color:rgb(68,68,68);font-family:tahoma, arial, sans-serif;line-height:1.5 !important;">
+<a id="viewpost1_TitleUrl" href="http://www.blogjava.net/hankchen/archive/2012/05/09/377735.html" rel="nofollow" style="color:rgb(46,177,232);font-size:1.5em;line-height:1.5em;" target="_blank">线上应用故障排查之一：高CPU占用</a></div>
+<div class="postText" style="color:rgb(68,68,68);font-family:tahoma, arial, sans-serif;line-height:1.5 !important;">
+<p style="line-height:1.5 !important;">
+一个应用占用CPU很高，除了确实是计算密集型应用之外，通常原因都是出现了死循环。</p>
+<p style="line-height:1.5 !important;">
+（友情提示：本博文章欢迎转载，但请注明出处：hankchen，<a href="http://www.blogjava.net/hankchen" rel="nofollow" style="color:rgb(68,68,68);" target="_blank"><span>http://www.blogjava.net/hankchen</span></a><span>）</span></p>
+<p style="line-height:1.5 !important;">
+以我们最近出现的一个实际故障为例，介绍怎么定位和解决这类问题。</p>
+<p style="line-height:1.5 !important;">
+<a href="http://www.blogjava.net/images/blogjava_net/hankchen/WindowsLiveWriter/CPU_121DA/clip_image002_2.jpg" rel="nofollow" style="color:rgb(68,68,68);" target="_blank"></a></p>
+<p style="line-height:1.5 !important;">
+根据top命令，发现PID为28555的Java进程占用CPU高达200%，出现故障。</p>
+<p style="line-height:1.5 !important;">
+通过ps aux | grep PID命令，可以进一步确定是tomcat进程出现了问题。但是，怎么定位到具体线程或者代码呢？</p>
+<p style="line-height:1.5 !important;">
+<span>首先显示线程列表:</span></p>
+<p style="line-height:1.5 !important;">
+<span style="color:rgb(255,0,0);">ps -mp pid -o THREAD,tid,time</span></p>
+<p style="line-height:1.5 !important;">
+<a href="http://www.blogjava.net/images/blogjava_net/hankchen/WindowsLiveWriter/CPU_121DA/1.png" rel="nofollow" style="color:rgb(68,68,68);" target="_blank"></a></p>
+<p style="line-height:1.5 !important;">
+找到了耗时最高的线程28802，占用CPU时间快两个小时了！</p>
+<p style="line-height:1.5 !important;">
+<span>其次将需要的线程ID转换为16进制格式：</span></p>
+<p style="line-height:1.5 !important;">
+<span style="color:rgb(255,0,0);">printf "%x\n" tid</span></p>
+<p style="line-height:1.5 !important;">
+<a href="http://www.blogjava.net/images/blogjava_net/hankchen/WindowsLiveWriter/CPU_121DA/2.png" rel="nofollow" style="color:rgb(68,68,68);" target="_blank"></a></p>
+<p style="line-height:1.5 !important;">
+<span>最后打印线程的堆栈信息：</span></p>
+<p style="line-height:1.5 !important;">
+<span style="color:rgb(255,0,0);">jstack pid |grep tid -A 30</span></p>
+<p style="line-height:1.5 !important;">
+<a href="http://www.blogjava.net/images/blogjava_net/hankchen/WindowsLiveWriter/CPU_121DA/3.png" rel="nofollow" style="color:rgb(68,68,68);" target="_blank"></a></p>
+<p style="line-height:1.5 !important;">
+找到出现问题的代码了！</p>
+<p style="line-height:1.5 !important;">
+现在来分析下具体的代码：ShortSocketIO.readBytes(ShortSocketIO.java:106)</p>
+<p style="line-height:1.5 !important;">
+ShortSocketIO是应用封装的一个用短连接Socket通信的工具类。readBytes函数的代码如下：</p>
+<p style="line-height:1.5 !important;">
+public byte[] readBytes(int length) throws IOException {</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp; if ((this.socket == null) || (!this.socket.isConnected())) {</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new IOException("++++ attempting to read from closed socket");</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp; }</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp; byte[] result = null;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp; ByteArrayOutputStream bos = new ByteArrayOutputStream();</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp; if (this.recIndex &gt;= length) {</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bos.write(this.recBuf, 0, length);</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; byte[] newBuf = new byte[this.recBufSize];</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.recIndex &gt; length) {</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.arraycopy(this.recBuf, length, newBuf, 0, this.recIndex - length);</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.recBuf = newBuf;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.recIndex -= length;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp; } else {</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int totalread = length;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (this.recIndex &gt; 0) {</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; totalread -= this.recIndex;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bos.write(this.recBuf, 0, this.recIndex);</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.recBuf = new byte[this.recBufSize];</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.recIndex = 0;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp; }</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp; int readCount = 0;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:rgb(255,0,0);">while (totalread &gt; 0) {</span></p>
+<p style="line-height:1.5 !important;">
+<span style="color:rgb(255,0,0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ((readCount = this.in.read(this.recBuf)) &gt; 0) {</span></p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (totalread &gt; readCount) {</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bos.write(this.recBuf, 0, readCount);</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.recBuf = new byte[this.recBufSize];</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.recIndex = 0;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bos.write(this.recBuf, 0, totalread);</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; byte[] newBuf = new byte[this.recBufSize];</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.arraycopy(this.recBuf, totalread, newBuf, 0, readCount - totalread);</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.recBuf = newBuf;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.recIndex = (readCount - totalread);</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; totalread -= readCount;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp; }</p>
+<p style="line-height:1.5 !important;">
+}</p>
+<p style="line-height:1.5 !important;">
+问题就出在标红的代码部分。如果this.in.read()返回的数据小于等于0时，循环就一直进行下去了。而这种情况在网络拥塞的时候是可能发生的。</p>
+<p style="line-height:1.5 !important;">
+至于具体怎么修改就看业务逻辑应该怎么对待这种特殊情况了。</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+<span>最后，总结下排查CPU故障的方法和技巧有哪些：</span></p>
+<p style="line-height:1.5 !important;">
+1、top命令：Linux命令。可以查看实时的CPU使用情况。也可以查看最近一段时间的CPU使用情况。</p>
+<p style="line-height:1.5 !important;">
+2、PS命令：Linux命令。强大的进程状态监控命令。可以查看进程以及进程中线程的当前CPU使用情况。属于当前状态的采样数据。</p>
+<p style="line-height:1.5 !important;">
+<span style="color:rgb(255,0,0);">3、jstack：Java提供的命令。可以查看某个进程的当前线程栈运行情况。根据这个命令的输出可以定位某个进程的所有线程的当前运行状态、运行代码，以及是否死锁等等。</span></p>
+<p style="line-height:1.5 !important;">
+4、pstack：Linux命令。可以查看某个进程的当前线程栈运行情况。</p>
+<p style="line-height:1.5 !important;">
+（友情提示：本博文章欢迎转载，但请注明出处：hankchen，<a href="http://www.blogjava.net/hankchen" rel="nofollow" style="color:rgb(68,68,68);" target="_blank"><span>http://www.blogjava.net/hankchen</span></a><span>）</span></p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+<span>http://binma85.iteye.com/blog/778986</span></p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+<span><span>开门见山，本文将简述如何使用java thread dump来分析CPU高使用率以及线程死锁问题。&nbsp;</span><br><span>一般java thread dump用于web开发中分析web容器或是应用服务器的性能问题还是比较常用并有效的。常用的入门级web容器Tomcat，以及高级别的jboss、websphere、weblogic等的性能调优问题都可以使用java thread dump来分析。&nbsp;</span><br><span>首先，阐述一下thread dump常用来解决的是何种问题&nbsp;</span><br><span>（1）高CPU使用&nbsp;</span><br><span>（2）线程死锁&nbsp;</span><br><span>其次，使用步骤[以JBOSS为例]&nbsp;</span><br><span>1..get thread dump log&nbsp;</span><br><span>（1）找到应用程序所在的进程号，命令如下&nbsp;</span><br></span></p>
+<div class="dp-highlighter" style="font-family:Consolas, 'Courier New', Courier, mono, serif;overflow:auto;line-height:1.5 !important;">
+<ol class="dp-j" start="1" style="border:none;color:rgb(92,92,92);"><li style="list-style-type:decimal;border-top:none;border-right:none;border-bottom:none;border-left:3px solid rgb(108,226,108);background-color:rgb(248,248,248);line-height:1.6;list-style-position:outside !important;">
+<span style="border:none;color:rgb(0,0,0);background-color:inherit;">ps&nbsp;aux&nbsp;|grep&nbsp;<span class="string" style="border:none;color:#0000FF;background-color:inherit;">'jboss'</span>&nbsp;|&nbsp;grep&nbsp;<span class="string" style="border:none;color:#0000FF;background-color:inherit;">'java'</span>&nbsp;&nbsp;</span></li></ol></div>
+<p style="line-height:1.5 !important;">
+<span><span>、&nbsp;</span><br><span>获取需要的PID&nbsp;</span><br><span>（2）执行sudo kill -3 PID获取thread dump log（PID是第一步获取）。&nbsp;</span><br><span>注意：在不同的linux环境下执行输出的日志的地方可能不同。在IBM的PowerPC小型机上的linux上执行kill -3 pid会在工作目录下产生类似javacore.20100409.161739.7614.0001.txt的文件。JBOSS默认环境下，thread dump log输出到jboss console，所以thread dump信息会输出到个人定义的控制台打印log中。&nbsp;</span><br><span>部分示例如下所以：&nbsp;</span><br></span></p>
+<div class="quote_title" style="line-height:1.5 !important;">
+引用</div>
+<div class="quote_div" style="line-height:1.5 !important;">
+<br>
+2010-10-08 20:27:42&nbsp;<br>
+Full thread dump Java HotSpot(TM) Server VM (16.3-b01 mixed mode):&nbsp;<br><br>
+"http-182.50.0.138-8084-6" daemon prio=10 tid=0x08ce5000 nid=0x6a4c in Object.wait() [0x87b5c000]&nbsp;<br>
+&nbsp;&nbsp; java.lang.Thread.State: WAITING (on object monitor)&nbsp;<br>
+at java.lang.Object.wait(Native Method)&nbsp;<br>
+- waiting on &lt;0x95eb81b0&gt; (a org.apache.tomcat.util.net.JIoEndpoint$Worker)&nbsp;<br>
+at java.lang.Object.wait(Object.java:485)&nbsp;<br>
+at org.apache.tomcat.util.net.JIoEndpoint$Worker.await(JIoEndpoint.java:415)&nbsp;<br>
+- locked &lt;0x95eb81b0&gt; (a org.apache.tomcat.util.net.JIoEndpoint$Worker)&nbsp;<br>
+at org.apache.tomcat.util.net.JIoEndpoint$Worker.run(JIoEndpoint.java:441)&nbsp;<br>
+at java.lang.Thread.run(Thread.java:619)&nbsp;<br><br>
+"http-182.50.0.138-8084-5" daemon prio=10 tid=0x08c2e000 nid=0x6a4b in Object.wait() [0x87bad000]&nbsp;<br>
+&nbsp;&nbsp; java.lang.Thread.State: WAITING (on object monitor)&nbsp;<br>
+at java.lang.Object.wait(Native Method)&nbsp;<br>
+- waiting on &lt;0x95ed0600&gt; (a org.apache.tomcat.util.net.JIoEndpoint$Worker)&nbsp;<br>
+at java.lang.Object.wait(Object.java:485)&nbsp;<br>
+at org.apache.tomcat.util.net.JIoEndpoint$Worker.await(JIoEndpoint.java:415)&nbsp;<br>
+- locked &lt;0x95ed0600&gt; (a org.apache.tomcat.util.net.JIoEndpoint$Worker)&nbsp;<br>
+at org.apache.tomcat.util.net.JIoEndpoint$Worker.run(JIoEndpoint.java:441)&nbsp;<br>
+at java.lang.Thread.run(Thread.java:619)&nbsp;<br><br>
+"ajp-127.0.0.1-8009-Acceptor-0" daemon prio=10 tid=0x894de800 nid=0x6a45 runnable [0x881f3000]&nbsp;<br>
+&nbsp;&nbsp; java.lang.Thread.State: RUNNABLE&nbsp;<br>
+at java.net.PlainSocketImpl.socketAccept(Native Method)&nbsp;<br>
+at java.net.PlainSocketImpl.accept(PlainSocketImpl.java:390)&nbsp;<br>
+- locked &lt;0x949c1288&gt; (a java.net.SocksSocketImpl)&nbsp;<br>
+at java.net.ServerSocket.implAccept(ServerSocket.java:453)&nbsp;<br>
+at java.net.ServerSocket.accept(ServerSocket.java:421)&nbsp;<br>
+at org.apache.tomcat.util.net.DefaultServerSocketFactory.acceptSocket(DefaultServerSocketFactory.java:61)<br>
+at org.apache.tomcat.util.net.JIoEndpoint$Acceptor.run(JIoEndpoint.java:309)&nbsp;<br>
+at java.lang.Thread.run(Thread.java:619)&nbsp;<br><br>
+DefaultQuartzScheduler_QuartzSchedulerThread" prio=10 tid=0x8a460800 nid=0x6a38 sleeping[0x88818000]&nbsp;<br>
+&nbsp;&nbsp; java.lang.Thread.State: TIMED_WAITING (sleeping)&nbsp;<br>
+at java.lang.Thread.sleep(Native Method)&nbsp;<br>
+at org.quartz.core.QuartzSchedulerThread.run(QuartzSchedulerThread.java:394)&nbsp;</div>
+<p style="line-height:1.5 !important;">
+<span><br><br><span>（3）获取线程信息&nbsp;</span><br><span>使用上面的ps或者使用top命令也可以。获取的线程信息如下所示：&nbsp;</span><br></span></p>
+<div class="quote_title" style="line-height:1.5 !important;">
+引用</div>
+<div class="quote_div" style="line-height:1.5 !important;">
+<br>
+27143 root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20&nbsp;&nbsp; 0&nbsp; 780m 376m&nbsp; 11m S&nbsp;&nbsp; 17 11.5&nbsp;&nbsp; 2:56.48 java&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+4839 root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20&nbsp;&nbsp; 0&nbsp; 778m 162m&nbsp; 11m S&nbsp;&nbsp; 10&nbsp; 5.0&nbsp;&nbsp; 1717:03 java&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+5049 root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20&nbsp;&nbsp; 0&nbsp; 764m 147m&nbsp; 11m S&nbsp;&nbsp;&nbsp; 4&nbsp; 4.5&nbsp;&nbsp; 1744:06 java&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp; 1 root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20&nbsp;&nbsp; 0&nbsp; 2100&nbsp; 720&nbsp; 624 S&nbsp;&nbsp;&nbsp; 0&nbsp; 0.0&nbsp;&nbsp; 0:28.08 init&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp; 2 root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 15&nbsp; -5&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp; 0 S&nbsp;&nbsp;&nbsp; 0&nbsp; 0.0&nbsp;&nbsp; 0:00.00 kthreadd&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp; 3 root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RT&nbsp; -5&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp; 0 S&nbsp;&nbsp;&nbsp; 0&nbsp; 0.0&nbsp;&nbsp; 0:00.44 migration/0&nbsp;&nbsp;&nbsp;</div>
+<p style="line-height:1.5 !important;">
+<span><br><span>第一列是十进制PID，需要转化为16进制后才能和thread dump信息对应。&nbsp;</span><br><span>2.分析thread dump信息[不在列举示例，只讲思想]&nbsp;</span><br><span>（1）分析高CPU使用线程的thread dump信息，查找那些代码导致高CPU使用。&nbsp;</span><br><span>（2）线程死锁&nbsp;</span><br><span>&nbsp;&nbsp;&nbsp; a.为了发现线程动态变化，需要多次做thread dump，每次间隔10-30s为佳.&nbsp;</span><br><span>&nbsp;&nbsp;&nbsp; b.线程状态用 runnable（正在运行）、waiting for monitor（主动等待）、waiting for monitor entry（死锁）。所以我们最多的是关注runnable和entry类型的线程。&nbsp;</span><br><span>一种典型的死锁是在server端多个应用同时使用同一个jboss资源，这时候需要将多个应用分不到不用的队列中。</span></span></p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+<span><span><a href="http://javag.iteye.com/blog/718243" rel="nofollow" style="color:rgb(68,68,68);" target="_blank">http://javag.iteye.com/blog/718243</a></span></span></p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+参考文献：</p>
+<p style="line-height:1.5 !important;">
+http://www.51testing.com/?uid-188107-action-viewspace-itemid-226468</p>
+<p style="line-height:1.5 !important;">
+1.分析内存的工具</p>
+<p style="line-height:1.5 !important;">
+Eclipse Memory Analyzer Tool(俗称MAT),下载地址为:&nbsp;<a href="http://www.eclipse.org/mat/" rel="nofollow" style="color:rgb(68,68,68);" target="_blank">http://www.eclipse.org/mat/</a></p>
+<p style="line-height:1.5 !important;">
+<a href="http://www.blogjava.net/rosen/archive/2010/05/21/321575.html" rel="nofollow" style="color:rgb(68,68,68);" target="_blank">使用Memory Analyzer tool(MAT)分析内存泄漏（一）</a></p>
+<p style="line-height:1.5 !important;">
+<a href="http://www.blogjava.net/rosen/archive/2010/06/13/323522.html" rel="nofollow" style="color:rgb(68,68,68);" target="_blank">使用Memory Analyzer tool(MAT)分析内存泄漏（二）</a>&nbsp; &nbsp; 使用前需要在linux上通过jmap -dump:format=b,file={$filename} ${pid}方式将heap的内存快照文件给dump出来，然后就可以通过上面的MAT进行分析了。注意dump出来的文件名要以bin作为后缀名不然可能识别不了哦.</p>
+<p style="line-height:1.5 !important;">
+例如: jmap -dump:format=b,file=a.bin 2298</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+2.线程状态分析</p>
+<p style="line-height:1.5 !important;">
+"exec-613" Id=713 in BLOCKED on lock=com.ss.nio.ClientFactory@2262ce5f owned by tomcatThreadPool-exec-553 Id=623</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+"exec-553" Id=623 in TIMED_WAITING on lock=com.ss.nio.AbstractRequest@35ce75e&nbsp;at java.lang.Object.wait(Native Method)</p>
+<p style="line-height:1.5 !important;">
+"NioProcessor-1" Id=700 in RUNNABLE (running in native) at sun.nio.ch.EPollArrayWrapper.epollWait(Native Method) at sun.nio.ch.EPollArrayWrapper.poll(EPollArrayWrapper.java:215) at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:65) at sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:69)
+ at sun.nio.ch.SelectorImpl.select(SelectorImpl.java:80)</p>
+<p style="line-height:1.5 !important;">
+"RMI TCP Connection(8)-172.25.3.81" Id=698 in RUNNABLE at sun.management.ThreadImpl.getThreadInfo0(Native Method) at sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:145) at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+ at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25) at java.lang.reflect.Method.invoke(Method.java:597)</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+RUNNABLE(正在运行的,消耗cpu)&nbsp; TIMED_WAITING(等待被分配到cpu运行的,现在不消耗cpu)&nbsp;BLOCKED(被阻塞,在阻塞解除前不能被分配cpu执行,现在不消耗cpu)</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+exec-613占用了锁,exec-553需要的锁被exec-613占用无法执行处于blocked状态.</p>
+<p style="line-height:1.5 !important;">
+NioProcessor-1正在运行,并且他的方法在调用native方法.</p>
+<p style="line-height:1.5 !important;">
+RMI TCP Connection(8)-172.25.3.81正在运行.</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+(一) jinfo　　 jinfo打印一个给定的Java进程或核心文件或一个远程调试服务器的Java配置信息。配置信息包括Java系统属性和JVM命令行标志(更多信息，请参考《jinfo-Configuration Info》)。　　 (二) jmap　　 jmap：如果这个工具不使用任何选项（除了pid或core选项）运行，那么它显示类似于Solaris的pmap工具所输出的信息。这个工具支持针对Java堆可观察性的若干其它选项。　　 在Java SE 6平台中,新加入了一个-dump选项。这样可以使jmap能够把Java堆信息复制到一个文件中，然后我们可以使用新的jhat命令（见下面一节）来分析它。　　
+ jmap -dump选项并不使用Solaris libproc来实现实时处理；而是，它运行当前正运行的JVM中的一小段代码，由此来实现堆复制。既然这种堆复制代码运行于JVM内部，那么其速度是比较快的。堆复制的效果大致相当于实现一次"完全的GC"（对整个堆的垃圾收集），再加上把该堆的内容写入到文件中。实现堆复制的另外一种可能的思路是使用 gcore来进行核心复制并且运行"jmap -dump"（这与以"离线"方式运行的核心复制形成对照）。　</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp; 可以输出某个java进程内存内对象的情况，甚至可以将VM 中的heap，以二进制输出成文本。</p>
+<pre></pre>
+<div class="table-box"><table border="0" style="border-collapse:collapse;border-spacing:0px;border:1px solid #C0C0C0;"><tbody><tr><td style="border:1px solid #C0C0C0;border-collapse:collapse;">
+[root@B1943 ~]# jmap -histo&nbsp;710 &gt;mem.txt(可使用文本对比工具对比出GC回收了哪些对象) 该文件中内容如： num&nbsp;#instances&nbsp;#bytes&nbsp;class name ---------------------------------------------- 4:&nbsp;&nbsp;1202692&nbsp;&nbsp;67350752&nbsp;java.io.ObjectStreamClass$WeakClassKey</td>
+</tr></tbody></table></div><pre></pre>
+<div class="table-box"><table border="0" style="border-collapse:collapse;border-spacing:0px;border:1px solid #C0C0C0;"><tbody><tr><td style="border:1px solid #C0C0C0;border-collapse:collapse;">
+[root@B1943 ~]#jmap -dump:format=b,file=mem.bin 710&nbsp;(将该进程heap输出到mem.bin文件中，使用二进制形式。该文件可供<span>其他</span>&nbsp;分析工具使用，如eclipse memory analyser) 注：jmap使用的时候jvm是处在假死状态的，只能在服务瘫痪的时候为了解决问题来使用，否则会造成服务中断</td>
+</tr></tbody></table></div><p style="line-height:1.5 !important;">
+　 (三) jstack　　 jstack等价于Solaris的pstack工具。jstack打印所有的Java线程的堆栈跟踪信息（可选地包括本机帧信息），请参考《jstack-堆栈跟踪》。关于锁和死锁的信息也可以被打印，请参考java.util.concurrent locks。　　 top 时 H显示线程情况 &nbsp; PID USER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PR&nbsp; NI&nbsp; VIRT&nbsp; RES&nbsp; SHR S %CPU %MEM&nbsp;&nbsp;&nbsp; TIME+&nbsp; COMMAND&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 29390 mqq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 15&nbsp;&nbsp; 0 1696m 1.3g 8784 S&nbsp; 100 16.3&nbsp;&nbsp; 1:46.19 java&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 29889 mqq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 16&nbsp;&nbsp; 0 1696m 1.3g 8784 S&nbsp;&nbsp;&nbsp; 6 16.3&nbsp;&nbsp; 1:23.26 java&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 29904 mqq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 15&nbsp;&nbsp; 0 1696m 1.3g 8784 S&nbsp;&nbsp;&nbsp; 2 16.3&nbsp;&nbsp; 0:14.87 java&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 29849 mqq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 15&nbsp;&nbsp; 0 1696m 1.3g 8784 S&nbsp;&nbsp;&nbsp; 1 16.3&nbsp;&nbsp; 0:14.68 java&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 29388 mqq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 16&nbsp;&nbsp; 0 1696m 1.3g 8784 S&nbsp;&nbsp;&nbsp; 1 16.3&nbsp;&nbsp; 0:12.55 java&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 29850 mqq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 15&nbsp;&nbsp; 0 1696m 1.3g 8784 S&nbsp;&nbsp;&nbsp; 1 16.3&nbsp;&nbsp; 0:15.26 java&nbsp;&nbsp; 其中线程29390转换为16进制为0x72ce,可以查出对应比较耗时线程在做什么 jstack 29364|grep
+ -A10 72ce "Thread-2" prio=10 tid=0x00002aab0b603c00 nid=0x72ce runnable [0x000000004133b000..0x000000004133baa0] &nbsp;&nbsp; java.lang.Thread.State: RUNNABLE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.nio.ch.EPollArrayWrapper.epollWait(Native Method) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.nio.ch.EPollArrayWrapper.poll(EPollArrayWrapper.java:215)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.nio.ch.EPollSelectorImpl.doSelect(EPollSelectorImpl.java:65) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.nio.ch.SelectorImpl.lockAndDoSelect(SelectorImpl.java:69) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - locked &lt;0x00002aaab2d972e8&gt; (a sun.nio.ch.Util$1) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - locked &lt;0x00002aaab2d972d0&gt; (a java.util.Collections$UnmodifiableSet)
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - locked &lt;0x00002aaab2283470&gt; (a sun.nio.ch.EPollSelectorImpl) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.nio.ch.SelectorImpl.select(SelectorImpl.java:80) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.nio.ch.SelectorImpl.select(SelectorImpl.java:84)<br>
+(四) jsadebugd　　 jsadebugd依附到一个Java进程或核心文件并且担当一个调试服务器的作用。远程客户，例如jstack、jmap和jinfo，都能够通过Java RMI依附到该服务器。　　 (五) jhat　　 jhat是一个Java堆复制浏览器。这个工具分析Java堆复制文件（例如，由上面的 "jmap -dump"所产生的）。Jhat启动一个允许堆中的对象在web浏览器中进行分析的web服务器。这个工具并不是想用于应用系统中而是用于"离线"分析。"jhat工具是平HIDDEN立的"，其意思是，它可以被用来观察在任何平台上所产生的堆复制。例如，我们有可能在Linux系统上使用jhat来观察一个在Solaris
+ OS上所产生的堆复制。<br>
+(六)jstat 查出gc情况</p>
+<pre>很强大的监视jvm内存工具，可用来查看堆内各个部分的使用量，以及加载类的数量。使用时，需指定java进程号。
+一般使用 -gcutil 查看gc情况。</pre>
+<pre></pre>
+<div class="table-box"><table border="0" style="border-collapse:collapse;border-spacing:0px;border:1px solid #C0C0C0;"><tbody><tr><td style="border:1px solid #C0C0C0;border-collapse:collapse;">
+[root@B1943 ~]# jstat -class 710（显示加载class的数量，及所占空间等信息） Loaded&nbsp; Bytes&nbsp; Unloaded&nbsp; Bytes&nbsp;&nbsp;&nbsp;&nbsp; Time&nbsp;&nbsp; &nbsp;11242 24450.0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 41&nbsp;&nbsp;&nbsp; 65.8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 30.25</td>
+</tr></tbody></table></div><pre>jstat -compiler pid:显示VM实时编译的数量等信息。</pre>
+<pre>jstat -gc pid:可以显示gc的信息，查看gc的次数及时间。其中最后五项，分别是young gc的次数，young gc的时间
+，full gc的次数，full gc的时间，gc的总时间。
+jstat -gccapacity pid:可以显示VM内存中三代（young,old,perm）对象的使用和占用大小，如：PGCMN显示的是
+最小perm的内存使用量，PGCMX显示的是perm的内存最大使用量，PGC是当前新生成的perm内存占用量，PC是当
+前perm内存占用量。</pre>
+<p style="line-height:1.5 !important;">
+语法结构如下：jstat [Options] vmid [interval] [count] &nbsp;&nbsp;&nbsp; Options — 选项，我们一般使用 -gcutil 查看gc情况 &nbsp;&nbsp;&nbsp; vmid&nbsp;&nbsp;&nbsp; — VM的进程号，即当前运行的java进程号 &nbsp;&nbsp;&nbsp; interval– 间隔时间，单位为秒或者毫秒 &nbsp;&nbsp;&nbsp; count&nbsp;&nbsp; — 打印次数，如果缺省则打印无数次 &nbsp; &nbsp;&nbsp;&nbsp; S0&nbsp; — Heap上的 Survivor space 0 区已使用空间的百分比 &nbsp;&nbsp;&nbsp; S1&nbsp; — Heap上的 Survivor space
+ 1 区已使用空间的百分比 &nbsp;&nbsp;&nbsp; E&nbsp;&nbsp; — Heap上的 Eden space 区已使用空间的百分比 &nbsp;&nbsp;&nbsp; O&nbsp;&nbsp; — Heap上的 Old space 区已使用空间的百分比 &nbsp;&nbsp;&nbsp; P&nbsp;&nbsp; — Perm space 区已使用空间的百分比 &nbsp;&nbsp;&nbsp; YGC — 从应用程序启动到采样时发生 Young GC 的次数 &nbsp;&nbsp;&nbsp; YGCT– 从应用程序启动到采样时 Young GC 所用的时间(单位秒) &nbsp;&nbsp;&nbsp; FGC — 从应用程序启动到采样时发生 Full GC 的次数 &nbsp;&nbsp;&nbsp; FGCT– 从应用程序启动到采样时
+ Full GC 所用的时间(单位秒) &nbsp;&nbsp;&nbsp; GCT — 从应用程序启动到采样时用于垃圾回收的总时间(单位秒)<br>
+&nbsp;&nbsp;&nbsp; 实例使用1：<br>
+[root@localhost bin]# jstat -gcutil 25444<br>
+&nbsp; S0&nbsp;&nbsp;&nbsp;&nbsp; S1&nbsp;&nbsp;&nbsp;&nbsp; E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P&nbsp;&nbsp;&nbsp;&nbsp; YGC&nbsp;&nbsp;&nbsp;&nbsp; YGCT&nbsp;&nbsp;&nbsp; FGC&nbsp;&nbsp;&nbsp; FGCT&nbsp;&nbsp;&nbsp;&nbsp; GCT<br>
+&nbsp;11.63&nbsp;&nbsp; 0.00&nbsp;&nbsp; 56.46&nbsp; 66.92&nbsp; 98.49 162&nbsp;&nbsp;&nbsp; 0.248&nbsp;&nbsp;&nbsp; 6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.331&nbsp;&nbsp;&nbsp; 0.579<br>
+&nbsp;<br>
+实例使用2：<br>
+[root@localhost bin]# jstat -gcutil 25444 1000 5<br>
+&nbsp; S0&nbsp;&nbsp;&nbsp;&nbsp; S1&nbsp;&nbsp;&nbsp;&nbsp; E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; O&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P&nbsp;&nbsp;&nbsp;&nbsp; YGC&nbsp;&nbsp;&nbsp;&nbsp; YGCT&nbsp;&nbsp;&nbsp; FGC&nbsp;&nbsp;&nbsp; FGCT&nbsp;&nbsp;&nbsp;&nbsp; GCT<br>
+&nbsp;73.54&nbsp;&nbsp; 0.00&nbsp; 99.04&nbsp; 67.52&nbsp; 98.49&nbsp;&nbsp;&nbsp; 166&nbsp;&nbsp;&nbsp; 0.252&nbsp;&nbsp;&nbsp;&nbsp; 6&nbsp;&nbsp;&nbsp; 0.331&nbsp;&nbsp;&nbsp; 0.583<br>
+&nbsp;73.54&nbsp;&nbsp; 0.00&nbsp; 99.04&nbsp; 67.52&nbsp; 98.49&nbsp;&nbsp;&nbsp; 166&nbsp;&nbsp;&nbsp; 0.252&nbsp;&nbsp;&nbsp;&nbsp; 6&nbsp;&nbsp;&nbsp; 0.331&nbsp;&nbsp;&nbsp; 0.583<br>
+&nbsp;73.54&nbsp;&nbsp; 0.00&nbsp; 99.04&nbsp; 67.52&nbsp; 98.49&nbsp;&nbsp;&nbsp; 166&nbsp;&nbsp;&nbsp; 0.252&nbsp;&nbsp;&nbsp;&nbsp; 6&nbsp;&nbsp;&nbsp; 0.331&nbsp;&nbsp;&nbsp; 0.583<br>
+&nbsp;73.54&nbsp;&nbsp; 0.00&nbsp; 99.04&nbsp; 67.52&nbsp; 98.49&nbsp;&nbsp;&nbsp; 166&nbsp;&nbsp;&nbsp; 0.252&nbsp;&nbsp;&nbsp;&nbsp; 6&nbsp;&nbsp;&nbsp; 0.331&nbsp;&nbsp;&nbsp; 0.583<br>
+&nbsp;73.54&nbsp;&nbsp; 0.00&nbsp; 99.04&nbsp; 67.52&nbsp; 98.49&nbsp;&nbsp;&nbsp; 166&nbsp;&nbsp;&nbsp; 0.252&nbsp;&nbsp;&nbsp;&nbsp; 6&nbsp;&nbsp;&nbsp; 0.331&nbsp;&nbsp;&nbsp; 0.583</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+<span>jps</span></p>
+<p style="line-height:1.5 !important;">
+&nbsp;&nbsp;&nbsp; 与ps命令类似，用来显示本地的<span>java</span>&nbsp;进程，查看本地运行着几个java应用，并显示进程号。</p>
+<pre></pre>
+<div class="table-box"><table border="0" style="border-collapse:collapse;border-spacing:0px;border:1px solid #C0C0C0;"><tbody><tr><td style="border:1px solid #C0C0C0;border-collapse:collapse;">
+[root@B1943 ~]# jps(只显示进程号) 23813 Jps 710 Bootstrap 792 Bootstrap</td>
+</tr></tbody></table></div><pre></pre>
+<div class="table-box"><table border="0" style="border-collapse:collapse;border-spacing:0px;border:1px solid #C0C0C0;"><tbody><tr><td style="border:1px solid #C0C0C0;border-collapse:collapse;">
+[root@B1943 ~]# jps -v（显示jvm参数） 23852 Jps -Denv.class.path=.:/usr/jdk1.6.0_21/lib/dt.jar:/usr/jdk1.6.0_21/lib/tools.jar -Dapplication.home=/usr/jdk1.6.0_21 -Xms8m 710 Bootstrap -Xms2048m -Xmx2048m -XX:NewRatio=2 -XX:PermSize=256M -XX:MaxPermSize=512M -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager
+ -Djava.util.logging.config.file=/root/zhusj/apache-tomcat-6.0.18_1/conf/logging.properties -Dcom.sun.management.jmxremote.port=8799 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.endorsed.dirs=/root/zhusj/apache-tomcat-6.0.18_1/endorsed
+ -Dcatalina.base=/root/zhusj/apache-tomcat-6.0.18_1 -Dcatalina.home=/root/zhusj/apache-tomcat-6.0.18_1 -Djava.io.tmpdir=/root/zhusj/apache-tomcat-6.0.18_1/temp</td>
+</tr></tbody></table></div><p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+<span>sar</span>&nbsp;：&nbsp;既能收集系统&nbsp;CPU&nbsp;、硬盘网络设备等动态数据，更能查看二进制数据文件等。</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+<span>用法：</span></p>
+<p style="line-height:1.5 !important;">
+sar&nbsp;［参数选项]&nbsp;t [n] [-o file]&nbsp;（&nbsp;t&nbsp;为采样间隔秒，必须有，&nbsp;n&nbsp;为采样次数，可选，默认值&nbsp;1&nbsp;）</p>
+<p style="line-height:1.5 !important;">
+<span>参数说明：</span></p>
+<p style="line-height:1.5 !important;">
+-A&nbsp;显示所有历史数据，通过读取/var/log/sar&nbsp;目录下的所有文件，并把它们分门别类的显示出来；&nbsp; -b&nbsp;通过设备的I/O&nbsp;中断读取设置的吞吐率；&nbsp; -B&nbsp;报告内存或虚拟内存交换统计；&nbsp; -c&nbsp;报告每秒创建的进程数；&nbsp; -d&nbsp;报告物理块设备（存储设备）的写入、读取之类的信息，如果直观一点，可以和p&nbsp;参数共同使用，-dp&nbsp; -f&nbsp;从一个二进制的数据文件中读取内容，比如sar -f filename&nbsp;；&nbsp; -n&nbsp;分析网络设备状态的统计，后面可以接的参数有DEV&nbsp;、EDEV&nbsp;、NFS&nbsp;、NFSD&nbsp;、SOCK&nbsp;等。比如-n
+ DEV&nbsp; -o&nbsp;把统计信息以二进制格式写入一个文件，比如-o filename&nbsp;；&nbsp; -u&nbsp;报告CPU&nbsp;利用率的参数；&nbsp; -P&nbsp;报告每个处理器应用统计，用于多处理器机器，并且启用SMP&nbsp;内核才有效；&nbsp; -p&nbsp;显示友好设备名字，以方便查看，也可以和-d&nbsp;和-n&nbsp;参数结合使用；</p>
+<p style="line-height:1.5 !important;">
+-r&nbsp;内存和交换区占用统计；&nbsp; -t&nbsp;这个选项对从文件读取数据有用，如果没有这个参数，会以本地时间为标准读出；&nbsp; -v&nbsp;报告inode,&nbsp;文件或<span>其它</span>&nbsp;内核表的资源占用信息；&nbsp; -w&nbsp;报告系统交换活动的信息； 每少交换数据的个数；&nbsp; -W&nbsp;报告系统交换活动吞吐信息；&nbsp; -x&nbsp;用于监视进程的，在其后要指定进程的PID&nbsp;值；&nbsp; -X&nbsp;用于监视进程的，但指定的应该是一个子进程ID&nbsp;；</p>
+<p style="line-height:1.5 !important;">
+CPU利用率：</p>
+<div class="table-box"><table border="0" style="border-collapse:collapse;border-spacing:0px;border:1px solid #C0C0C0;"><tbody><tr><td style="border:1px solid #C0C0C0;border-collapse:collapse;">
+<p style="line-height:1.5 !important;">
+[root@B1943 ~]#sar -u 1 5&nbsp;<span>Linux</span>&nbsp;2.6.18-53.el5 (B1943) &nbsp;2011年01月13日</p>
+<p style="line-height:1.5 !important;">
+14时58分08秒&nbsp;&nbsp;&nbsp;&nbsp; CPU&nbsp;&nbsp;&nbsp;&nbsp; %user&nbsp;&nbsp;&nbsp;&nbsp; %nice&nbsp;&nbsp; %system&nbsp;&nbsp; %iowait&nbsp;&nbsp;&nbsp; %steal&nbsp;&nbsp;&nbsp;&nbsp; %idle 14时58分09秒&nbsp;&nbsp;&nbsp;&nbsp; all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp; 100.00 14时58分10秒&nbsp;&nbsp;&nbsp;&nbsp; all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp; 99.50 14时58分11秒&nbsp;&nbsp;&nbsp;&nbsp; all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp; 100.00 14时58分12秒&nbsp;&nbsp;&nbsp;&nbsp; all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp; 100.00 14时58分13秒&nbsp;&nbsp;&nbsp;&nbsp; all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp; 100.00 Average:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; all&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp; 99.90</p>
+</td>
+</tr></tbody></table></div><p style="line-height:1.5 !important;">
+%usr cpu&nbsp;用户模式下时间（百分比）&nbsp; %sys cpu&nbsp;系统模式下时间（百分比）</p>
+<p style="line-height:1.5 !important;">
+%nice&nbsp;表示&nbsp;CPU&nbsp;在用户层优先级的百分比，&nbsp;0&nbsp;表示正常；&nbsp; %iowait cpu&nbsp;等待输入&nbsp;/&nbsp;输出完成（时间百分比）&nbsp; %idle cpu&nbsp;空闲时间（百分比）</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+将动态信息写入文件中：</p>
+<p style="line-height:1.5 !important;">
+[root@localhost ~]#sar -u 1 5 &gt; sar000.txt&nbsp; [root@localhost ~]# cat sar000.txt</p>
+<p style="line-height:1.5 !important;">
+也可以输出到一个二进制的文件中，然后通过&nbsp;sar&nbsp;来查看；</p>
+<p style="line-height:1.5 !important;">
+[root@localhost ~]#sar -u 1 5 -o sar002&nbsp; [root@localhost ~]# sar -f sar002</p>
+<p style="line-height:1.5 !important;">
+网络设备的吞吐情况：</p>
+<div class="table-box"><table border="0" style="border-collapse:collapse;border-spacing:0px;border:1px solid #C0C0C0;"><tbody><tr><td style="border:1px solid #C0C0C0;border-collapse:collapse;">
+[root@B1943 ~]#sar -n DEV 2 5 |grep eth0 15时04分12秒&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eth0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 6.97&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.54&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.07&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00 15时04分14秒&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eth0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7.50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.71&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00 15时04分16秒&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eth0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 6.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 0.43&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00 15时04分18秒&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eth0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7.50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.58&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00 15时04分20秒&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eth0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7.50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00 Average:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eth0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7.09&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 1.40&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.55&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 0.00</td>
+</tr></tbody></table></div><p style="line-height:1.5 !important;">
+IFACE：设备名； rxpck/s：每秒收到的包； rxbyt/s：每秒收到的所有包的体积 txbyt/s：每秒传输的所有包的体积； rxcmp/s：每秒收到数据切割压缩的包总数； txcmp/s：每秒传输的数据切割压缩的包的总数； rxmcst/s：每秒收到的多点传送的包。<br>
+iostat：用法：<br>
+iostat [ -c | -d ] [ -k ] [ -t ] [ -V ] [ -x [ device ] ] [ interval [ count ] ]&gt; outputfile<br>
+其中， -c为汇报CPU的使用情况； -d为汇报磁盘的使用情况； -k表示每秒按kilobytes字节显示数据； -x可获得更多信息； interval指每次统计间隔的时间； count指按照这个时间间隔统计的次数。 &nbsp;<br>
+[root@B1943 ~]# iostat -d -k -x Linux 2.6.18-53.el5 (B1943)&nbsp; 2011年01月13日 Device:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rrqm/s&nbsp;&nbsp; wrqm/s&nbsp;&nbsp;&nbsp;&nbsp; r/s&nbsp;&nbsp;&nbsp;&nbsp; w/s&nbsp;&nbsp;&nbsp; rkB/s&nbsp;&nbsp;&nbsp; wkB/s avgrq-sz avgqu-sz&nbsp;&nbsp; await&nbsp; svctm&nbsp; %util sda&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;0.02&nbsp;&nbsp;&nbsp;&nbsp; 4.10&nbsp;&nbsp;&nbsp; 0.11&nbsp;&nbsp;&nbsp; 1.77&nbsp;&nbsp;&nbsp;&nbsp; 2.11&nbsp;&nbsp;&nbsp; 23.45&nbsp;&nbsp;&nbsp; 27.24&nbsp;&nbsp;&nbsp;&nbsp;
+ 0.00&nbsp;&nbsp;&nbsp; 1.15&nbsp;&nbsp; 0.63&nbsp;&nbsp; 0.12 rrqm/s：每秒这个设备相关的读取请求有多少被Merge了（当系统调用需要读取数据的时候，VFS将请求发到各个FS，如果FS发现不同的读取请求读取的是相同Block的数据，FS会将这个请求合并Merge）；<br>
+wrqm/s：每秒这个设备相关的写入请求有多少被Merge了。<br>
+rsec/s：每秒读取的扇区数；<br>
+wsec/s：每秒写入的扇区数。<br>
+r/s：The number of read requests that were issued to the device per second；<br>
+w/s：The number of write requests that were issued to the device per second；<br>
+await：每一个IO请求的处理的平均时间（单位是微秒）。这里可以理解为IO的响应时间，一般地系统IO响应时间应该低于5ms，如果大于10ms就比较大了。<br>
+%util：在统计时间内所有处理IO时间，除以总共统计时间。例如，如果统计间隔1秒，该设备有0.8秒在处理IO，而0.2秒闲置，那么该设备的%util = 0.8/1 = 80%，所以该参数暗示了设备的繁忙程度。一般地，如果该参数是100% 表示设备已经接近满负荷运行了（当然如果是多磁盘，即使%util是100%，因为磁盘的并发能力，所以磁盘使用未必就到了瓶颈）。<br>
+[root@B1943 ~]# iostat -d -k Linux 2.6.18-53.el5 (B1943)&nbsp; 2011年01月13日<br>
+Device:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tps&nbsp;&nbsp;&nbsp; kB_read/s&nbsp;&nbsp;&nbsp; kB_wrtn/s&nbsp;&nbsp;&nbsp; kB_read&nbsp;&nbsp;&nbsp; kB_wrtn sda&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1.88&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2.11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 23.45&nbsp;&nbsp;&nbsp; 1122861&nbsp;&nbsp; 12458568<br>
+tps：该设备每秒的传输次数（Indicate the number of transfers per second that were issued to the device.）。“<br>
+一次传输”意思是“一次I/O请求”。多个逻辑请求可能会被合并为“一次I/O请求”。“一次传输”请求的大小是未知的。 kB_read/s：每秒从设备（drive expressed）读取的数据量；<br>
+kB_read：读取的总数据量；<br>
+kB_wrtn/s：每秒向设备（drive expressed）写入的数据量；<br>
+kB_wrtn：写入的总数量数据量；这些单位都为Kilobytes。<br>
+iostat -cdx 1 &gt;outfile<br>
+cat outfile<br>
+vmstat： 也可以输出到文件vmstat &gt; outputfile</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+Procs r: The number of processes waiting for run time. b: The number of processes in uninterruptable sleep. w: The number of processes swapped out but otherwise runnable.</p>
+<p style="line-height:1.5 !important;">
+Memory swpd: the amount of virtual memory used (kB). free: the amount of idle memory (kB). buff: the amount of memory used as buffers (kB).</p>
+<p style="line-height:1.5 !important;">
+Swap si: Amount of memory swapped in from disk (kB/s). so: Amount of memory swapped to disk (kB/s).</p>
+<p style="line-height:1.5 !important;">
+IO bi: Blocks sent to a block device (blocks/s). bo: Blocks received from a block device (blocks/s).</p>
+<p style="line-height:1.5 !important;">
+System in: The number of interrupts per second, including the clock. cs: The number of context switches per second.</p>
+<p style="line-height:1.5 !important;">
+CPU These are percentages of total CPU time. us: user time sy: system time id: idle time</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<p style="line-height:1.5 !important;">
+&nbsp;</p>
+<h1 class="xspace-title" style="font-size:28px;line-height:1.5;">
+文件句柄数Too many open files</h1>
+<p style="line-height:1.5 !important;">
+问题描述：<span>java</span>&nbsp;.io.IOException:&nbsp;<span>Too&nbsp;many&nbsp;open&nbsp;files</span></p>
+<div class="table-box"><table border="0" style="border-collapse:collapse;border-spacing:0px;border:1px solid #C0C0C0;"><tbody><tr><td style="border:1px solid #C0C0C0;border-collapse:collapse;">
+<p style="line-height:1.5 !important;">
+[root@B1943 ~]#ulimit -a（查看文件句柄数） core file size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (blocks, -c) 0 data seg size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (kbytes, -d) unlimited max nice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-e) 0 file size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (blocks, -f) unlimited pending signals&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-i) 71680 max locked
+ memory&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (kbytes, -l) 32 max memory size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (kbytes, -m) unlimited open files&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-n) 1024 pipe size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (512 bytes, -p) 8 POSIX message queues&nbsp;&nbsp;&nbsp;&nbsp; (bytes, -q) 819200 max rt priority&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-r) 0 stack size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ (kbytes, -s) 10240 cpu time&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (seconds, -t) unlimited max user processes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-u) 71680 virtual memory&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (kbytes, -v) unlimited file locks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (-x) unlimited</p>
+<p style="line-height:1.5 !important;">
+[root@B1943 ~]#&nbsp;ulimit -n 1024</p>
+</td>
+</tr></tbody></table></div><p style="line-height:1.5 !important;">
+ulimit应该是用户的限制&nbsp;，如果太小则修改大小：ulimit -n 2048</p>
+<p style="line-height:1.5 !important;">
+如果要重启后仍生效，则可修改/etc/security/limits.conf，后面加上：&nbsp;* - nofile 2048 (此时type用“-”，表示hard和soft同时设定。domain设置为星号代表全局，也可以针对不同的用户做出不同的限制&nbsp;)</p>
+<p style="line-height:1.5 !important;">
+/proc/sys/fs/file-max应该是系统级的限制</p>
+<div class="table-box"><table border="0" style="border-collapse:collapse;border-spacing:0px;border:1px solid #C0C0C0;"><tbody><tr><td style="border:1px solid #C0C0C0;border-collapse:collapse;">
+<p style="line-height:1.5 !important;">
+[root@B1943 ~]# cat /proc/sys/fs/file-max（查看）</p>
+<p style="line-height:1.5 !important;">
+8192</p>
+[root@B1943 ~]# echo 65536 &gt; /proc/sys/fs/file-max（修改）</td>
+</tr></tbody></table></div><p style="line-height:1.5 !important;">
+如果要重启后仍生效，则可修改&nbsp;/etc/sysctl.conf，加上：fs.file-max = 65536</p>
+<p style="line-height:1.5 !important;">
+另外还有一个，/proc/sys/fs/file-nr</p>
+<p style="line-height:1.5 !important;">
+只读，可以看到整个系统目前使用的文件句柄数量</p>
+</div>
+            </div>
+                </div>
+									
+					<script>
+						(function(){
+							function setArticleH(btnReadmore,posi){
+								var winH = $(window).height();
+								var articleBox = $("div.article_content");
+								var artH = articleBox.height();
+								if(artH > winH*posi){
+									articleBox.css({
+										'height':winH*posi+'px',
+										'overflow':'hidden'
+									})
+									btnReadmore.click(function(){
+										if(typeof window.localStorage === "object" && typeof window.csdn.anonymousUserLimit === "object"){
+											if(!window.csdn.anonymousUserLimit.judgment()){
+												window.csdn.anonymousUserLimit.Jumplogin();
+												return false;
+											}else if(!currentUserName){
+												window.csdn.anonymousUserLimit.updata();
+											}
+										}
+										
+										articleBox.removeAttr("style");
+										$(this).parent().remove();
+									})
+								}else{
+									btnReadmore.parent().remove();
+								}
+							}
+							var btnReadmore = $("#btn-readmore");
+							if(btnReadmore.length>0){
+								if(currentUserName){
+									setArticleH(btnReadmore,3);
+								}else{
+									setArticleH(btnReadmore,1.2);
+								}
+							}
+						})()
+					</script>
+					</article>
+	
+</div>

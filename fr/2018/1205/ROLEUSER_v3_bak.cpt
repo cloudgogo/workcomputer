@@ -1,0 +1,884 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WorkBook xmlVersion="20170720" releaseVersion="9.0.0">
+<TableDataMap>
+<TableData name="findata" class="com.fr.data.impl.DBTableData">
+<Parameters>
+<Parameter>
+<Attributes name="v_org"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="v_menu"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+<Parameter>
+<Attributes name="v_user"/>
+<O>
+<![CDATA[]]></O>
+</Parameter>
+</Parameters>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[
+with
+-- 取得用户角色关系
+user_role as
+ (select u."id"       id,
+         u."username" username,
+         u."password" password,
+         u."realname" realname,
+         c."id"       roleid,
+         c."rolename" rolename
+    from MCAnalysis."FR_T_USER" u, MCAnalysis."FR_T_CustomRole_User" uc, MCAnalysis."FR_T_CUSTOMROLE" c
+   where u."id" = uc."Userid"
+     and uc."CustomRoleid" = c."id") ,
+    
+-- 将用户角色数据打横
+listroletable as
+ (select distinct id,
+                  username,
+                  password,
+                  realname,
+                  listagg(roleid, ',') within group(order by roleid) over(partition by id) roleid,
+                  listagg(rolename, ',') within group(order by roleid) over(partition by id) rolename
+    from user_role
+   order by id)
+
+,
+--目录树结构
+menu_tree as
+ (select pa,
+         regexp_substr(pa, '[^,]A+', 1, 1) parent,
+         regexp_substr(pa, '[^,]A+', 1, regexp_count(pa, ',')) son
+    from (select SYS_CONNECT_BY_PATH(t."id", ',') pa
+            from MCAnalysis."FR_FOLDERENTRY" t
+          connect by prior t."id" = t."parent")),
+
+-- 目录树下的所有子节点
+
+menu_relation as
+ (select t.*,
+         r."id"            reportid,
+         r."name"          reportname,
+         r."reportletPath" reportletPath,
+         f."name"          name
+    from menu_tree t, MCAnalysis."FR_REPORTLETENTRY" r, MCAnalysis."FR_FOLDERENTRY" f
+   where t.son = r."parent"
+     and t.parent = f."id"
+     and f."parent" = -1),
+  
+-- 角色对应的报表权限
+role_entry as
+ (select c."roleid" roleid, c."entryid" entryid
+    from MCAnalysis."FR_T_CUREP" c
+   where c."view" = 1),
+-- 将角色对应的报表权限转换为用户对应的报表权限
+user_role_entry as
+ (select ur.id userid, r.entryid
+    from role_entry r, user_role ur
+   where r.roleid = ur.roleid
+  
+  )
+
+,
+
+-- 用户对应的报表权限
+user_entry as
+ (select u."userid" userid, u."entryid" entryid from MCAnalysis."FR_T_UEP" u)
+
+,
+
+-- 用户对应的所有报表权限
+
+all_user_entry as
+ (select userid, entryid
+    from user_role_entry
+  union
+  select userid, entryid
+    from user_entry),
+--用户对应的组织及名称
+use_user as
+ (select distinct username
+    from (select username
+            from user_role
+          union all
+          select u."username" username
+            from MCAnalysis.FR_T_USER u, MCAnalysis.FR_T_UEP ut
+           where u."id" = ut."userid") a),
+          
+org_user as(           
+select distinct *
+  from (select rank() over(partition by u.LOGINNAME order by length(UD.FULLPATHTEXT), J.stockrank desc) a,
+               u.LOGINNAME,
+               UD.FULLPATHTEXT, --  全组织部门
+               UD.id as org_id,--组织id
+               UD.FULLPATHCODE,
+               J.ORGANIZATIONNAME, --部门
+               J.JOBINFONAME, --职务
+               (select org_name from dim_org o where o.org_id=a.orgid) qxorg_name,
+               A.orgid, --权限
+               J.stockrank
+          FROM (select a.*
+                  from bass_dw.UDMUSER a
+                 inner join use_user b
+                    on b.username = a.LOGINNAME) U --用户表
+          JOIN bass_dw.UDMJOB J --工作信息表
+            ON U.ID = J.USERID
+          LEFT JOIN bass_dw.DM_HX_DATA_AUT A --数据权限
+            ON U.LOGINNAME = A.USERID
+          LEFT JOIN bass_dw.UDMORGANIZATION UD --组织信息表 
+            ON UD.ID = J.ORGANIZATIONID) t
+ where t.a = 1)
+
+select * from (
+select dim.*,
+       org.QXORG_NAME,
+      org.JOBINFONAME,
+      org.FULLPATHTEXT,
+      org.org_id,
+      ORG.FULLPATHCODE,
+       case
+         when e.userid is not null then
+          '√'
+         ELSE
+          NULL
+       END licen
+  from (select * from listroletable r left join menu_relation on 1 = 1) dim
+  left join all_user_entry e
+    on e.userid = dim.id
+   and dim.reportid = e.entryid 
+  left join org_user org
+   on dim.username=org.LOGINNAME
+   
+   ) t
+   where 1=1 
+ ${if(len(v_user)=0,"","and username in('"+v_user+"')")}
+ ${if(len(v_menu)=0,"","and reportid in ('"+v_menu+"')")} 
+ ${if(len(v_org)=0,"","and FULLPATHCODE LIKE '%"+v_org+"%'")} 
+  order by id,parent,reportid]]></Query>
+</TableData>
+<TableData name="dim_user" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[findb]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select  distinct u."id"       id,
+           u."username" username,
+        -- u."password" password,
+         u."realname" realname,
+         u."realname"||'('||u."username"||')' xs_username
+    from FR_T_USER u, "FR_T_CustomRole_User" uc
+   where u."id" = uc."Userid"
+  order by u."id" ]]></Query>
+</TableData>
+<TableData name="dim_menu" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[findb]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[--目录树结构
+with menu_tree as
+ (select pa,
+         regexp_substr(pa, '[^,]A+', 1, 1) parent,
+         regexp_substr(pa, '[^,]A+', 1, regexp_count(pa, ',')) son
+    from (select SYS_CONNECT_BY_PATH(t."id", ',') pa
+            from FR_FOLDERENTRY t
+          connect by prior t."id" = t."parent")),
+
+-- 目录树下的所有子节点
+menu_relation as
+ (select t.parent          parent,
+         r."id"            reportid,
+         r."name"          reportname,
+         r."reportletPath" reportletPath,
+         f."name"          name
+    from menu_tree t, FR_REPORTLETENTRY r, FR_FOLDERENTRY f
+   where t.son = r."parent"
+     and t.parent = f."id"
+     and f."parent" = -1)
+
+     select   distinct   parent,
+       		reportid,
+         		reportname,
+        		reportletPath,
+        		name 
+     from menu_relation
+     union all
+     select distinct   null parent,
+         to_number(t.parent,'99999')          reportid,
+         t.name             reportname,
+         null    reportletPath,
+         null              name
+    from menu_relation t
+    order by parent,reportid
+]]></Query>
+</TableData>
+<TableData name="Tree1" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[1]]></markFields>
+<parentmarkFields>
+<![CDATA[0]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[REPORTID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[PARENT]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[dim_menu]]></originalTableDataName>
+</TableData>
+<TableData name="dim_org" class="com.fr.data.impl.DBTableData">
+<Parameters/>
+<Attributes maxMemRowCount="-1"/>
+<Connection class="com.fr.data.impl.NameDatabaseConnection">
+<DatabaseName>
+<![CDATA[oracle_test]]></DatabaseName>
+</Connection>
+<Query>
+<![CDATA[select *  FROM                
+bass_dw.UDMORGANIZATION UD
+WHERE (fullpathtext like'华夏幸福\%'
+or  fullpathtext='华夏幸福')
+order  by deptid
+
+
+]]></Query>
+</TableData>
+<TableData name="Tree2" class="com.fr.data.impl.RecursionTableData">
+<markFields>
+<![CDATA[0]]></markFields>
+<parentmarkFields>
+<![CDATA[1]]></parentmarkFields>
+<markFieldsName>
+<![CDATA[ID]]></markFieldsName>
+<parentmarkFieldsName>
+<![CDATA[PARENTID]]></parentmarkFieldsName>
+<originalTableDataName>
+<![CDATA[dim_org]]></originalTableDataName>
+</TableData>
+</TableDataMap>
+<ReportWebAttr>
+<ServerPrinter/>
+<WebViewContent>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.slimScrollBarY').css('width','15px'); //Y轴宽
+$('.slimScrollBarX').css('height','15px');//X轴高
+$('.slimScrollBarX').css('background','#000000');//X轴颜色
+$('.slimScrollBarX').css('opacity','0.65');//X轴透明度
+$('.slimScrollBarY').css('background','#000000');//Y轴颜色
+$('.slimScrollBarY').css('opacity','0.65');//Y轴透明度]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="startload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[$('.parameter-container-collapseimg-up').remove();]]></Content>
+</JavaScript>
+</Listener>
+<Listener event="afterload">
+<JavaScript class="com.fr.js.JavaScriptImpl">
+<Parameters/>
+<Content>
+<![CDATA[var totalnumber=$("tr[tridx=0]A","div.content-container").children().eq(0).text();
+//alert(totalnumber.length)
+	if(totalnumber==0){
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("无数据").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		})
+}
+else {	
+	$("div[id^='fr-btn-CustomToolBarButton']A :button").eq(0).text("共"+totalnumber+"条").css({
+	"color":"rgb(191,0,0)",
+	"font-weight":"800"	
+		});	
+
+}
+
+//获取A1单元格的值]]></Content>
+</JavaScript>
+</Listener>
+<ToolBars>
+<ToolBarManager>
+<Location>
+<Embed position="1"/>
+</Location>
+<ToolBar>
+<Widget class="com.fr.report.web.button.ExcelO">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[${i18n('FR-Engine_Export_Excel_Simple')}]]></Text>
+<IconName>
+<![CDATA[excel]]></IconName>
+</Widget>
+<Widget class="com.fr.form.ui.CustomToolBarButton">
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[]]></Text>
+<IconName>
+<![CDATA[]]></IconName>
+</Widget>
+</ToolBar>
+</ToolBarManager>
+</ToolBars>
+<SortFuncCheck check="false"/>
+<ConditionFuncCheck check="false"/>
+<ListFuncCheck check="false"/>
+</WebViewContent>
+<Background name="ColorBackground" color="-1445897"/>
+</ReportWebAttr>
+<ElementCaseMobileAttr>
+<ElementCaseMobileAttrProvider horizontal="1" vertical="1" zoom="true" refresh="false" isUseHTML="false" isMobileCanvasSize="false"/>
+</ElementCaseMobileAttr>
+<Report class="com.fr.report.worksheet.WorkSheet" name="sheet1">
+<ReportPageAttr>
+<HR F="0" T="2"/>
+<FR/>
+<HC F="0" T="4"/>
+<FC/>
+<UPFCR COLUMN="true" ROW="true"/>
+</ReportPageAttr>
+<ColumnPrivilegeControl/>
+<RowPrivilegeControl/>
+<RowHeight defaultValue="723900">
+<![CDATA[288000,723900,1008000,1008000,723900,723900,723900,723900,723900,723900,723900]]></RowHeight>
+<ColumnWidth defaultValue="2743200">
+<![CDATA[720000,576000,3600000,3600000,3600000,3600000,7920000,5486400,12839700,4953000,2743200]]></ColumnWidth>
+<CellElementList>
+<C c="0" r="0">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=sum(A4)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="2" r="1" rs="2" s="0">
+<O>
+<![CDATA[数据权限]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="3" r="1" rs="2" s="0">
+<O>
+<![CDATA[用户名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="4" r="1" rs="2" s="0">
+<O>
+<![CDATA[知信号]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="5" r="1" rs="2" s="0">
+<O>
+<![CDATA[职务]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="6" r="1" rs="2" s="0">
+<O>
+<![CDATA[密码]]></O>
+<PrivilegeControl/>
+<HighlightList>
+<Highlight class="com.fr.report.cell.cellattr.highlight.DefaultHighlight">
+<Name>
+<![CDATA[条件属性1]]></Name>
+<Condition class="com.fr.data.condition.ListCondition"/>
+<HighlightAction class="com.fr.report.cell.cellattr.highlight.ColWidthHighlightAction"/>
+</Highlight>
+</HighlightList>
+<Expand/>
+</C>
+<C c="7" r="1" rs="2" s="0">
+<O>
+<![CDATA[角色名]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="8" r="1" rs="2" s="0">
+<O>
+<![CDATA[全组织层级]]></O>
+<PrivilegeControl/>
+<Expand/>
+</C>
+<C c="9" r="1" s="0">
+<O t="DSColumn">
+<Attributes dsName="findata" columnName="NAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="1"/>
+</C>
+<C c="9" r="2" s="0">
+<O t="DSColumn">
+<Attributes dsName="findata" columnName="REPORTNAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="1"/>
+</C>
+<C c="0" r="3">
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=if(len(D4) = 0, 0, 1)]]></Attributes>
+</O>
+<PrivilegeControl/>
+<Expand leftParentDefault="false" left="D4"/>
+</C>
+<C c="2" r="3" s="1">
+<O t="DSColumn">
+<Attributes dsName="findata" columnName="QXORG_NAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="USERID" viName="USERNAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[dim_menu]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="3" r="3" s="2">
+<O t="DSColumn">
+<Attributes dsName="findata" columnName="REALNAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="USERID" viName="USERNAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[dim_menu]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0" leftParentDefault="false"/>
+</C>
+<C c="4" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="findata" columnName="USERNAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="5" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="findata" columnName="JOBINFONAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="6" r="3" s="3">
+<O t="DSColumn">
+<Attributes dsName="findata" columnName="PASSWORD"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+<C c="7" r="3" s="1">
+<O t="DSColumn">
+<Attributes dsName="findata" columnName="ROLENAME"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ROLEID" viName="ROLENAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[dim_menu]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="8" r="3" s="1">
+<O t="DSColumn">
+<Attributes dsName="findata" columnName="FULLPATHTEXT"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Present class="com.fr.base.present.DictPresent">
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ROLEID" viName="ROLENAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[dim_menu]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+</Present>
+<Expand dir="0"/>
+</C>
+<C c="9" r="3" s="2">
+<O t="DSColumn">
+<Attributes dsName="findata" columnName="LICEN"/>
+<Complex/>
+<RG class="com.fr.report.cell.cellattr.core.group.FunctionGrouper"/>
+<Parameters/>
+</O>
+<PrivilegeControl/>
+<Expand dir="0"/>
+</C>
+</CellElementList>
+<ReportAttrSet>
+<ReportSettings headerHeight="0" footerHeight="0">
+<PaperSetting/>
+<Background name="ColorBackground" color="-1445897"/>
+</ReportSettings>
+<Header reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Header>
+<Footer reportPageType="0">
+<Background name="NullBackground"/>
+<LeftList/>
+<CenterList/>
+<RightList/>
+</Footer>
+</ReportAttrSet>
+<PrivilegeControl/>
+</Report>
+<ReportParameterAttr>
+<Attributes showWindow="true" delayPlaying="false" windowPosition="1" align="0" useParamsTemplate="false"/>
+<PWTitle>
+<![CDATA[参数]]></PWTitle>
+<ParameterUI class="com.fr.form.main.parameter.FormParameterUI">
+<Parameters/>
+<Layout class="com.fr.form.ui.container.WParameterLayout">
+<WidgetName name="para"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Margin top="0" left="0" bottom="0" right="0"/>
+<Border>
+<border style="0" color="-723724" borderRadius="0" type="0" borderStyle="0"/>
+<WidgetTitle>
+<O>
+<![CDATA[新建标题]]></O>
+<FRFont name="SimSun" style="0" size="72"/>
+<Position pos="0"/>
+</WidgetTitle>
+<Alpha alpha="1.0"/>
+</Border>
+<Background name="ColorBackground" color="-1445897"/>
+<LCAttr vgap="0" hgap="0" compInterval="0"/>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="textEditor0"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<Reg class="com.fr.form.ui.reg.NoneReg"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=$v_org]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="652" y="18" width="102" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
+<WidgetName name="v_org"/>
+<LabelName name="组织："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr selectLeafOnly="false"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="false"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="ID" viName="SHORTNAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[Tree2]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="506" y="18" width="140" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label1_c"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[组织：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="467" y="18" width="39" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.ComboCheckBox">
+<WidgetName name="v_user"/>
+<LabelName name="人员："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<watermark>
+<![CDATA[请输入姓名或知信号！]]></watermark>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="USERNAME" viName="XS_USERNAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[dim_user]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+<RAAttr delimiter="&apos;,&apos;" isArray="false"/>
+</InnerWidget>
+<BoundsAttr x="58" y="18" width="140" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TextEditor">
+<WidgetName name="v_menu"/>
+<WidgetAttr invisible="true" description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TextAttr/>
+<Reg class="com.fr.form.ui.reg.NoneReg"/>
+<widgetValue>
+<O t="Formula" class="Formula">
+<Attributes>
+<![CDATA[=REPLACE($v_menu1,',',"','")]]></Attributes>
+</O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="249" y="0" width="133" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.TreeComboBoxEditor">
+<WidgetName name="v_menu1"/>
+<LabelName name="目录："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<TreeAttr mutiSelect="true" selectLeafOnly="true"/>
+<isLayerBuild isLayerBuild="false"/>
+<isAutoBuild autoBuild="false"/>
+<isPerformanceFirst performanceFirst="false"/>
+<Dictionary class="com.fr.data.impl.TableDataDictionary">
+<FormulaDictAttr kiName="REPORTID" viName="REPORTNAME"/>
+<TableDataDictAttr>
+<TableData class="com.fr.data.impl.NameTableData">
+<Name>
+<![CDATA[Tree1]]></Name>
+</TableData>
+</TableDataDictAttr>
+</Dictionary>
+<widgetValue>
+<O>
+<![CDATA[]]></O>
+</widgetValue>
+</InnerWidget>
+<BoundsAttr x="284" y="18" width="140" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.parameter.FormSubmitButton">
+<WidgetName name="formSubmit0"/>
+<LabelName name="目录："/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<Text>
+<![CDATA[查询]]></Text>
+<Hotkeys>
+<![CDATA[enter]]></Hotkeys>
+</InnerWidget>
+<BoundsAttr x="788" y="18" width="80" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label1"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[目录：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="239" y="18" width="46" height="21"/>
+</Widget>
+<Widget class="com.fr.form.ui.container.WAbsoluteLayout$BoundsWidget">
+<InnerWidget class="com.fr.form.ui.Label">
+<WidgetName name="label0"/>
+<WidgetAttr description="">
+<PrivilegeControl/>
+</WidgetAttr>
+<widgetValue>
+<O>
+<![CDATA[人员：]]></O>
+</widgetValue>
+<LabelAttr verticalcenter="true" textalign="0" autoline="true"/>
+<FRFont name="微软雅黑" style="1" size="72"/>
+<border style="0" color="-723724"/>
+</InnerWidget>
+<BoundsAttr x="17" y="17" width="41" height="21"/>
+</Widget>
+<Sorted sorted="false"/>
+<MobileWidgetList>
+<Widget widgetName="v_menu"/>
+<Widget widgetName="v_user"/>
+<Widget widgetName="v_menu1"/>
+<Widget widgetName="v_org"/>
+<Widget widgetName="textEditor0"/>
+<Widget widgetName="formSubmit0"/>
+</MobileWidgetList>
+<Display display="true"/>
+<DelayDisplayContent delay="false"/>
+<UseParamsTemplate use="false"/>
+<Position position="0"/>
+<Design_Width design_width="960"/>
+<NameTagModified>
+<TagModified tag="v_org" modified="true"/>
+<TagModified tag="formSubmit0" modified="true"/>
+<TagModified tag="v_menu" modified="true"/>
+<TagModified tag="v_menu1" modified="true"/>
+</NameTagModified>
+<WidgetNameTagMap>
+<NameTag name="v_org" tag="组织："/>
+<NameTag name="formSubmit0" tag="目录："/>
+<NameTag name="v_menu" tag="目录："/>
+<NameTag name="v_menu1" tag="目录："/>
+</WidgetNameTagMap>
+</Layout>
+<DesignAttr width="960" height="48"/>
+</ParameterUI>
+<Background name="ColorBackground" color="-1445897"/>
+</ReportParameterAttr>
+<StyleList>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72" foreground="-1"/>
+<Background name="ColorBackground" color="-6877671"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="2" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style horizontal_alignment="0" imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+<Style imageLayout="1">
+<FRFont name="SimSun" style="0" size="72"/>
+<Background name="NullBackground"/>
+<Border>
+<Top style="1" color="-1"/>
+<Bottom style="1" color="-1"/>
+<Left style="1" color="-1"/>
+<Right style="1" color="-1"/>
+</Border>
+</Style>
+</StyleList>
+<DesignerVersion DesignerVersion="JAA"/>
+<PreviewType PreviewType="2"/>
+<TemplateID TemplateID="6cfd249e-377a-4355-b532-b9cd0a6f70fb"/>
+<TemplateIdAttMark class="com.fr.base.iofileattr.TemplateIdAttrMark">
+<TemplateIdAttMark TemplateId="e9f4799b-2c9e-44cc-862f-547cf9994b67"/>
+</TemplateIdAttMark>
+</WorkBook>

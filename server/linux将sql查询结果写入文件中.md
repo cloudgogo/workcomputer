@@ -55,3 +55,22 @@ password:《输入你的root密码》
 
 2、source /home/oracle/.bash_profile  //环境变量生效
 ```
+
+
+
+
+
+
+## sqlplus中导出数据到excel中
+```
+set echo off
+set feedback off
+set linesize 1000
+set pagesize 0
+set sqlprompt ''
+set trimspool on
+spool D:\\emp_sal.csv
+select '"employee_id","last_name","first_name","salary"' from dual union all select empno || ',"' || ename || '","' || ename || '",'|| sal from emp;
+spool off
+exit
+```

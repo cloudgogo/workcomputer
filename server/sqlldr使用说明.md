@@ -174,3 +174,10 @@ Copyright (c) 1982, 2002, Oracle Corporation.  All rights reserved.
   在并发操作时，ORACLE声称可以达到每小时处理100GB数据的能力！其实，估计能到 1－10G 就算不错了，开始可用结构 相同的文件，但只有少量数据，成功后开始加载大量数据，这样可以避免时间的浪费。
 
 （注意：一般只能用ASCII码形式，切记要转换编码，不然导入数据为空）
+
+
+**指定log文件及bad文件位置**
+
+```sh
+Sqlldr pcisv7/1234@gcidb control＝e:\test.ctl log=e:\test.log bad=e:\test.bad
+```

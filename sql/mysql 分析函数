@@ -1,0 +1,91 @@
+
+select * from (
+SELECT 
+  b.`groupid`,
+  e.`groupname`,
+  a.`deviceid`,
+  a.`id` a_id,
+  a.`gunid`,
+  SUBSTR(
+    c.`guninfo`,
+    INSTR(c.`guninfo`, '"gid":') + 6,
+    INSTR(c.`guninfo`, ',"gtype"') - (INSTR(c.`guninfo`, '"gid":') + 6)
+  ) gid,
+  a.`exist`,
+  a.`existinfo`,
+  h.`name` gun_name,
+  b.`devicename`,
+  c.`id` c_id,
+  c.`useid`,
+  c.`returninfo`,
+  a.`deviceid` a_devid,
+  c.`state`,
+  a.`guntype`,
+  c.`guninfo`,
+  c.`bltinfo`,
+  c.`applytime`,
+  c.`plangettime`,
+  c.`planreturntime`,
+  c.`optime`,
+  c.`taskinfo`,
+  d.`name` usname,
+  f.`name` opname,
+  g.`name` apname,
+  d.`rank`,
+  d.`personid`,
+  d.`phone` 
+FROM
+  device_gunlock a 
+  LEFT JOIN device_info b 
+    ON a.`deviceid` = b.`deviceid` 
+  LEFT JOIN (  
+
+select * from (
+select  aa.*,
+ if(@last_devid=aa.devid and SUBSTR(
+     `guninfo`,
+      INSTR(`guninfo`, '"gid":') + 6,
+      INSTR(`guninfo`, ',"gtype"') - (INSTR(`guninfo`, '"gid":') + 6)
+    )=@lastgid,@rn := @rn + 1, @rn := 1) AS rn
+ ,@last_devid:=aa.devid as devidnew
+,@lastgid:=SUBSTR(
+     `guninfo`,
+      INSTR(`guninfo`, '"gid":') + 6,
+      INSTR(`guninfo`, ',"gtype"') - (INSTR(`guninfo`, '"gid":') + 6)
+    )
+ from
+(select a.* from  gun_apply a ,device_gunlock dg   where  returninfo is null and state=4 and SUBSTR(
+     `guninfo`,
+      INSTR(`guninfo`, '"gid":') + 6,
+      INSTR(`guninfo`, ',"gtype"') - (INSTR(`guninfo`, '"gid":') + 6)
+    ) >0 
+   and a.devid=dg.deviceid and SUBSTR(
+     a.`guninfo`,
+      INSTR(a.`guninfo`, '"gid":') + 6,
+      INSTR(a.`guninfo`, ',"gtype"') - (INSTR(a.`guninfo`, '"gid":') + 6)
+    )=dg.gunid
+   and dg.exist!=1
+ 
+ order by devid,optime desc) aa,
+(select @rn:=0,@last_devid:=null,@lastgid:=null) bb )cc
+where rn=1
+) c
+  
+    ON a.`gunid` = SUBSTR(
+      c.`guninfo`,
+      INSTR(c.`guninfo`, '"gid":') + 6,
+      INSTR(c.`guninfo`, ',"gtype"') - (INSTR(c.`guninfo`, '"gid":') + 6)
+    ) 
+    AND a.`deviceid` = c.`devid` 
+  LEFT JOIN person d 
+    ON c.`useid` = d.`personid` 
+  LEFT JOIN group_sys e 
+    ON b.`groupid` = e.`groupid` 
+  LEFT JOIN person f 
+    ON c.`opid` = f.`personid` 
+  LEFT JOIN person g 
+    ON c.`aprvid` = g.`personid`
+    LEFT JOIN  system_type h ON a.`guntype`=h.`id`
+WHERE a.`exist` != 4 
+ORDER BY a.`id` ASC
+)b

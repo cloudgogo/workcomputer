@@ -21,5 +21,20 @@
 :set fileencoding=gb2312
 :set termencoding=utf-8
 ```
-其中，fileencoding配置可以设置utf-8，但是我的mp3好像不支持utf-8编码，所以干脆，我就设置为gb2312了。现在搞定了，不管是vi中还是mp3上都可以显示无乱码的.txt文件了。
+解决linux下vim乱码的情况：(修改vimrc的内容）
+
+全局的情况下：即所有用户都能用这个配置
+
+文件地址：/etc/vimrc
+
+在文件中添加：
+
+set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936
+set termencoding=utf-8
+set encoding=utf-8
+如果只修改个人的vim配置情况：
+
+需要把/etc/vimrc复制到你自己的根目录下面：复制为.vimrc(前面有个点，作为隐藏文件)
+
+然后把上面三句话加入到你的文件中,如下图，保存退出就ok了。
 

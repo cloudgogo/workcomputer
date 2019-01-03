@@ -1,4 +1,4 @@
-OPTIONS (load=1)
+OPTIONS (skip=1,row=128)
 LOAD DATA
 INFILE "will sed the name for csv document"
 TRUNCATE
@@ -8,11 +8,6 @@ optionally enclosed by '"'
 trailing nullcols
 (
     REPORT_ID,
-    REPORT_FLAG,
-    period_date,
-    sys_date,
-    com_code,
-    dept_code,
-    line_count_num,
+    
     BSSHEET_SET_ID "EBS_PLSHEET_SET_S.nextval"
 )

@@ -1,0 +1,34 @@
+Linux shell 提取文件名和目录名
+${}用于字符串的读取，提取和替换功能，可以使用${} 提取字符串
+1、提取文件名
+[root@localhost log]# var=/dir1/dir2/file.txt
+[root@localhost log]# echo ${var##*/}
+file.txt
+2、提取后缀
+[root@localhost log]# echo ${var##*.}
+txt
+3、提取不带后缀的文件名，分两步
+[root@localhost log]# tmp=${var##*/}
+[root@localhost log]# echo $tmp
+file.txt
+[root@localhost log]# echo ${tmp%.*}
+file
+4、提取目录
+[root@localhost log]# echo ${var%/*}
+/dir1/dir2
+ 
+
+ 
+
+使用文件目录的专有命令basename和dirname
+1、提取文件名，注意：basename是一个命令，使用$(), 而不是${}
+[root@localhost log]# echo $(basename $var)
+file.txt
+2、提取不带后缀的文件名
+[root@localhost log]# echo $(basename $var .txt)
+file
+3、提取目录
+[root@localhost log]# dirname $var
+/dir1/dir2
+[root@localhost log]# echo $(dirname $var)
+/dir1/dir2

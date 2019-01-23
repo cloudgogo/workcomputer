@@ -1,0 +1,62 @@
+CentOS6关闭防火墙使用以下命令，
+
+
+
+//临时关闭
+
+service iptables stop
+
+//禁止开机启动
+
+chkconfig iptables off
+
+
+CentOS7中若使用同样的命令会报错，
+
+
+stop  iptables.service
+
+Failed to stop iptables.service: Unit iptables.service not loaded.
+1
+2
+
+
+这是因为CentOS7版本后防火墙默认使用firewalld，因此在CentOS7中关闭防火墙使用以下命令，
+
+
+
+//临时关闭
+
+systemctl stop firewalld
+
+//禁止开机启动
+
+systemctl disable firewalld
+
+Removed symlink /etc/systemd/system/multi-user.target.wants/firewalld.service.
+
+Removed symlink /etc/systemd/system/dbus-org.fedoraproject.FirewallD1.service.
+
+
+
+当然，如果安装了iptables-service，也可以使用下面的命令，
+
+
+yum install -y iptables-services
+
+//关闭防火墙
+
+service iptables stop
+Redirecting to /bin/systemctl stop  iptables.service
+
+//检查防火墙状态
+
+service iptables status
+
+Redirecting to /bin/systemctl status  iptables.service
+
+鈼iptables.service - IPv4 firewall with iptables
+
+   Loaded: loaded (/usr/lib/systemd/system/iptables.service; disabled; vendor preset: disabled)
+
+   Active: inactive (dead)
